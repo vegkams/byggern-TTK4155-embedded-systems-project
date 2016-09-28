@@ -12,7 +12,7 @@
 
 volatile char *command_address = (char *) 0x1000;
 volatile char *data_address = (char *) 0x1200;
-uint8_t currentLine =-1;
+uint8_t currentLine;
 uint8_t current_column;
 
 uint8_t getCurrentLine(){
@@ -46,7 +46,7 @@ void oled_init(){
 	write_c(0xaf);        //  display  on
 	oled_reset();
 	oled_home();
-	oled_print_arrow(2,0);
+	
 }
 
 void write_c(unsigned char char_command){

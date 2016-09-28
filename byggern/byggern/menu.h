@@ -20,6 +20,6 @@ typedef struct menu{
 
 menu_t * menu_init();
 void print_menu (menu_t *menu);
-void move_arrow(direction dir, uint8_t current_row);
+unsigned int move_arrow(direction dir, uint8_t current_row);
 
 #endif /* MENU_H_ */
