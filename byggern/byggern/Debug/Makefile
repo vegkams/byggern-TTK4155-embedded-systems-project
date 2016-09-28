@@ -42,6 +42,7 @@ C_SRCS +=  \
 ../main.c \
 ../menu.c \
 ../OLED.c \
+../spi.c \
 ../sram.c \
 ../USART.c
 
@@ -58,6 +59,7 @@ joystick.o \
 main.o \
 menu.o \
 OLED.o \
+spi.o \
 sram.o \
 USART.o
 
@@ -67,6 +69,7 @@ joystick.o \
 main.o \
 menu.o \
 OLED.o \
+spi.o \
 sram.o \
 USART.o
 
@@ -76,6 +79,7 @@ joystick.d \
 main.d \
 menu.d \
 OLED.d \
+spi.d \
 sram.d \
 USART.d
 
@@ -85,6 +89,7 @@ joystick.d \
 main.d \
 menu.d \
 OLED.d \
+spi.d \
 sram.d \
 USART.d
 
@@ -102,6 +107,8 @@ LINKER_SCRIPT_DEP+=
 
 
 # AVR32/GNU C Compiler
+
+
 
 
 

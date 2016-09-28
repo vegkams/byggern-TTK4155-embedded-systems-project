@@ -12,6 +12,8 @@ menu.c
 
 OLED.c
 
+spi.c
+
 sram.c
 
 USART.c
