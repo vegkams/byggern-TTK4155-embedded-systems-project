@@ -1,6 +1,7 @@
 *.avrsuo
 *.atsuo
 *.atsln
+*.cproj
 # Compiled source #
 ###################
 *.com
