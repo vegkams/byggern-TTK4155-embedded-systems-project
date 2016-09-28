@@ -144,6 +144,9 @@
     <Compile Include="setup.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="spi.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="sram.c">
       <SubType>compile</SubType>
     </Compile>
