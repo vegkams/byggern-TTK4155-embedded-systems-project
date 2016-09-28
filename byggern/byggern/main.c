@@ -12,12 +12,14 @@
 #include "OLED.h"
 uint8_t truemaddafakka=1;
 #include "menu.h"
+menu_t * main_menu;
+unsigned int arrow_line = 2;
 
 int main(void)
 {
 	initializations();
-	menu_t * main_menu = menu_init();
-	print_menu(main_menu);
+	main_menu = menu_init();
+	
 	
 	int mode = 0;
 	while (truemaddafakka)
@@ -47,11 +49,22 @@ int main(void)
 }
 
 void in_menus(){
-	joyValues j;
-	read_joystick(&j);
-	direction d = joystick_getDirection(j.x_percentage,j.y_percentage);
 	
-	move_arrow(d,getCurrentLine());
+	int menu_printed = 0;
+	while(truemaddafakka){
+		if (menu_printed == 0)
+		{
+			print_menu(main_menu);
+			menu_printed = 1;
+		}
+		
+		joyValues j;
+		read_joystick(&j);
+		direction d = joystick_getDirection(j.x_percentage,j.y_percentage);
+	
+		arrow_line = move_arrow(d,arrow_line);
+		
+	}
 }
 
 void playing_the_game(){

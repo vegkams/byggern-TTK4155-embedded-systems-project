@@ -43,8 +43,7 @@ menu_t * menu_init (){
 	main_menu ->child3->child3->parent = main_menu->child3;
 	return main_menu;
 }
-void move_arrow(direction dir ,uint8_t current_row){
-	
+unsigned int move_arrow(direction dir ,uint8_t current_row){
 	if(dir == previousDIR){
 		dir = NEUTRAL;
 	}
@@ -52,17 +51,35 @@ void move_arrow(direction dir ,uint8_t current_row){
 		previousDIR=NEUTRAL;
 	}
 	switch(dir) {
+		case NEUTRAL :
+		oled_print_arrow(current_row,0);
+		break;
+		
 		case UP  :
-		oled_print_arrow(current_row-1,0);
-		previousDIR=UP;
+		if (current_row >= 3)
+		{
+			oled_pos(current_row, 0);
+			oled_print_string("  ");
+			current_row--;
+			oled_print_arrow(current_row,0);
+			previousDIR=UP;
+		}
+
 		break;
 		
 		case DOWN  :
-		oled_print_arrow(current_row+1,0);
-		previousDIR=DOWN;
+		
+		if (current_row <= 6)
+		{
+			oled_pos(current_row, 0);
+			oled_print_string("  ");
+			current_row++;
+			oled_print_arrow(current_row,0);
+			previousDIR=DOWN;
+		}	
 		break;
 	}
-	//oled_print_arrow(,0);
+	return current_row;
 }
 
 void print_menu (menu_t *menu){
@@ -89,6 +106,5 @@ void print_menu (menu_t *menu){
 		oled_pos(4,2);
 		oled_print_string(menu->child3->name);
 	}
-	
 }
 
