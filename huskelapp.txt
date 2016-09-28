@@ -1,0 +1,1 @@
+Memo 020916: RS232 pinner må kobles sammen (se datablad s21)
