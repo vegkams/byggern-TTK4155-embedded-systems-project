@@ -13,19 +13,19 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY
   4 .debug_aranges 000001f8  00000000  00000000  00002910  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_info   00001059  00000000  00000000  00002b08  2**0
+  5 .debug_info   0000106b  00000000  00000000  00002b08  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_abbrev 00000781  00000000  00000000  00003b61  2**0
+  6 .debug_abbrev 00000781  00000000  00000000  00003b73  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_line   0000091e  00000000  00000000  000042e2  2**0
+  7 .debug_line   0000091e  00000000  00000000  000042f4  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_frame  000005e0  00000000  00000000  00004c00  2**2
+  8 .debug_frame  000005e0  00000000  00000000  00004c14  2**2
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_str    00000615  00000000  00000000  000051e0  2**0
+  9 .debug_str    0000066a  00000000  00000000  000051f4  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_loc    00000b99  00000000  00000000  000057f5  2**0
+ 10 .debug_loc    00000b99  00000000  00000000  0000585e  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_ranges 00000188  00000000  00000000  0000638e  2**0
+ 11 .debug_ranges 00000188  00000000  00000000  000063f7  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -501,18 +501,10 @@ Disassembly of section .text:
      4a4:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
 
 000004a8 <setup_ADC>:
-#include "setup.h"
-#include "ADC.h"
-
-
-void setup_ADC()
-{
      4a8:	cf 93       	push	r28
      4aa:	df 93       	push	r29
      4ac:	cd b7       	in	r28, 0x3d	; 61
      4ae:	de b7       	in	r29, 0x3e	; 62
-	// Sett PD2 som input (INT0)
-	clear_bit(DDRD,PD2);
      4b0:	81 e3       	ldi	r24, 0x31	; 49
      4b2:	90 e0       	ldi	r25, 0x00	; 0
      4b4:	21 e3       	ldi	r18, 0x31	; 49
@@ -522,23 +514,11 @@ void setup_ADC()
      4bc:	2b 7f       	andi	r18, 0xFB	; 251
      4be:	fc 01       	movw	r30, r24
      4c0:	20 83       	st	Z, r18
-	// Interrupt på fallende flanke INT0
-	//set_bit(MCUCR,ISC01);
-	//clear_bit(MCUCR,ISC00);
-
-	//sei(); // enable global interrupt	
-}
      4c2:	df 91       	pop	r29
      4c4:	cf 91       	pop	r28
      4c6:	08 95       	ret
 
 000004c8 <read_ADC>:
-	int x = 0x04 | channel;
-	address[0] = x; // ch1 = 3, ch2 = 4....
-}
-
-uint8_t read_ADC(uint8_t channel)
-{
      4c8:	cf 93       	push	r28
      4ca:	df 93       	push	r29
      4cc:	00 d0       	rcall	.+0      	; 0x4ce <read_ADC+0x6>
@@ -547,32 +527,26 @@ uint8_t read_ADC(uint8_t channel)
      4d2:	cd b7       	in	r28, 0x3d	; 61
      4d4:	de b7       	in	r29, 0x3e	; 62
      4d6:	8d 83       	std	Y+5, r24	; 0x05
-	volatile char *address = (char *) 0x1400; // ADC address space 0x1400 ->
      4d8:	80 e0       	ldi	r24, 0x00	; 0
      4da:	94 e1       	ldi	r25, 0x14	; 20
      4dc:	9a 83       	std	Y+2, r25	; 0x02
      4de:	89 83       	std	Y+1, r24	; 0x01
-	
-	if(channel > 3) return 0; // invalid channel
      4e0:	8d 81       	ldd	r24, Y+5	; 0x05
      4e2:	84 30       	cpi	r24, 0x04	; 4
      4e4:	10 f0       	brcs	.+4      	; 0x4ea <read_ADC+0x22>
      4e6:	80 e0       	ldi	r24, 0x00	; 0
      4e8:	1e c0       	rjmp	.+60     	; 0x526 <__stack+0x27>
-	int x = 0x04 | channel;
      4ea:	8d 81       	ldd	r24, Y+5	; 0x05
      4ec:	84 60       	ori	r24, 0x04	; 4
      4ee:	88 2f       	mov	r24, r24
      4f0:	90 e0       	ldi	r25, 0x00	; 0
      4f2:	9c 83       	std	Y+4, r25	; 0x04
      4f4:	8b 83       	std	Y+3, r24	; 0x03
-	address[0] = x; // ch1 = 3, ch2 = 4....
      4f6:	2b 81       	ldd	r18, Y+3	; 0x03
      4f8:	89 81       	ldd	r24, Y+1	; 0x01
      4fa:	9a 81       	ldd	r25, Y+2	; 0x02
      4fc:	fc 01       	movw	r30, r24
      4fe:	20 83       	st	Z, r18
-	loop_until_bit_is_clear(PIND,PIND2); // Busy wait...
      500:	00 00       	nop
      502:	80 e3       	ldi	r24, 0x30	; 48
      504:	90 e0       	ldi	r25, 0x00	; 0
@@ -584,7 +558,6 @@ uint8_t read_ADC(uint8_t channel)
      510:	99 27       	eor	r25, r25
      512:	00 97       	sbiw	r24, 0x00	; 0
      514:	b1 f7       	brne	.-20     	; 0x502 <__stack+0x3>
-	return address[x];
      516:	8b 81       	ldd	r24, Y+3	; 0x03
      518:	9c 81       	ldd	r25, Y+4	; 0x04
      51a:	29 81       	ldd	r18, Y+1	; 0x01
@@ -593,8 +566,6 @@ uint8_t read_ADC(uint8_t channel)
      520:	93 1f       	adc	r25, r19
      522:	fc 01       	movw	r30, r24
      524:	80 81       	ld	r24, Z
-	
-}
      526:	0f 90       	pop	r0
      528:	0f 90       	pop	r0
      52a:	0f 90       	pop	r0
@@ -605,18 +576,10 @@ uint8_t read_ADC(uint8_t channel)
      534:	08 95       	ret
 
 00000536 <joystick_init>:
-#include "setup.h"
-#include "ADC.h"
-#include "joystick.h"
-
-void joystick_init()
-{
      536:	cf 93       	push	r28
      538:	df 93       	push	r29
      53a:	cd b7       	in	r28, 0x3d	; 61
      53c:	de b7       	in	r29, 0x3e	; 62
-	// Set PB0-1 as input
-	clear_bit(DDRB,PB0);
      53e:	87 e3       	ldi	r24, 0x37	; 55
      540:	90 e0       	ldi	r25, 0x00	; 0
      542:	27 e3       	ldi	r18, 0x37	; 55
@@ -626,7 +589,6 @@ void joystick_init()
      54a:	2e 7f       	andi	r18, 0xFE	; 254
      54c:	fc 01       	movw	r30, r24
      54e:	20 83       	st	Z, r18
-	clear_bit(DDRB,PB1);
      550:	87 e3       	ldi	r24, 0x37	; 55
      552:	90 e0       	ldi	r25, 0x00	; 0
      554:	27 e3       	ldi	r18, 0x37	; 55
@@ -636,8 +598,6 @@ void joystick_init()
      55c:	2d 7f       	andi	r18, 0xFD	; 253
      55e:	fc 01       	movw	r30, r24
      560:	20 83       	st	Z, r18
-	// Pull-up on PB2
-	set_bit(PORTB,PB2);
      562:	88 e3       	ldi	r24, 0x38	; 56
      564:	90 e0       	ldi	r25, 0x00	; 0
      566:	28 e3       	ldi	r18, 0x38	; 56
@@ -647,8 +607,6 @@ void joystick_init()
      56e:	24 60       	ori	r18, 0x04	; 4
      570:	fc 01       	movw	r30, r24
      572:	20 83       	st	Z, r18
-	//Set PB2 as input
-	clear_bit(DDRB,PB2);
      574:	87 e3       	ldi	r24, 0x37	; 55
      576:	90 e0       	ldi	r25, 0x00	; 0
      578:	27 e3       	ldi	r18, 0x37	; 55
@@ -658,15 +616,11 @@ void joystick_init()
      580:	2b 7f       	andi	r18, 0xFB	; 251
      582:	fc 01       	movw	r30, r24
      584:	20 83       	st	Z, r18
-}
      586:	df 91       	pop	r29
      588:	cf 91       	pop	r28
      58a:	08 95       	ret
 
 0000058c <read_joystick>:
-
-void read_joystick(joyValues *joy)
-{
      58c:	cf 93       	push	r28
      58e:	df 93       	push	r29
      590:	00 d0       	rcall	.+0      	; 0x592 <read_joystick+0x6>
@@ -674,8 +628,6 @@ void read_joystick(joyValues *joy)
      594:	de b7       	in	r29, 0x3e	; 62
      596:	9a 83       	std	Y+2, r25	; 0x02
      598:	89 83       	std	Y+1, r24	; 0x01
-	//joyValues joystick;
-	joy->x_percentage = joystick_get_x_percentage();
      59a:	0e 94 0c 04 	call	0x818	; 0x818 <joystick_get_x_percentage>
      59e:	dc 01       	movw	r26, r24
      5a0:	cb 01       	movw	r24, r22
@@ -686,7 +638,6 @@ void read_joystick(joyValues *joy)
      5aa:	91 83       	std	Z+1, r25	; 0x01
      5ac:	a2 83       	std	Z+2, r26	; 0x02
      5ae:	b3 83       	std	Z+3, r27	; 0x03
-	joy->y_percentage = joystick_get_y_percentage();
      5b0:	0e 94 20 04 	call	0x840	; 0x840 <joystick_get_y_percentage>
      5b4:	dc 01       	movw	r26, r24
      5b6:	cb 01       	movw	r24, r22
@@ -697,8 +648,6 @@ void read_joystick(joyValues *joy)
      5c0:	95 83       	std	Z+5, r25	; 0x05
      5c2:	a6 83       	std	Z+6, r26	; 0x06
      5c4:	b7 83       	std	Z+7, r27	; 0x07
-	// If PB0 || PB1 =1, button is pressed
-	if (test_bit(PINB,PB0)) joy->left_button = 1;
      5c6:	86 e3       	ldi	r24, 0x36	; 54
      5c8:	90 e0       	ldi	r25, 0x00	; 0
      5ca:	fc 01       	movw	r30, r24
@@ -717,13 +666,11 @@ void read_joystick(joyValues *joy)
      5e4:	31 87       	std	Z+9, r19	; 0x09
      5e6:	20 87       	std	Z+8, r18	; 0x08
      5e8:	05 c0       	rjmp	.+10     	; 0x5f4 <read_joystick+0x68>
-	else joy->left_button = 0;
      5ea:	89 81       	ldd	r24, Y+1	; 0x01
      5ec:	9a 81       	ldd	r25, Y+2	; 0x02
      5ee:	fc 01       	movw	r30, r24
      5f0:	11 86       	std	Z+9, r1	; 0x09
      5f2:	10 86       	std	Z+8, r1	; 0x08
-	if (test_bit(PINB,PB1)) joy->right_button = 1;
      5f4:	86 e3       	ldi	r24, 0x36	; 54
      5f6:	90 e0       	ldi	r25, 0x00	; 0
      5f8:	fc 01       	movw	r30, r24
@@ -742,15 +689,11 @@ void read_joystick(joyValues *joy)
      612:	33 87       	std	Z+11, r19	; 0x0b
      614:	22 87       	std	Z+10, r18	; 0x0a
      616:	05 c0       	rjmp	.+10     	; 0x622 <read_joystick+0x96>
-	else joy->right_button = 0;
      618:	89 81       	ldd	r24, Y+1	; 0x01
      61a:	9a 81       	ldd	r25, Y+2	; 0x02
      61c:	fc 01       	movw	r30, r24
      61e:	13 86       	std	Z+11, r1	; 0x0b
      620:	12 86       	std	Z+10, r1	; 0x0a
-	
-	// If PB2=0, button is pressed
-	if (test_bit(PINB,PB2)) joy->joystick_button = 0;
      622:	86 e3       	ldi	r24, 0x36	; 54
      624:	90 e0       	ldi	r25, 0x00	; 0
      626:	fc 01       	movw	r30, r24
@@ -767,7 +710,6 @@ void read_joystick(joyValues *joy)
      63c:	15 86       	std	Z+13, r1	; 0x0d
      63e:	14 86       	std	Z+12, r1	; 0x0c
      640:	07 c0       	rjmp	.+14     	; 0x650 <read_joystick+0xc4>
-	else joy->joystick_button = 1;
      642:	89 81       	ldd	r24, Y+1	; 0x01
      644:	9a 81       	ldd	r25, Y+2	; 0x02
      646:	21 e0       	ldi	r18, 0x01	; 1
@@ -775,7 +717,6 @@ void read_joystick(joyValues *joy)
      64a:	fc 01       	movw	r30, r24
      64c:	35 87       	std	Z+13, r19	; 0x0d
      64e:	24 87       	std	Z+12, r18	; 0x0c
-}
      650:	0f 90       	pop	r0
      652:	0f 90       	pop	r0
      654:	df 91       	pop	r29
@@ -783,9 +724,6 @@ void read_joystick(joyValues *joy)
      658:	08 95       	ret
 
 0000065a <joystick_getDirection>:
-
-direction joystick_getDirection(float x, float y)
-{
      65a:	1f 93       	push	r17
      65c:	cf 93       	push	r28
      65e:	df 93       	push	r29
@@ -805,10 +743,8 @@ direction joystick_getDirection(float x, float y)
      67a:	3f 83       	std	Y+7, r19	; 0x07
      67c:	48 87       	std	Y+8, r20	; 0x08
      67e:	59 87       	std	Y+9, r21	; 0x09
-	direction d = NEUTRAL;
      680:	84 e0       	ldi	r24, 0x04	; 4
      682:	89 83       	std	Y+1, r24	; 0x01
-	if (!(fabsf(x)<50 && fabsf(y)<50)) 
      684:	8a 81       	ldd	r24, Y+2	; 0x02
      686:	9b 81       	ldd	r25, Y+3	; 0x03
      688:	ac 81       	ldd	r26, Y+4	; 0x04
@@ -850,8 +786,6 @@ direction joystick_getDirection(float x, float y)
      6d4:	88 23       	and	r24, r24
      6d6:	09 f4       	brne	.+2      	; 0x6da <joystick_getDirection+0x80>
      6d8:	94 c0       	rjmp	.+296    	; 0x802 <joystick_getDirection+0x1a8>
-	{
-		if (fabsf(x)>50 && fabsf(y)<50)
      6da:	8a 81       	ldd	r24, Y+2	; 0x02
      6dc:	9b 81       	ldd	r25, Y+3	; 0x03
      6de:	ac 81       	ldd	r26, Y+4	; 0x04
@@ -880,8 +814,6 @@ direction joystick_getDirection(float x, float y)
      70e:	0e 94 1e 0a 	call	0x143c	; 0x143c <__cmpsf2>
      712:	88 23       	and	r24, r24
      714:	8c f4       	brge	.+34     	; 0x738 <joystick_getDirection+0xde>
-		{
-			if (x<0)
      716:	20 e0       	ldi	r18, 0x00	; 0
      718:	30 e0       	ldi	r19, 0x00	; 0
      71a:	a9 01       	movw	r20, r18
@@ -892,38 +824,12 @@ direction joystick_getDirection(float x, float y)
      724:	0e 94 1e 0a 	call	0x143c	; 0x143c <__cmpsf2>
      728:	88 23       	and	r24, r24
      72a:	1c f4       	brge	.+6      	; 0x732 <joystick_getDirection+0xd8>
-			{
-				d = LEFT;
      72c:	82 e0       	ldi	r24, 0x02	; 2
      72e:	89 83       	std	Y+1, r24	; 0x01
-	direction d = NEUTRAL;
-	if (!(fabsf(x)<50 && fabsf(y)<50)) 
-	{
-		if (fabsf(x)>50 && fabsf(y)<50)
-		{
-			if (x<0)
      730:	68 c0       	rjmp	.+208    	; 0x802 <joystick_getDirection+0x1a8>
-			{
-				d = LEFT;
-			}
-			else
-			{
-				d = RIGHT;
      732:	83 e0       	ldi	r24, 0x03	; 3
      734:	89 83       	std	Y+1, r24	; 0x01
-	direction d = NEUTRAL;
-	if (!(fabsf(x)<50 && fabsf(y)<50)) 
-	{
-		if (fabsf(x)>50 && fabsf(y)<50)
-		{
-			if (x<0)
      736:	65 c0       	rjmp	.+202    	; 0x802 <joystick_getDirection+0x1a8>
-			else
-			{
-				d = RIGHT;
-			}
-		}
-		else if(fabsf(x)<50 && fabsf(y)>50)
      738:	8a 81       	ldd	r24, Y+2	; 0x02
      73a:	9b 81       	ldd	r25, Y+3	; 0x03
      73c:	ac 81       	ldd	r26, Y+4	; 0x04
@@ -952,8 +858,6 @@ direction joystick_getDirection(float x, float y)
      76c:	0e 94 3c 0b 	call	0x1678	; 0x1678 <__gesf2>
      770:	18 16       	cp	r1, r24
      772:	84 f4       	brge	.+32     	; 0x794 <joystick_getDirection+0x13a>
-		{
-			if (y<0)
      774:	20 e0       	ldi	r18, 0x00	; 0
      776:	30 e0       	ldi	r19, 0x00	; 0
      778:	a9 01       	movw	r20, r18
@@ -964,37 +868,11 @@ direction joystick_getDirection(float x, float y)
      782:	0e 94 1e 0a 	call	0x143c	; 0x143c <__cmpsf2>
      786:	88 23       	and	r24, r24
      788:	1c f4       	brge	.+6      	; 0x790 <joystick_getDirection+0x136>
-			{
-				d = DOWN;
      78a:	81 e0       	ldi	r24, 0x01	; 1
      78c:	89 83       	std	Y+1, r24	; 0x01
-				d = RIGHT;
-			}
-		}
-		else if(fabsf(x)<50 && fabsf(y)>50)
-		{
-			if (y<0)
      78e:	39 c0       	rjmp	.+114    	; 0x802 <joystick_getDirection+0x1a8>
-			{
-				d = DOWN;
-			}
-			else
-			{
-				d = UP;
      790:	19 82       	std	Y+1, r1	; 0x01
-				d = RIGHT;
-			}
-		}
-		else if(fabsf(x)<50 && fabsf(y)>50)
-		{
-			if (y<0)
      792:	37 c0       	rjmp	.+110    	; 0x802 <joystick_getDirection+0x1a8>
-				d = UP;
-			}
-		}
-		else
-		{
-			if (fabsf(y/x)>1)
      794:	2a 81       	ldd	r18, Y+2	; 0x02
      796:	3b 81       	ldd	r19, Y+3	; 0x03
      798:	4c 81       	ldd	r20, Y+4	; 0x04
@@ -1016,8 +894,6 @@ direction joystick_getDirection(float x, float y)
      7ba:	0e 94 3c 0b 	call	0x1678	; 0x1678 <__gesf2>
      7be:	18 16       	cp	r1, r24
      7c0:	84 f4       	brge	.+32     	; 0x7e2 <joystick_getDirection+0x188>
-			{
-				if (y<0)
      7c2:	20 e0       	ldi	r18, 0x00	; 0
      7c4:	30 e0       	ldi	r19, 0x00	; 0
      7c6:	a9 01       	movw	r20, r18
@@ -1028,22 +904,11 @@ direction joystick_getDirection(float x, float y)
      7d0:	0e 94 1e 0a 	call	0x143c	; 0x143c <__cmpsf2>
      7d4:	88 23       	and	r24, r24
      7d6:	1c f4       	brge	.+6      	; 0x7de <joystick_getDirection+0x184>
-				{
-					d = DOWN;
      7d8:	81 e0       	ldi	r24, 0x01	; 1
      7da:	89 83       	std	Y+1, r24	; 0x01
      7dc:	12 c0       	rjmp	.+36     	; 0x802 <joystick_getDirection+0x1a8>
-				}
-				else
-				{
-					d = UP;
      7de:	19 82       	std	Y+1, r1	; 0x01
      7e0:	10 c0       	rjmp	.+32     	; 0x802 <joystick_getDirection+0x1a8>
-				}
-			}
-			else
-			{
-				if (x<0)
      7e2:	20 e0       	ldi	r18, 0x00	; 0
      7e4:	30 e0       	ldi	r19, 0x00	; 0
      7e6:	a9 01       	movw	r20, r18
@@ -1054,25 +919,12 @@ direction joystick_getDirection(float x, float y)
      7f0:	0e 94 1e 0a 	call	0x143c	; 0x143c <__cmpsf2>
      7f4:	88 23       	and	r24, r24
      7f6:	1c f4       	brge	.+6      	; 0x7fe <joystick_getDirection+0x1a4>
-				{
-					d = LEFT;
      7f8:	82 e0       	ldi	r24, 0x02	; 2
      7fa:	89 83       	std	Y+1, r24	; 0x01
      7fc:	02 c0       	rjmp	.+4      	; 0x802 <joystick_getDirection+0x1a8>
-				}
-				else
-				{
-					d = RIGHT;
      7fe:	83 e0       	ldi	r24, 0x03	; 3
      800:	89 83       	std	Y+1, r24	; 0x01
-				}
-			}
-		}
-		
-	}
-	return d;
      802:	89 81       	ldd	r24, Y+1	; 0x01
-}
      804:	29 96       	adiw	r28, 0x09	; 9
      806:	0f b6       	in	r0, 0x3f	; 63
      808:	f8 94       	cli
@@ -1085,25 +937,18 @@ direction joystick_getDirection(float x, float y)
      816:	08 95       	ret
 
 00000818 <joystick_get_x_percentage>:
-
-// Get Joystick position in percentage (center = 50%)
-float joystick_get_x_percentage()
-{
      818:	cf 93       	push	r28
      81a:	df 93       	push	r29
      81c:	1f 92       	push	r1
      81e:	cd b7       	in	r28, 0x3d	; 61
      820:	de b7       	in	r29, 0x3e	; 62
-	uint8_t data = read_ADC(1);
      822:	81 e0       	ldi	r24, 0x01	; 1
      824:	0e 94 64 02 	call	0x4c8	; 0x4c8 <read_ADC>
      828:	89 83       	std	Y+1, r24	; 0x01
-	return convert_to_percentage(data);
      82a:	89 81       	ldd	r24, Y+1	; 0x01
      82c:	0e 94 34 04 	call	0x868	; 0x868 <convert_to_percentage>
      830:	dc 01       	movw	r26, r24
      832:	cb 01       	movw	r24, r22
-} 
      834:	bc 01       	movw	r22, r24
      836:	cd 01       	movw	r24, r26
      838:	0f 90       	pop	r0
@@ -1112,25 +957,18 @@ float joystick_get_x_percentage()
      83e:	08 95       	ret
 
 00000840 <joystick_get_y_percentage>:
-
-// Get Joystick position in percentage (center = 50%)
-float joystick_get_y_percentage()
-{
      840:	cf 93       	push	r28
      842:	df 93       	push	r29
      844:	1f 92       	push	r1
      846:	cd b7       	in	r28, 0x3d	; 61
      848:	de b7       	in	r29, 0x3e	; 62
-	uint8_t data = read_ADC(0);
      84a:	80 e0       	ldi	r24, 0x00	; 0
      84c:	0e 94 64 02 	call	0x4c8	; 0x4c8 <read_ADC>
      850:	89 83       	std	Y+1, r24	; 0x01
-	return convert_to_percentage(data);
      852:	89 81       	ldd	r24, Y+1	; 0x01
      854:	0e 94 34 04 	call	0x868	; 0x868 <convert_to_percentage>
      858:	dc 01       	movw	r26, r24
      85a:	cb 01       	movw	r24, r22
-}
      85c:	bc 01       	movw	r22, r24
      85e:	cd 01       	movw	r24, r26
      860:	0f 90       	pop	r0
@@ -1139,12 +977,6 @@ float joystick_get_y_percentage()
      866:	08 95       	ret
 
 00000868 <convert_to_percentage>:
-	return (value/255)*5;
-}
-
-// Convert digital value to percentage (0-255 -> 0-100%)
-float convert_to_percentage(uint8_t digital_value)
-{
      868:	cf 93       	push	r28
      86a:	df 93       	push	r29
      86c:	00 d0       	rcall	.+0      	; 0x86e <convert_to_percentage+0x6>
@@ -1153,7 +985,6 @@ float convert_to_percentage(uint8_t digital_value)
      872:	cd b7       	in	r28, 0x3d	; 61
      874:	de b7       	in	r29, 0x3e	; 62
      876:	8d 83       	std	Y+5, r24	; 0x05
-	float value = digital_value;
      878:	8d 81       	ldd	r24, Y+5	; 0x05
      87a:	88 2f       	mov	r24, r24
      87c:	90 e0       	ldi	r25, 0x00	; 0
@@ -1168,7 +999,6 @@ float convert_to_percentage(uint8_t digital_value)
      890:	9a 83       	std	Y+2, r25	; 0x02
      892:	ab 83       	std	Y+3, r26	; 0x03
      894:	bc 83       	std	Y+4, r27	; 0x04
-	return ((value-128)/128)*100;
      896:	20 e0       	ldi	r18, 0x00	; 0
      898:	30 e0       	ldi	r19, 0x00	; 0
      89a:	40 e0       	ldi	r20, 0x00	; 0
@@ -1198,7 +1028,6 @@ float convert_to_percentage(uint8_t digital_value)
      8ce:	0e 94 40 0b 	call	0x1680	; 0x1680 <__mulsf3>
      8d2:	dc 01       	movw	r26, r24
      8d4:	cb 01       	movw	r24, r22
-}
      8d6:	bc 01       	movw	r22, r24
      8d8:	cd 01       	movw	r24, r26
      8da:	0f 90       	pop	r0
@@ -1442,11 +1271,11 @@ void initializations(){
      a2e:	08 95       	ret
 
 00000a30 <menu_init>:
-#include "setup.h"
-#include "OLED.h"
 #include "menu.h"
 
 direction previousDIR =NEUTRAL;
+// Variabel for å holde på nåværende meny, kan være nyttig i main f. eks.
+menu_t current_menu;
 menu_t * menu_init (){
      a30:	0f 93       	push	r16
      a32:	1f 93       	push	r17
@@ -1947,158 +1776,105 @@ void print_menu (menu_t *menu){
      d84:	08 95       	ret
 
 00000d86 <oled_init>:
-uint8_t current_column;
-
-uint8_t getCurrentLine(){
-	return currentLine;
-}
-void oled_init(){
      d86:	cf 93       	push	r28
      d88:	df 93       	push	r29
      d8a:	cd b7       	in	r28, 0x3d	; 61
      d8c:	de b7       	in	r29, 0x3e	; 62
-	
-	//SFIOR |= (1 << XMM2);
-	
-	write_c(0xae);        //  display  off
      d8e:	8e ea       	ldi	r24, 0xAE	; 174
      d90:	0e 94 10 07 	call	0xe20	; 0xe20 <write_c>
-	write_c(0xa1);        //segment  remap
      d94:	81 ea       	ldi	r24, 0xA1	; 161
      d96:	0e 94 10 07 	call	0xe20	; 0xe20 <write_c>
-	write_c(0xda);        //common  pads  hardware:  alternative
      d9a:	8a ed       	ldi	r24, 0xDA	; 218
      d9c:	0e 94 10 07 	call	0xe20	; 0xe20 <write_c>
-	write_c(0x12);
      da0:	82 e1       	ldi	r24, 0x12	; 18
      da2:	0e 94 10 07 	call	0xe20	; 0xe20 <write_c>
-	write_c(0xc8);        //common output scan direction:com63~com0
      da6:	88 ec       	ldi	r24, 0xC8	; 200
      da8:	0e 94 10 07 	call	0xe20	; 0xe20 <write_c>
-	write_c(0xa8);        //multiplex  ration  mode:63
      dac:	88 ea       	ldi	r24, 0xA8	; 168
      dae:	0e 94 10 07 	call	0xe20	; 0xe20 <write_c>
-	write_c(0x3f);
      db2:	8f e3       	ldi	r24, 0x3F	; 63
      db4:	0e 94 10 07 	call	0xe20	; 0xe20 <write_c>
-	write_c(0xd5);        //display divide ratio/osc. freq. mode
      db8:	85 ed       	ldi	r24, 0xD5	; 213
      dba:	0e 94 10 07 	call	0xe20	; 0xe20 <write_c>
-	write_c(0x80);
      dbe:	80 e8       	ldi	r24, 0x80	; 128
      dc0:	0e 94 10 07 	call	0xe20	; 0xe20 <write_c>
-	write_c(0x81);        //contrast  control
      dc4:	81 e8       	ldi	r24, 0x81	; 129
      dc6:	0e 94 10 07 	call	0xe20	; 0xe20 <write_c>
-	write_c(0x50);
      dca:	80 e5       	ldi	r24, 0x50	; 80
      dcc:	0e 94 10 07 	call	0xe20	; 0xe20 <write_c>
-	write_c(0xd9);        //set  pre-charge  period
      dd0:	89 ed       	ldi	r24, 0xD9	; 217
      dd2:	0e 94 10 07 	call	0xe20	; 0xe20 <write_c>
-	write_c(0x21);
      dd6:	81 e2       	ldi	r24, 0x21	; 33
      dd8:	0e 94 10 07 	call	0xe20	; 0xe20 <write_c>
-	write_c(0x20);        //Set  Memory  Addressing  Mode
      ddc:	80 e2       	ldi	r24, 0x20	; 32
      dde:	0e 94 10 07 	call	0xe20	; 0xe20 <write_c>
-	write_c(0x02);
      de2:	82 e0       	ldi	r24, 0x02	; 2
      de4:	0e 94 10 07 	call	0xe20	; 0xe20 <write_c>
-	write_c(0xdb);        //VCOM  deselect  level  mode
      de8:	8b ed       	ldi	r24, 0xDB	; 219
      dea:	0e 94 10 07 	call	0xe20	; 0xe20 <write_c>
-	write_c(0x30);
      dee:	80 e3       	ldi	r24, 0x30	; 48
      df0:	0e 94 10 07 	call	0xe20	; 0xe20 <write_c>
-	write_c(0xad);        //master  configuration
      df4:	8d ea       	ldi	r24, 0xAD	; 173
      df6:	0e 94 10 07 	call	0xe20	; 0xe20 <write_c>
-	write_c(0x00);
      dfa:	80 e0       	ldi	r24, 0x00	; 0
      dfc:	0e 94 10 07 	call	0xe20	; 0xe20 <write_c>
-	write_c(0xa4);        //out  follows  RAM  content
      e00:	84 ea       	ldi	r24, 0xA4	; 164
      e02:	0e 94 10 07 	call	0xe20	; 0xe20 <write_c>
-	write_c(0xa6);        //set  normal  display
      e06:	86 ea       	ldi	r24, 0xA6	; 166
      e08:	0e 94 10 07 	call	0xe20	; 0xe20 <write_c>
-	write_c(0xaf);        //  display  on
      e0c:	8f ea       	ldi	r24, 0xAF	; 175
      e0e:	0e 94 10 07 	call	0xe20	; 0xe20 <write_c>
-	oled_reset();
      e12:	0e 94 32 07 	call	0xe64	; 0xe64 <oled_reset>
-	oled_home();
      e16:	0e 94 4c 07 	call	0xe98	; 0xe98 <oled_home>
-	
-}
      e1a:	df 91       	pop	r29
      e1c:	cf 91       	pop	r28
      e1e:	08 95       	ret
 
 00000e20 <write_c>:
-
-void write_c(unsigned char char_command){
      e20:	cf 93       	push	r28
      e22:	df 93       	push	r29
      e24:	1f 92       	push	r1
      e26:	cd b7       	in	r28, 0x3d	; 61
      e28:	de b7       	in	r29, 0x3e	; 62
      e2a:	89 83       	std	Y+1, r24	; 0x01
-	*command_address= char_command;
      e2c:	80 91 0e 01 	lds	r24, 0x010E
      e30:	90 91 0f 01 	lds	r25, 0x010F
      e34:	29 81       	ldd	r18, Y+1	; 0x01
      e36:	fc 01       	movw	r30, r24
      e38:	20 83       	st	Z, r18
-}
      e3a:	0f 90       	pop	r0
      e3c:	df 91       	pop	r29
      e3e:	cf 91       	pop	r28
      e40:	08 95       	ret
 
 00000e42 <write_d>:
-
-void write_d(unsigned char char_data){
      e42:	cf 93       	push	r28
      e44:	df 93       	push	r29
      e46:	1f 92       	push	r1
      e48:	cd b7       	in	r28, 0x3d	; 61
      e4a:	de b7       	in	r29, 0x3e	; 62
      e4c:	89 83       	std	Y+1, r24	; 0x01
-	*data_address = char_data;
      e4e:	80 91 10 01 	lds	r24, 0x0110
      e52:	90 91 11 01 	lds	r25, 0x0111
      e56:	29 81       	ldd	r18, Y+1	; 0x01
      e58:	fc 01       	movw	r30, r24
      e5a:	20 83       	st	Z, r18
-}
      e5c:	0f 90       	pop	r0
      e5e:	df 91       	pop	r29
      e60:	cf 91       	pop	r28
      e62:	08 95       	ret
 
 00000e64 <oled_reset>:
-
-void oled_reset(){
      e64:	cf 93       	push	r28
      e66:	df 93       	push	r29
      e68:	00 d0       	rcall	.+0      	; 0xe6a <oled_reset+0x6>
      e6a:	cd b7       	in	r28, 0x3d	; 61
      e6c:	de b7       	in	r29, 0x3e	; 62
-	for (int i = 0; i<8;i++){
      e6e:	1a 82       	std	Y+2, r1	; 0x02
      e70:	19 82       	std	Y+1, r1	; 0x01
      e72:	08 c0       	rjmp	.+16     	; 0xe84 <oled_reset+0x20>
-		oled_clear_line(i);
      e74:	89 81       	ldd	r24, Y+1	; 0x01
      e76:	0e 94 aa 07 	call	0xf54	; 0xf54 <oled_clear_line>
-void write_d(unsigned char char_data){
-	*data_address = char_data;
-}
-
-void oled_reset(){
-	for (int i = 0; i<8;i++){
      e7a:	89 81       	ldd	r24, Y+1	; 0x01
      e7c:	9a 81       	ldd	r25, Y+2	; 0x02
      e7e:	01 96       	adiw	r24, 0x01	; 1
@@ -2109,9 +1885,6 @@ void oled_reset(){
      e88:	88 30       	cpi	r24, 0x08	; 8
      e8a:	91 05       	cpc	r25, r1
      e8c:	9c f3       	brlt	.-26     	; 0xe74 <oled_reset+0x10>
-		oled_clear_line(i);
-	}
-}
      e8e:	0f 90       	pop	r0
      e90:	0f 90       	pop	r0
      e92:	df 91       	pop	r29
@@ -2119,66 +1892,48 @@ void oled_reset(){
      e96:	08 95       	ret
 
 00000e98 <oled_home>:
-
-void oled_home(){
      e98:	cf 93       	push	r28
      e9a:	df 93       	push	r29
      e9c:	cd b7       	in	r28, 0x3d	; 61
      e9e:	de b7       	in	r29, 0x3e	; 62
-	write_c(0x21);//starting command(set column address)
      ea0:	81 e2       	ldi	r24, 0x21	; 33
      ea2:	0e 94 10 07 	call	0xe20	; 0xe20 <write_c>
-	write_c(0x00);//start of column address
      ea6:	80 e0       	ldi	r24, 0x00	; 0
      ea8:	0e 94 10 07 	call	0xe20	; 0xe20 <write_c>
-	write_c(0x7F);//end of column address
      eac:	8f e7       	ldi	r24, 0x7F	; 127
      eae:	0e 94 10 07 	call	0xe20	; 0xe20 <write_c>
-	
-	write_c(0x22);//starting command (set page address)
      eb2:	82 e2       	ldi	r24, 0x22	; 34
      eb4:	0e 94 10 07 	call	0xe20	; 0xe20 <write_c>
-	write_c(0x00);// start of page address
      eb8:	80 e0       	ldi	r24, 0x00	; 0
      eba:	0e 94 10 07 	call	0xe20	; 0xe20 <write_c>
-	write_c(0x07);//end of page address
      ebe:	87 e0       	ldi	r24, 0x07	; 7
      ec0:	0e 94 10 07 	call	0xe20	; 0xe20 <write_c>
-	currentLine=0;
      ec4:	10 92 4a 02 	sts	0x024A, r1
-}
      ec8:	df 91       	pop	r29
      eca:	cf 91       	pop	r28
      ecc:	08 95       	ret
 
 00000ece <oled_goto_line>:
-void oled_goto_line(uint8_t line){
      ece:	cf 93       	push	r28
      ed0:	df 93       	push	r29
      ed2:	1f 92       	push	r1
      ed4:	cd b7       	in	r28, 0x3d	; 61
      ed6:	de b7       	in	r29, 0x3e	; 62
      ed8:	89 83       	std	Y+1, r24	; 0x01
-	if (line < 8){
      eda:	89 81       	ldd	r24, Y+1	; 0x01
      edc:	88 30       	cpi	r24, 0x08	; 8
      ede:	38 f4       	brcc	.+14     	; 0xeee <oled_goto_line+0x20>
-		currentLine=line;
      ee0:	89 81       	ldd	r24, Y+1	; 0x01
      ee2:	80 93 4a 02 	sts	0x024A, r24
-		write_c(0xb0 + line);
      ee6:	89 81       	ldd	r24, Y+1	; 0x01
      ee8:	80 55       	subi	r24, 0x50	; 80
      eea:	0e 94 10 07 	call	0xe20	; 0xe20 <write_c>
-	}
-}
      eee:	0f 90       	pop	r0
      ef0:	df 91       	pop	r29
      ef2:	cf 91       	pop	r28
      ef4:	08 95       	ret
 
 00000ef6 <oled_goto_column>:
-void oled_goto_column(uint8_t column){
      ef6:	cf 93       	push	r28
      ef8:	df 93       	push	r29
      efa:	00 d0       	rcall	.+0      	; 0xefc <oled_goto_column+0x6>
@@ -2186,9 +1941,6 @@ void oled_goto_column(uint8_t column){
      efe:	cd b7       	in	r28, 0x3d	; 61
      f00:	de b7       	in	r29, 0x3e	; 62
      f02:	8b 83       	std	Y+3, r24	; 0x03
-	//oled_goto_line(currentLine);
-	
-	if(column*FONTWIDTH <= 127)
      f04:	8b 81       	ldd	r24, Y+3	; 0x03
      f06:	88 2f       	mov	r24, r24
      f08:	90 e0       	ldi	r25, 0x00	; 0
@@ -2201,34 +1953,25 @@ void oled_goto_column(uint8_t column){
      f16:	80 38       	cpi	r24, 0x80	; 128
      f18:	91 05       	cpc	r25, r1
      f1a:	b4 f4       	brge	.+44     	; 0xf48 <oled_goto_column+0x52>
-	{
-		column = column*FONTWIDTH;
      f1c:	8b 81       	ldd	r24, Y+3	; 0x03
      f1e:	88 0f       	add	r24, r24
      f20:	88 0f       	add	r24, r24
      f22:	88 0f       	add	r24, r24
      f24:	8b 83       	std	Y+3, r24	; 0x03
-		current_column = column;
      f26:	8b 81       	ldd	r24, Y+3	; 0x03
      f28:	80 93 4b 02 	sts	0x024B, r24
-		char c1 = 0x00 + (column & 0x0F);
      f2c:	8b 81       	ldd	r24, Y+3	; 0x03
      f2e:	8f 70       	andi	r24, 0x0F	; 15
      f30:	89 83       	std	Y+1, r24	; 0x01
-		char c2 = 0x10 + ((column & 0xF0)>>4);
      f32:	8b 81       	ldd	r24, Y+3	; 0x03
      f34:	82 95       	swap	r24
      f36:	8f 70       	andi	r24, 0x0F	; 15
      f38:	80 5f       	subi	r24, 0xF0	; 240
      f3a:	8a 83       	std	Y+2, r24	; 0x02
-		write_c(c1);
      f3c:	89 81       	ldd	r24, Y+1	; 0x01
      f3e:	0e 94 10 07 	call	0xe20	; 0xe20 <write_c>
-		write_c(c2);
      f42:	8a 81       	ldd	r24, Y+2	; 0x02
      f44:	0e 94 10 07 	call	0xe20	; 0xe20 <write_c>
-	}
-}
      f48:	0f 90       	pop	r0
      f4a:	0f 90       	pop	r0
      f4c:	0f 90       	pop	r0
@@ -2237,7 +1980,6 @@ void oled_goto_column(uint8_t column){
      f52:	08 95       	ret
 
 00000f54 <oled_clear_line>:
-void oled_clear_line(uint8_t line){
      f54:	cf 93       	push	r28
      f56:	df 93       	push	r29
      f58:	00 d0       	rcall	.+0      	; 0xf5a <oled_clear_line+0x6>
@@ -2245,23 +1987,13 @@ void oled_clear_line(uint8_t line){
      f5c:	cd b7       	in	r28, 0x3d	; 61
      f5e:	de b7       	in	r29, 0x3e	; 62
      f60:	8b 83       	std	Y+3, r24	; 0x03
-	oled_goto_line(line);
      f62:	8b 81       	ldd	r24, Y+3	; 0x03
      f64:	0e 94 67 07 	call	0xece	; 0xece <oled_goto_line>
-	for (int i = 0; i<128;i++)
      f68:	1a 82       	std	Y+2, r1	; 0x02
      f6a:	19 82       	std	Y+1, r1	; 0x01
      f6c:	08 c0       	rjmp	.+16     	; 0xf7e <oled_clear_line+0x2a>
-	{
-		write_d(0x00);
      f6e:	80 e0       	ldi	r24, 0x00	; 0
      f70:	0e 94 21 07 	call	0xe42	; 0xe42 <write_d>
-		write_c(c2);
-	}
-}
-void oled_clear_line(uint8_t line){
-	oled_goto_line(line);
-	for (int i = 0; i<128;i++)
      f74:	89 81       	ldd	r24, Y+1	; 0x01
      f76:	9a 81       	ldd	r25, Y+2	; 0x02
      f78:	01 96       	adiw	r24, 0x01	; 1
@@ -2272,10 +2004,6 @@ void oled_clear_line(uint8_t line){
      f82:	80 38       	cpi	r24, 0x80	; 128
      f84:	91 05       	cpc	r25, r1
      f86:	9c f3       	brlt	.-26     	; 0xf6e <oled_clear_line+0x1a>
-	{
-		write_d(0x00);
-	}
-}
      f88:	0f 90       	pop	r0
      f8a:	0f 90       	pop	r0
      f8c:	0f 90       	pop	r0
@@ -2284,7 +2012,6 @@ void oled_clear_line(uint8_t line){
      f92:	08 95       	ret
 
 00000f94 <oled_pos>:
-void oled_pos(uint8_t row, uint8_t column){
      f94:	cf 93       	push	r28
      f96:	df 93       	push	r29
      f98:	00 d0       	rcall	.+0      	; 0xf9a <oled_pos+0x6>
@@ -2292,13 +2019,10 @@ void oled_pos(uint8_t row, uint8_t column){
      f9c:	de b7       	in	r29, 0x3e	; 62
      f9e:	89 83       	std	Y+1, r24	; 0x01
      fa0:	6a 83       	std	Y+2, r22	; 0x02
-	oled_goto_line(row);
      fa2:	89 81       	ldd	r24, Y+1	; 0x01
      fa4:	0e 94 67 07 	call	0xece	; 0xece <oled_goto_line>
-	oled_goto_column(column);
      fa8:	8a 81       	ldd	r24, Y+2	; 0x02
      faa:	0e 94 7b 07 	call	0xef6	; 0xef6 <oled_goto_column>
-}
      fae:	0f 90       	pop	r0
      fb0:	0f 90       	pop	r0
      fb2:	df 91       	pop	r29
@@ -2306,7 +2030,6 @@ void oled_pos(uint8_t row, uint8_t column){
      fb6:	08 95       	ret
 
 00000fb8 <oled_print_char>:
-void oled_print_char(char character){
      fb8:	cf 93       	push	r28
      fba:	df 93       	push	r29
      fbc:	00 d0       	rcall	.+0      	; 0xfbe <oled_print_char+0x6>
@@ -2315,13 +2038,9 @@ void oled_print_char(char character){
      fc2:	cd b7       	in	r28, 0x3d	; 61
      fc4:	de b7       	in	r29, 0x3e	; 62
      fc6:	8e 83       	std	Y+6, r24	; 0x06
-	
-	for (int i = 0; i<FONTWIDTH;i++)
      fc8:	1a 82       	std	Y+2, r1	; 0x02
      fca:	19 82       	std	Y+1, r1	; 0x01
      fcc:	20 c0       	rjmp	.+64     	; 0x100e <oled_print_char+0x56>
-	{
-		write_d(pgm_read_byte(&font[character - ' '][i]));
      fce:	8e 81       	ldd	r24, Y+6	; 0x06
      fd0:	88 2f       	mov	r24, r24
      fd2:	90 e0       	ldi	r25, 0x00	; 0
@@ -2348,12 +2067,6 @@ void oled_print_char(char character){
      ffc:	8d 83       	std	Y+5, r24	; 0x05
      ffe:	8d 81       	ldd	r24, Y+5	; 0x05
     1000:	0e 94 21 07 	call	0xe42	; 0xe42 <write_d>
-	oled_goto_line(row);
-	oled_goto_column(column);
-}
-void oled_print_char(char character){
-	
-	for (int i = 0; i<FONTWIDTH;i++)
     1004:	89 81       	ldd	r24, Y+1	; 0x01
     1006:	9a 81       	ldd	r25, Y+2	; 0x02
     1008:	01 96       	adiw	r24, 0x01	; 1
@@ -2364,10 +2077,6 @@ void oled_print_char(char character){
     1012:	88 30       	cpi	r24, 0x08	; 8
     1014:	91 05       	cpc	r25, r1
     1016:	dc f2       	brlt	.-74     	; 0xfce <oled_print_char+0x16>
-	{
-		write_d(pgm_read_byte(&font[character - ' '][i]));
-	}
-}
     1018:	26 96       	adiw	r28, 0x06	; 6
     101a:	0f b6       	in	r0, 0x3f	; 63
     101c:	f8 94       	cli
@@ -2379,9 +2088,6 @@ void oled_print_char(char character){
     1028:	08 95       	ret
 
 0000102a <oled_print_string>:
-
-void oled_print_string(char* data)
-{
     102a:	cf 93       	push	r28
     102c:	df 93       	push	r29
     102e:	00 d0       	rcall	.+0      	; 0x1030 <oled_print_string+0x6>
@@ -2390,12 +2096,9 @@ void oled_print_string(char* data)
     1034:	de b7       	in	r29, 0x3e	; 62
     1036:	9c 83       	std	Y+4, r25	; 0x04
     1038:	8b 83       	std	Y+3, r24	; 0x03
-	int i = 0;
     103a:	1a 82       	std	Y+2, r1	; 0x02
     103c:	19 82       	std	Y+1, r1	; 0x01
-	while(data[i] != '\0') {
     103e:	1e c0       	rjmp	.+60     	; 0x107c <oled_print_string+0x52>
-		oled_print_char(data[i]);
     1040:	89 81       	ldd	r24, Y+1	; 0x01
     1042:	9a 81       	ldd	r25, Y+2	; 0x02
     1044:	2b 81       	ldd	r18, Y+3	; 0x03
@@ -2405,13 +2108,11 @@ void oled_print_string(char* data)
     104c:	fc 01       	movw	r30, r24
     104e:	80 81       	ld	r24, Z
     1050:	0e 94 dc 07 	call	0xfb8	; 0xfb8 <oled_print_char>
-		i++;
     1054:	89 81       	ldd	r24, Y+1	; 0x01
     1056:	9a 81       	ldd	r25, Y+2	; 0x02
     1058:	01 96       	adiw	r24, 0x01	; 1
     105a:	9a 83       	std	Y+2, r25	; 0x02
     105c:	89 83       	std	Y+1, r24	; 0x01
-		if (i==16 || i==32)
     105e:	89 81       	ldd	r24, Y+1	; 0x01
     1060:	9a 81       	ldd	r25, Y+2	; 0x02
     1062:	80 31       	cpi	r24, 0x10	; 16
@@ -2422,17 +2123,9 @@ void oled_print_string(char* data)
     106c:	80 32       	cpi	r24, 0x20	; 32
     106e:	91 05       	cpc	r25, r1
     1070:	29 f4       	brne	.+10     	; 0x107c <oled_print_string+0x52>
-		{
-			oled_goto_line(currentLine+1);
     1072:	80 91 4a 02 	lds	r24, 0x024A
     1076:	8f 5f       	subi	r24, 0xFF	; 255
     1078:	0e 94 67 07 	call	0xece	; 0xece <oled_goto_line>
-}
-
-void oled_print_string(char* data)
-{
-	int i = 0;
-	while(data[i] != '\0') {
     107c:	89 81       	ldd	r24, Y+1	; 0x01
     107e:	9a 81       	ldd	r25, Y+2	; 0x02
     1080:	2b 81       	ldd	r18, Y+3	; 0x03
@@ -2443,12 +2136,6 @@ void oled_print_string(char* data)
     108a:	80 81       	ld	r24, Z
     108c:	88 23       	and	r24, r24
     108e:	c1 f6       	brne	.-80     	; 0x1040 <oled_print_string+0x16>
-		if (i==16 || i==32)
-		{
-			oled_goto_line(currentLine+1);
-		}
-	}
-}
     1090:	0f 90       	pop	r0
     1092:	0f 90       	pop	r0
     1094:	0f 90       	pop	r0
@@ -2458,9 +2145,6 @@ void oled_print_string(char* data)
     109c:	08 95       	ret
 
 0000109e <oled_print_arrow>:
-
-void oled_print_arrow(uint8_t row,uint8_t col)
-{
     109e:	cf 93       	push	r28
     10a0:	df 93       	push	r29
     10a2:	00 d0       	rcall	.+0      	; 0x10a4 <oled_print_arrow+0x6>
@@ -2468,26 +2152,19 @@ void oled_print_arrow(uint8_t row,uint8_t col)
     10a6:	de b7       	in	r29, 0x3e	; 62
     10a8:	89 83       	std	Y+1, r24	; 0x01
     10aa:	6a 83       	std	Y+2, r22	; 0x02
-	oled_pos(row, col);
     10ac:	6a 81       	ldd	r22, Y+2	; 0x02
     10ae:	89 81       	ldd	r24, Y+1	; 0x01
     10b0:	0e 94 ca 07 	call	0xf94	; 0xf94 <oled_pos>
-	write_d(0b00011000);
     10b4:	88 e1       	ldi	r24, 0x18	; 24
     10b6:	0e 94 21 07 	call	0xe42	; 0xe42 <write_d>
-	write_d(0b00011000);
     10ba:	88 e1       	ldi	r24, 0x18	; 24
     10bc:	0e 94 21 07 	call	0xe42	; 0xe42 <write_d>
-	write_d(0b01111110);
     10c0:	8e e7       	ldi	r24, 0x7E	; 126
     10c2:	0e 94 21 07 	call	0xe42	; 0xe42 <write_d>
-	write_d(0b00111100);
     10c6:	8c e3       	ldi	r24, 0x3C	; 60
     10c8:	0e 94 21 07 	call	0xe42	; 0xe42 <write_d>
-	write_d(0b00011000);
     10cc:	88 e1       	ldi	r24, 0x18	; 24
     10ce:	0e 94 21 07 	call	0xe42	; 0xe42 <write_d>
-}
     10d2:	0f 90       	pop	r0
     10d4:	0f 90       	pop	r0
     10d6:	df 91       	pop	r29
@@ -2495,36 +2172,17 @@ void oled_print_arrow(uint8_t row,uint8_t col)
     10da:	08 95       	ret
 
 000010dc <sram_setup>:
- #include <stdio.h>
- #include "setup.h"
- #include "USART.h"
- #include "sram.h"
-
-int sram_setup(void) {
     10dc:	cf 93       	push	r28
     10de:	df 93       	push	r29
     10e0:	cd b7       	in	r28, 0x3d	; 61
     10e2:	de b7       	in	r29, 0x3e	; 62
-	// Enable external memory
-	//set_bit(MCUCR,SRE);
-	// Mask PC7-PC4
-	//set_bit(SFIOR,XMM2);
-	//SFIOR |= (1 << XMM2);
-	return 0;
     10e4:	80 e0       	ldi	r24, 0x00	; 0
     10e6:	90 e0       	ldi	r25, 0x00	; 0
-}
     10e8:	df 91       	pop	r29
     10ea:	cf 91       	pop	r28
     10ec:	08 95       	ret
 
 000010ee <SRAM_test>:
-
-uint8_t sram_read_from_address(unsigned int address) {
-	volatile char *sram_address = (char *) 0x1800;
-	return sram_address[address];
-}
-void SRAM_test(void) { 
     10ee:	cf 93       	push	r28
     10f0:	df 93       	push	r29
     10f2:	cd b7       	in	r28, 0x3d	; 61
@@ -2535,48 +2193,32 @@ void SRAM_test(void) {
     10fc:	de bf       	out	0x3e, r29	; 62
     10fe:	0f be       	out	0x3f, r0	; 63
     1100:	cd bf       	out	0x3d, r28	; 61
-	volatile char *ext_ram = (char *) 0x1800; // Start address for the SRAM 
     1102:	80 e0       	ldi	r24, 0x00	; 0
     1104:	98 e1       	ldi	r25, 0x18	; 24
     1106:	9a 87       	std	Y+10, r25	; 0x0a
     1108:	89 87       	std	Y+9, r24	; 0x09
-	uint16_t ext_ram_size = 0x800; 
     110a:	80 e0       	ldi	r24, 0x00	; 0
     110c:	98 e0       	ldi	r25, 0x08	; 8
     110e:	9c 87       	std	Y+12, r25	; 0x0c
     1110:	8b 87       	std	Y+11, r24	; 0x0b
-	uint16_t write_errors = 0; 
     1112:	1a 82       	std	Y+2, r1	; 0x02
     1114:	19 82       	std	Y+1, r1	; 0x01
-	uint16_t retrieval_errors = 0;
     1116:	1c 82       	std	Y+4, r1	; 0x04
     1118:	1b 82       	std	Y+3, r1	; 0x03
-	printf("Starting SRAM test...\n");
     111a:	83 e6       	ldi	r24, 0x63	; 99
     111c:	91 e0       	ldi	r25, 0x01	; 1
     111e:	0e 94 59 12 	call	0x24b2	; 0x24b2 <puts>
-	// rand() stores some internal state, so calling this function in a loop will 
-	// yield different seeds each time (unless srand() is called before this function)
-	// rand() stores some internal state, so calling this function in a loop will 
-	// yield different seeds each time (unless srand() is called before this function)
-	uint16_t seed = rand();
     1122:	0e 94 ca 10 	call	0x2194	; 0x2194 <rand>
     1126:	9e 87       	std	Y+14, r25	; 0x0e
     1128:	8d 87       	std	Y+13, r24	; 0x0d
-	// Write phase: Immediately check that the correct value was stored 
-	srand(seed);
     112a:	8d 85       	ldd	r24, Y+13	; 0x0d
     112c:	9e 85       	ldd	r25, Y+14	; 0x0e
     112e:	0e 94 cf 10 	call	0x219e	; 0x219e <srand>
-	for (uint16_t i = 0; i < ext_ram_size; i++) 
     1132:	1e 82       	std	Y+6, r1	; 0x06
     1134:	1d 82       	std	Y+5, r1	; 0x05
     1136:	44 c0       	rjmp	.+136    	; 0x11c0 <SRAM_test+0xd2>
-	{ 
-		uint8_t some_value = rand(); 
     1138:	0e 94 ca 10 	call	0x2194	; 0x2194 <rand>
     113c:	8f 87       	std	Y+15, r24	; 0x0f
-		ext_ram[i] = some_value; 
     113e:	29 85       	ldd	r18, Y+9	; 0x09
     1140:	3a 85       	ldd	r19, Y+10	; 0x0a
     1142:	8d 81       	ldd	r24, Y+5	; 0x05
@@ -2586,7 +2228,6 @@ void SRAM_test(void) {
     114a:	2f 85       	ldd	r18, Y+15	; 0x0f
     114c:	fc 01       	movw	r30, r24
     114e:	20 83       	st	Z, r18
-		uint8_t retreived_value = ext_ram[i]; 
     1150:	29 85       	ldd	r18, Y+9	; 0x09
     1152:	3a 85       	ldd	r19, Y+10	; 0x0a
     1154:	8d 81       	ldd	r24, Y+5	; 0x05
@@ -2596,13 +2237,10 @@ void SRAM_test(void) {
     115c:	fc 01       	movw	r30, r24
     115e:	80 81       	ld	r24, Z
     1160:	88 8b       	std	Y+16, r24	; 0x10
-		if (retreived_value != some_value) 
     1162:	98 89       	ldd	r25, Y+16	; 0x10
     1164:	8f 85       	ldd	r24, Y+15	; 0x0f
     1166:	98 17       	cp	r25, r24
     1168:	31 f1       	breq	.+76     	; 0x11b6 <SRAM_test+0xc8>
-		{ 
-			printf("Write phase error: ext_ram[%4d] = %02X (should be %02X)\n", i, retreived_value, some_value); 
     116a:	8f 85       	ldd	r24, Y+15	; 0x0f
     116c:	28 2f       	mov	r18, r24
     116e:	30 e0       	ldi	r19, 0x00	; 0
@@ -2635,18 +2273,11 @@ void SRAM_test(void) {
     11a6:	de bf       	out	0x3e, r29	; 62
     11a8:	0f be       	out	0x3f, r0	; 63
     11aa:	cd bf       	out	0x3d, r28	; 61
-			write_errors++; 
     11ac:	89 81       	ldd	r24, Y+1	; 0x01
     11ae:	9a 81       	ldd	r25, Y+2	; 0x02
     11b0:	01 96       	adiw	r24, 0x01	; 1
     11b2:	9a 83       	std	Y+2, r25	; 0x02
     11b4:	89 83       	std	Y+1, r24	; 0x01
-	// rand() stores some internal state, so calling this function in a loop will 
-	// yield different seeds each time (unless srand() is called before this function)
-	uint16_t seed = rand();
-	// Write phase: Immediately check that the correct value was stored 
-	srand(seed);
-	for (uint16_t i = 0; i < ext_ram_size; i++) 
     11b6:	8d 81       	ldd	r24, Y+5	; 0x05
     11b8:	9e 81       	ldd	r25, Y+6	; 0x06
     11ba:	01 96       	adiw	r24, 0x01	; 1
@@ -2660,24 +2291,14 @@ void SRAM_test(void) {
     11ca:	39 07       	cpc	r19, r25
     11cc:	08 f4       	brcc	.+2      	; 0x11d0 <SRAM_test+0xe2>
     11ce:	b4 cf       	rjmp	.-152    	; 0x1138 <SRAM_test+0x4a>
-			printf("Write phase error: ext_ram[%4d] = %02X (should be %02X)\n", i, retreived_value, some_value); 
-			write_errors++; 
-		} 
-	}
-	// Retrieval phase: Check that no values were changed during or after the write phase 
-	srand(seed); // reset the PRNG to the state it had before the write phase 
     11d0:	8d 85       	ldd	r24, Y+13	; 0x0d
     11d2:	9e 85       	ldd	r25, Y+14	; 0x0e
     11d4:	0e 94 cf 10 	call	0x219e	; 0x219e <srand>
-	for (uint16_t i = 0; i < ext_ram_size; i++) 
     11d8:	18 86       	std	Y+8, r1	; 0x08
     11da:	1f 82       	std	Y+7, r1	; 0x07
     11dc:	3b c0       	rjmp	.+118    	; 0x1254 <SRAM_test+0x166>
-		{ 
-			uint8_t some_value = rand(); 
     11de:	0e 94 ca 10 	call	0x2194	; 0x2194 <rand>
     11e2:	89 8b       	std	Y+17, r24	; 0x11
-			uint8_t retreived_value = ext_ram[i]; 
     11e4:	29 85       	ldd	r18, Y+9	; 0x09
     11e6:	3a 85       	ldd	r19, Y+10	; 0x0a
     11e8:	8f 81       	ldd	r24, Y+7	; 0x07
@@ -2687,13 +2308,10 @@ void SRAM_test(void) {
     11f0:	fc 01       	movw	r30, r24
     11f2:	80 81       	ld	r24, Z
     11f4:	8a 8b       	std	Y+18, r24	; 0x12
-			if (retreived_value != some_value) 
     11f6:	9a 89       	ldd	r25, Y+18	; 0x12
     11f8:	89 89       	ldd	r24, Y+17	; 0x11
     11fa:	98 17       	cp	r25, r24
     11fc:	31 f1       	breq	.+76     	; 0x124a <SRAM_test+0x15c>
-			{ 
-				printf("Retrieval phase error: ext_ram[%4d] = %02X (should be %02X)\n", i, retreived_value, some_value); 
     11fe:	89 89       	ldd	r24, Y+17	; 0x11
     1200:	28 2f       	mov	r18, r24
     1202:	30 e0       	ldi	r19, 0x00	; 0
@@ -2726,18 +2344,11 @@ void SRAM_test(void) {
     123a:	de bf       	out	0x3e, r29	; 62
     123c:	0f be       	out	0x3f, r0	; 63
     123e:	cd bf       	out	0x3d, r28	; 61
-				retrieval_errors++; 
     1240:	8b 81       	ldd	r24, Y+3	; 0x03
     1242:	9c 81       	ldd	r25, Y+4	; 0x04
     1244:	01 96       	adiw	r24, 0x01	; 1
     1246:	9c 83       	std	Y+4, r25	; 0x04
     1248:	8b 83       	std	Y+3, r24	; 0x03
-			write_errors++; 
-		} 
-	}
-	// Retrieval phase: Check that no values were changed during or after the write phase 
-	srand(seed); // reset the PRNG to the state it had before the write phase 
-	for (uint16_t i = 0; i < ext_ram_size; i++) 
     124a:	8f 81       	ldd	r24, Y+7	; 0x07
     124c:	98 85       	ldd	r25, Y+8	; 0x08
     124e:	01 96       	adiw	r24, 0x01	; 1
@@ -2751,12 +2362,6 @@ void SRAM_test(void) {
     125e:	39 07       	cpc	r19, r25
     1260:	08 f4       	brcc	.+2      	; 0x1264 <SRAM_test+0x176>
     1262:	bd cf       	rjmp	.-134    	; 0x11de <SRAM_test+0xf0>
-			{ 
-				printf("Retrieval phase error: ext_ram[%4d] = %02X (should be %02X)\n", i, retreived_value, some_value); 
-				retrieval_errors++; 
-			} 
-		} 
-		printf("SRAM test completed with \n%4d errors in write phase and \n%4d errors in retrieval phase\n\n", write_errors, retrieval_errors); 
     1264:	8c 81       	ldd	r24, Y+4	; 0x04
     1266:	8f 93       	push	r24
     1268:	8b 81       	ldd	r24, Y+3	; 0x03
@@ -2779,7 +2384,6 @@ void SRAM_test(void) {
     128c:	0f 90       	pop	r0
     128e:	0f 90       	pop	r0
     1290:	0f 90       	pop	r0
-	}
     1292:	62 96       	adiw	r28, 0x12	; 18
     1294:	0f b6       	in	r0, 0x3f	; 63
     1296:	f8 94       	cli
@@ -2791,12 +2395,6 @@ void SRAM_test(void) {
     12a2:	08 95       	ret
 
 000012a4 <USART_Init>:
-
-FILE *uart;
-
-
-void USART_Init(unsigned int ubrr)
-{
     12a4:	cf 93       	push	r28
     12a6:	df 93       	push	r29
     12a8:	00 d0       	rcall	.+0      	; 0x12aa <USART_Init+0x6>
@@ -2804,8 +2402,6 @@ void USART_Init(unsigned int ubrr)
     12ac:	de b7       	in	r29, 0x3e	; 62
     12ae:	9a 83       	std	Y+2, r25	; 0x02
     12b0:	89 83       	std	Y+1, r24	; 0x01
-    
-	UBRR0H =(unsigned char) (ubrr>>8); // Flytt ubrr 8 bits til høyre, lagre i register UBRR0H
     12b2:	80 e4       	ldi	r24, 0x40	; 64
     12b4:	90 e0       	ldi	r25, 0x00	; 0
     12b6:	29 81       	ldd	r18, Y+1	; 0x01
@@ -2814,29 +2410,21 @@ void USART_Init(unsigned int ubrr)
     12bc:	33 27       	eor	r19, r19
     12be:	fc 01       	movw	r30, r24
     12c0:	20 83       	st	Z, r18
-	UBRR0L =(unsigned char) (ubrr); // Lagre første 8 bits i UBRR0L
     12c2:	89 e2       	ldi	r24, 0x29	; 41
     12c4:	90 e0       	ldi	r25, 0x00	; 0
     12c6:	29 81       	ldd	r18, Y+1	; 0x01
     12c8:	fc 01       	movw	r30, r24
     12ca:	20 83       	st	Z, r18
-	// Enable mottaker og sender (sett bitt RXEN0 og TXEN0 =1)
-	UCSR0B = (1<<RXEN0)|(1<<TXEN0);
     12cc:	8a e2       	ldi	r24, 0x2A	; 42
     12ce:	90 e0       	ldi	r25, 0x00	; 0
     12d0:	28 e1       	ldi	r18, 0x18	; 24
     12d2:	fc 01       	movw	r30, r24
     12d4:	20 83       	st	Z, r18
-    // 
-	UCSR0C = (1<<URSEL0)|(1<<USBS0)|(3<<UCSZ00);
     12d6:	80 e4       	ldi	r24, 0x40	; 64
     12d8:	90 e0       	ldi	r25, 0x00	; 0
     12da:	2e e8       	ldi	r18, 0x8E	; 142
     12dc:	fc 01       	movw	r30, r24
     12de:	20 83       	st	Z, r18
-    
-	//Breakpoint
-    uart = fdevopen(&USART_Transmit,&USART_Recieve);
     12e0:	60 ea       	ldi	r22, 0xA0	; 160
     12e2:	79 e0       	ldi	r23, 0x09	; 9
     12e4:	8f e7       	ldi	r24, 0x7F	; 127
@@ -2844,7 +2432,6 @@ void USART_Init(unsigned int ubrr)
     12e8:	0e 94 c8 11 	call	0x2390	; 0x2390 <fdevopen>
     12ec:	90 93 4d 02 	sts	0x024D, r25
     12f0:	80 93 4c 02 	sts	0x024C, r24
-}
     12f4:	0f 90       	pop	r0
     12f6:	0f 90       	pop	r0
     12f8:	df 91       	pop	r29
@@ -2852,9 +2439,6 @@ void USART_Init(unsigned int ubrr)
     12fc:	08 95       	ret
 
 000012fe <USART_Transmit>:
-
-int USART_Transmit(char data, struct __file* dummy)
-{
     12fe:	cf 93       	push	r28
     1300:	df 93       	push	r29
     1302:	00 d0       	rcall	.+0      	; 0x1304 <USART_Transmit+0x6>
@@ -2864,10 +2448,6 @@ int USART_Transmit(char data, struct __file* dummy)
     130a:	89 83       	std	Y+1, r24	; 0x01
     130c:	7b 83       	std	Y+3, r23	; 0x03
     130e:	6a 83       	std	Y+2, r22	; 0x02
-    //if(data == '\n') USART_Transmit('\r', dummy);
-	// Sjekk om bit UDRE0 i register UCSR0A er satt
-	// UDRE0 = usart data register empty
-	while(!(UCSR0A & (1<<UDRE0)))
     1310:	00 00       	nop
     1312:	8b e2       	ldi	r24, 0x2B	; 43
     1314:	90 e0       	ldi	r25, 0x00	; 0
@@ -2879,17 +2459,13 @@ int USART_Transmit(char data, struct __file* dummy)
     1320:	99 27       	eor	r25, r25
     1322:	00 97       	sbiw	r24, 0x00	; 0
     1324:	b1 f3       	breq	.-20     	; 0x1312 <USART_Transmit+0x14>
-		;
-	UDR0=data;
     1326:	8c e2       	ldi	r24, 0x2C	; 44
     1328:	90 e0       	ldi	r25, 0x00	; 0
     132a:	29 81       	ldd	r18, Y+1	; 0x01
     132c:	fc 01       	movw	r30, r24
     132e:	20 83       	st	Z, r18
-    return 0;
     1330:	80 e0       	ldi	r24, 0x00	; 0
     1332:	90 e0       	ldi	r25, 0x00	; 0
-}
     1334:	0f 90       	pop	r0
     1336:	0f 90       	pop	r0
     1338:	0f 90       	pop	r0
@@ -2898,9 +2474,6 @@ int USART_Transmit(char data, struct __file* dummy)
     133e:	08 95       	ret
 
 00001340 <USART_Recieve>:
-
-int USART_Recieve(struct __file* dummy)
-{
     1340:	cf 93       	push	r28
     1342:	df 93       	push	r29
     1344:	00 d0       	rcall	.+0      	; 0x1346 <USART_Recieve+0x6>
@@ -2908,8 +2481,6 @@ int USART_Recieve(struct __file* dummy)
     1348:	de b7       	in	r29, 0x3e	; 62
     134a:	9a 83       	std	Y+2, r25	; 0x02
     134c:	89 83       	std	Y+1, r24	; 0x01
-	// Sjekk om bit RXC0 i register UCSR0A
-	while (!(UCSR0A & (1<<RXC0)))
     134e:	00 00       	nop
     1350:	8b e2       	ldi	r24, 0x2B	; 43
     1352:	90 e0       	ldi	r25, 0x00	; 0
@@ -2917,15 +2488,12 @@ int USART_Recieve(struct __file* dummy)
     1356:	80 81       	ld	r24, Z
     1358:	88 23       	and	r24, r24
     135a:	d4 f7       	brge	.-12     	; 0x1350 <USART_Recieve+0x10>
-		;
-	return UDR0;
     135c:	8c e2       	ldi	r24, 0x2C	; 44
     135e:	90 e0       	ldi	r25, 0x00	; 0
     1360:	fc 01       	movw	r30, r24
     1362:	80 81       	ld	r24, Z
     1364:	88 2f       	mov	r24, r24
     1366:	90 e0       	ldi	r25, 0x00	; 0
-}
     1368:	0f 90       	pop	r0
     136a:	0f 90       	pop	r0
     136c:	df 91       	pop	r29

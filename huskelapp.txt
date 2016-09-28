@@ -1,1 +1,5 @@
 Memo 020916: RS232 pinner må kobles sammen (se datablad s21)
+
+2809: I menu.c, struct variabel for å holde på current menu? Funksjon for å printe styr avhengig
+hvilken undermeny som er aktiv? current menu synlig fra main.c, interrupt på joystick-knapp?
+strcmp(string, string) for å finne ut hvilken meny man er i? returnerer 0 hvis de er like.

@@ -12,6 +12,8 @@
 #include "menu.h"
 
 direction previousDIR =NEUTRAL;
+// Variabel for å holde på nåværende meny, kan være nyttig i main f. eks.
+menu_t current_menu;
 menu_t * menu_init (){
 	//Main menu
 	menu_t * main_menu = malloc(sizeof(menu_t));

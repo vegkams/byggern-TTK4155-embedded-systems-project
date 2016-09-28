@@ -89,6 +89,7 @@ Allocating common symbols
 Common symbol       size              file
 
 currentLine         0x1               OLED.o
+current_menu        0xa               menu.o
 __brkval            0x2               c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avr5\libc.a(malloc.o)
 main_menu           0x2               main.o
 __flp               0x2               c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avr5\libc.a(malloc.o)
@@ -126,11 +127,29 @@ Discarded input sections
  .text          0x00000000        0x0 menu.o
  .data          0x00000000        0x0 menu.o
  .bss           0x00000000        0x0 menu.o
+ COMMON         0x00000000        0xa menu.o
  .text          0x00000000        0x0 OLED.o
  .data          0x00000000        0x0 OLED.o
  .bss           0x00000000        0x0 OLED.o
  .text.getCurrentLine
                 0x00000000       0x12 OLED.o
+ .text          0x00000000        0x0 spi.o
+ .data          0x00000000        0x0 spi.o
+ .bss           0x00000000        0x0 spi.o
+ .text.SPI_MasterInit
+                0x00000000       0x22 spi.o
+ .text.SPI_MasterTransmit
+                0x00000000       0x2c spi.o
+ .debug_info    0x00000000       0xaf spi.o
+ .debug_abbrev  0x00000000       0x78 spi.o
+ .debug_loc     0x00000000       0x83 spi.o
+ .debug_aranges
+                0x00000000       0x28 spi.o
+ .debug_ranges  0x00000000       0x18 spi.o
+ .debug_line    0x00000000       0xc4 spi.o
+ .debug_str     0x00000000      0x183 spi.o
+ .comment       0x00000000       0x31 spi.o
+ .debug_frame   0x00000000       0x54 spi.o
  .text          0x00000000        0x0 sram.o
  .data          0x00000000        0x0 sram.o
  .bss           0x00000000        0x0 sram.o
@@ -414,6 +433,7 @@ LOAD joystick.o
 LOAD main.o
 LOAD menu.o
 LOAD OLED.o
+LOAD spi.o
 LOAD sram.o
 LOAD USART.o
 START GROUP
@@ -1011,15 +1031,15 @@ END GROUP
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x00000000     0x1059
+.debug_info     0x00000000     0x106b
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x00000000      0x11a ADC.o
  .debug_info    0x0000011a      0x35d joystick.o
  .debug_info    0x00000477      0x273 main.o
- .debug_info    0x000006ea      0x1e2 menu.o
- .debug_info    0x000008cc      0x38e OLED.o
- .debug_info    0x00000c5a      0x227 sram.o
- .debug_info    0x00000e81      0x1d8 USART.o
+ .debug_info    0x000006ea      0x1f4 menu.o
+ .debug_info    0x000008de      0x38e OLED.o
+ .debug_info    0x00000c6c      0x227 sram.o
+ .debug_info    0x00000e93      0x1d8 USART.o
 
 .debug_abbrev   0x00000000      0x781
  *(.debug_abbrev)
@@ -1051,21 +1071,21 @@ END GROUP
  .debug_frame   0x000004d8       0x94 sram.o
  .debug_frame   0x0000056c       0x74 USART.o
 
-.debug_str      0x00000000      0x615
+.debug_str      0x00000000      0x66a
  *(.debug_str)
  .debug_str     0x00000000      0x139 ADC.o
                                 0x17a (size before relaxing)
  .debug_str     0x00000139      0x1a1 joystick.o
                                 0x2f5 (size before relaxing)
- .debug_str     0x000002da       0x9e main.o
-                                0x256 (size before relaxing)
- .debug_str     0x00000378       0x53 menu.o
-                                0x1e6 (size before relaxing)
- .debug_str     0x000003cb      0x138 OLED.o
+ .debug_str     0x000002da       0xe6 main.o
+                                0x272 (size before relaxing)
+ .debug_str     0x000003c0       0x60 menu.o
+                                0x20f (size before relaxing)
+ .debug_str     0x00000420      0x138 OLED.o
                                 0x27d (size before relaxing)
- .debug_str     0x00000503       0xb4 sram.o
+ .debug_str     0x00000558       0xb4 sram.o
                                 0x203 (size before relaxing)
- .debug_str     0x000005b7       0x5e USART.o
+ .debug_str     0x0000060c       0x5e USART.o
                                 0x19c (size before relaxing)
 
 .debug_loc      0x00000000      0xb99

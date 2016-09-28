@@ -4,6 +4,8 @@
  * Created: 28.09.2016 15.29.59
  *  Author: vegard
  */ 
+#include <avr/io.h>
+#include <stdio.h>
 void SPI_MasterInit(void)
 {
 	/* Set MOSI and SCK output, all others input */
