@@ -72,6 +72,7 @@ void in_menus(){
 	}
 	if (j.joystick_button == 1) {
 		mode = button_action(arrow_line);
+		previous_joystick_button == j.joystick_button;
 	}
 }
 
