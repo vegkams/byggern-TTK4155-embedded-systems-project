@@ -53,34 +53,28 @@ int main(void)
 void in_menus(){
 	
 	int menu_printed = 0;
-	while(TRUEMADDAFAKKA){
-		if (menu_printed == 0)
-		{
-			print_menu(main_menu);
-			menu_printed = 1;
-		}
-		
-		joyValues j;
-		read_joystick(&j);
-		direction d = joystick_getDirection(j.x_percentage,j.y_percentage);
+	if (menu_printed == 0)
+	{
+		print_menu(main_menu);
+		menu_printed = 1;
+	}
 	
-		arrow_line = move_arrow(d,arrow_line);
-		if(j.joystick_button == previous_joystick_button){
-			j.joystick_button == 0;
-		}
-		else{
-			previous_joystick_button == 0;
-		}
-		if (j.joystick_button == 1) {
-			game_on = button_action(arrow_line);
-		}
-		if (game_on == 1)
-		{
-			// Start game!
-		}
-		
+	joyValues j;
+	read_joystick(&j);
+	direction d = joystick_getDirection(j.x_percentage,j.y_percentage);
+	
+	arrow_line = move_arrow(d,arrow_line);
+	if(j.joystick_button == previous_joystick_button){
+		j.joystick_button == 0;
+	}
+	else{
+		previous_joystick_button == 0;
+	}
+	if (j.joystick_button == 1) {
+		mode = button_action(arrow_line);
 	}
 }
+
 
 void playing_the_game(){
 	
