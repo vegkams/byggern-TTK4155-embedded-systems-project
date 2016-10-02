@@ -167,6 +167,10 @@ difficulty get_difficulty()
 // Implements action based on joystick button presses
 // Possibility for cleaner code, written in a hurry :-)
 uint8_t button_action (uint8_t current_line) {
+	// Fix "magic numbers", current_line = some menu etc.
+	// Should be independent of the actual linked list
+	// Change the struct to an array of children, and use current_line as index?
+	// Think that should work
 	if (strcmp(current_menu->name, "MAIN MENU") == 0)
 	{
 		if(current_line == 2)
