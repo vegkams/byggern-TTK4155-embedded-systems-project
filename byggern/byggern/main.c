@@ -10,8 +10,8 @@
 #include "sram.h"
 #include "joystick.h"
 #include "OLED.h"
-uint8_t truemaddafakka=1;
 #include "menu.h"
+#define TRUEMADDAFAKKA 1
 menu_t * main_menu;
 uint8_t arrow_line = 2;
 uint8_t previous_joystick_button;
@@ -24,7 +24,7 @@ int main(void)
 	
 	
 	int mode = 0;
-	while (truemaddafakka)
+	while (TRUEMADDAFAKKA)
 	{
 		
 		switch(mode){
@@ -53,7 +53,7 @@ int main(void)
 void in_menus(){
 	
 	int menu_printed = 0;
-	while(truemaddafakka){
+	while(TRUEMADDAFAKKA){
 		if (menu_printed == 0)
 		{
 			print_menu(main_menu);
