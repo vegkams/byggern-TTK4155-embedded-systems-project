@@ -13,7 +13,9 @@
 uint8_t truemaddafakka=1;
 #include "menu.h"
 menu_t * main_menu;
-unsigned int arrow_line = 2;
+uint8_t arrow_line = 2;
+uint8_t previous_joystick_button;
+uint8_t game_on = 0;
 
 int main(void)
 {
@@ -63,6 +65,19 @@ void in_menus(){
 		direction d = joystick_getDirection(j.x_percentage,j.y_percentage);
 	
 		arrow_line = move_arrow(d,arrow_line);
+		if(j.joystick_button == previous_joystick_button){
+			j.joystick_button == 0;
+		}
+		else{
+			previous_joystick_button == 0;
+		}
+		if (j.joystick_button == 1) {
+			game_on = button_action(arrow_line);
+		}
+		if (game_on == 1)
+		{
+			// Start game!
+		}
 		
 	}
 }

@@ -10,6 +10,7 @@
 #define JOYSTICK_H_
 
 typedef enum {UP,DOWN,LEFT,RIGHT,NEUTRAL} direction;
+	
 typedef struct joyValues{
 	float x_percentage;
 	float y_percentage;
