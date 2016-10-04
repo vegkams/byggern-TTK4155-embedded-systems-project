@@ -576,18 +576,10 @@ Disassembly of section .text:
      534:	08 95       	ret
 
 00000536 <joystick_init>:
-#include "setup.h"
-#include "ADC.h"
-#include "joystick.h"
-
-void joystick_init()
-{
      536:	cf 93       	push	r28
      538:	df 93       	push	r29
      53a:	cd b7       	in	r28, 0x3d	; 61
      53c:	de b7       	in	r29, 0x3e	; 62
-	// Set PB0-1 as input
-	clear_bit(DDRB,PB0);
      53e:	87 e3       	ldi	r24, 0x37	; 55
      540:	90 e0       	ldi	r25, 0x00	; 0
      542:	27 e3       	ldi	r18, 0x37	; 55
@@ -597,7 +589,6 @@ void joystick_init()
      54a:	2e 7f       	andi	r18, 0xFE	; 254
      54c:	fc 01       	movw	r30, r24
      54e:	20 83       	st	Z, r18
-	clear_bit(DDRB,PB1);
      550:	87 e3       	ldi	r24, 0x37	; 55
      552:	90 e0       	ldi	r25, 0x00	; 0
      554:	27 e3       	ldi	r18, 0x37	; 55
@@ -607,8 +598,6 @@ void joystick_init()
      55c:	2d 7f       	andi	r18, 0xFD	; 253
      55e:	fc 01       	movw	r30, r24
      560:	20 83       	st	Z, r18
-	// Pull-up on PB2
-	set_bit(PORTB,PB2);
      562:	88 e3       	ldi	r24, 0x38	; 56
      564:	90 e0       	ldi	r25, 0x00	; 0
      566:	28 e3       	ldi	r18, 0x38	; 56
@@ -618,8 +607,6 @@ void joystick_init()
      56e:	24 60       	ori	r18, 0x04	; 4
      570:	fc 01       	movw	r30, r24
      572:	20 83       	st	Z, r18
-	//Set PB2 as input
-	clear_bit(DDRB,PB2);
      574:	87 e3       	ldi	r24, 0x37	; 55
      576:	90 e0       	ldi	r25, 0x00	; 0
      578:	27 e3       	ldi	r18, 0x37	; 55
@@ -629,15 +616,11 @@ void joystick_init()
      580:	2b 7f       	andi	r18, 0xFB	; 251
      582:	fc 01       	movw	r30, r24
      584:	20 83       	st	Z, r18
-}
      586:	df 91       	pop	r29
      588:	cf 91       	pop	r28
      58a:	08 95       	ret
 
 0000058c <read_joystick>:
-
-void read_joystick(joyValues *joy)
-{
      58c:	cf 93       	push	r28
      58e:	df 93       	push	r29
      590:	00 d0       	rcall	.+0      	; 0x592 <read_joystick+0x6>
@@ -645,8 +628,6 @@ void read_joystick(joyValues *joy)
      594:	de b7       	in	r29, 0x3e	; 62
      596:	9a 83       	std	Y+2, r25	; 0x02
      598:	89 83       	std	Y+1, r24	; 0x01
-	//joyValues joystick;
-	joy->x_percentage = joystick_get_x_percentage();
      59a:	0e 94 0c 04 	call	0x818	; 0x818 <joystick_get_x_percentage>
      59e:	dc 01       	movw	r26, r24
      5a0:	cb 01       	movw	r24, r22
@@ -657,7 +638,6 @@ void read_joystick(joyValues *joy)
      5aa:	91 83       	std	Z+1, r25	; 0x01
      5ac:	a2 83       	std	Z+2, r26	; 0x02
      5ae:	b3 83       	std	Z+3, r27	; 0x03
-	joy->y_percentage = joystick_get_y_percentage();
      5b0:	0e 94 20 04 	call	0x840	; 0x840 <joystick_get_y_percentage>
      5b4:	dc 01       	movw	r26, r24
      5b6:	cb 01       	movw	r24, r22
@@ -668,8 +648,6 @@ void read_joystick(joyValues *joy)
      5c0:	95 83       	std	Z+5, r25	; 0x05
      5c2:	a6 83       	std	Z+6, r26	; 0x06
      5c4:	b7 83       	std	Z+7, r27	; 0x07
-	// If PB0 || PB1 =1, button is pressed
-	if (test_bit(PINB,PB0)) joy->left_button = 1;
      5c6:	86 e3       	ldi	r24, 0x36	; 54
      5c8:	90 e0       	ldi	r25, 0x00	; 0
      5ca:	fc 01       	movw	r30, r24
@@ -688,13 +666,11 @@ void read_joystick(joyValues *joy)
      5e4:	31 87       	std	Z+9, r19	; 0x09
      5e6:	20 87       	std	Z+8, r18	; 0x08
      5e8:	05 c0       	rjmp	.+10     	; 0x5f4 <read_joystick+0x68>
-	else joy->left_button = 0;
      5ea:	89 81       	ldd	r24, Y+1	; 0x01
      5ec:	9a 81       	ldd	r25, Y+2	; 0x02
      5ee:	fc 01       	movw	r30, r24
      5f0:	11 86       	std	Z+9, r1	; 0x09
      5f2:	10 86       	std	Z+8, r1	; 0x08
-	if (test_bit(PINB,PB1)) joy->right_button = 1;
      5f4:	86 e3       	ldi	r24, 0x36	; 54
      5f6:	90 e0       	ldi	r25, 0x00	; 0
      5f8:	fc 01       	movw	r30, r24
@@ -713,15 +689,11 @@ void read_joystick(joyValues *joy)
      612:	33 87       	std	Z+11, r19	; 0x0b
      614:	22 87       	std	Z+10, r18	; 0x0a
      616:	05 c0       	rjmp	.+10     	; 0x622 <read_joystick+0x96>
-	else joy->right_button = 0;
      618:	89 81       	ldd	r24, Y+1	; 0x01
      61a:	9a 81       	ldd	r25, Y+2	; 0x02
      61c:	fc 01       	movw	r30, r24
      61e:	13 86       	std	Z+11, r1	; 0x0b
      620:	12 86       	std	Z+10, r1	; 0x0a
-	
-	// If PB2=0, button is pressed
-	if (test_bit(PINB,PB2)) joy->joystick_button = 0;
      622:	86 e3       	ldi	r24, 0x36	; 54
      624:	90 e0       	ldi	r25, 0x00	; 0
      626:	fc 01       	movw	r30, r24
@@ -738,7 +710,6 @@ void read_joystick(joyValues *joy)
      63c:	15 86       	std	Z+13, r1	; 0x0d
      63e:	14 86       	std	Z+12, r1	; 0x0c
      640:	07 c0       	rjmp	.+14     	; 0x650 <read_joystick+0xc4>
-	else joy->joystick_button = 1;
      642:	89 81       	ldd	r24, Y+1	; 0x01
      644:	9a 81       	ldd	r25, Y+2	; 0x02
      646:	21 e0       	ldi	r18, 0x01	; 1
@@ -746,7 +717,6 @@ void read_joystick(joyValues *joy)
      64a:	fc 01       	movw	r30, r24
      64c:	35 87       	std	Z+13, r19	; 0x0d
      64e:	24 87       	std	Z+12, r18	; 0x0c
-}
      650:	0f 90       	pop	r0
      652:	0f 90       	pop	r0
      654:	df 91       	pop	r29
@@ -754,9 +724,6 @@ void read_joystick(joyValues *joy)
      658:	08 95       	ret
 
 0000065a <joystick_getDirection>:
-
-direction joystick_getDirection(float x, float y)
-{
      65a:	1f 93       	push	r17
      65c:	cf 93       	push	r28
      65e:	df 93       	push	r29
@@ -776,10 +743,8 @@ direction joystick_getDirection(float x, float y)
      67a:	3f 83       	std	Y+7, r19	; 0x07
      67c:	48 87       	std	Y+8, r20	; 0x08
      67e:	59 87       	std	Y+9, r21	; 0x09
-	direction d = NEUTRAL;
      680:	84 e0       	ldi	r24, 0x04	; 4
      682:	89 83       	std	Y+1, r24	; 0x01
-	if (!(fabsf(x)<50 && fabsf(y)<50)) 
      684:	8a 81       	ldd	r24, Y+2	; 0x02
      686:	9b 81       	ldd	r25, Y+3	; 0x03
      688:	ac 81       	ldd	r26, Y+4	; 0x04
@@ -821,8 +786,6 @@ direction joystick_getDirection(float x, float y)
      6d4:	88 23       	and	r24, r24
      6d6:	09 f4       	brne	.+2      	; 0x6da <joystick_getDirection+0x80>
      6d8:	94 c0       	rjmp	.+296    	; 0x802 <joystick_getDirection+0x1a8>
-	{
-		if (fabsf(x)>50 && fabsf(y)<50)
      6da:	8a 81       	ldd	r24, Y+2	; 0x02
      6dc:	9b 81       	ldd	r25, Y+3	; 0x03
      6de:	ac 81       	ldd	r26, Y+4	; 0x04
@@ -851,8 +814,6 @@ direction joystick_getDirection(float x, float y)
      70e:	0e 94 e7 0c 	call	0x19ce	; 0x19ce <__cmpsf2>
      712:	88 23       	and	r24, r24
      714:	8c f4       	brge	.+34     	; 0x738 <joystick_getDirection+0xde>
-		{
-			if (x<0)
      716:	20 e0       	ldi	r18, 0x00	; 0
      718:	30 e0       	ldi	r19, 0x00	; 0
      71a:	a9 01       	movw	r20, r18
@@ -863,38 +824,12 @@ direction joystick_getDirection(float x, float y)
      724:	0e 94 e7 0c 	call	0x19ce	; 0x19ce <__cmpsf2>
      728:	88 23       	and	r24, r24
      72a:	1c f4       	brge	.+6      	; 0x732 <joystick_getDirection+0xd8>
-			{
-				d = LEFT;
      72c:	82 e0       	ldi	r24, 0x02	; 2
      72e:	89 83       	std	Y+1, r24	; 0x01
-	direction d = NEUTRAL;
-	if (!(fabsf(x)<50 && fabsf(y)<50)) 
-	{
-		if (fabsf(x)>50 && fabsf(y)<50)
-		{
-			if (x<0)
      730:	68 c0       	rjmp	.+208    	; 0x802 <joystick_getDirection+0x1a8>
-			{
-				d = LEFT;
-			}
-			else
-			{
-				d = RIGHT;
      732:	83 e0       	ldi	r24, 0x03	; 3
      734:	89 83       	std	Y+1, r24	; 0x01
-	direction d = NEUTRAL;
-	if (!(fabsf(x)<50 && fabsf(y)<50)) 
-	{
-		if (fabsf(x)>50 && fabsf(y)<50)
-		{
-			if (x<0)
      736:	65 c0       	rjmp	.+202    	; 0x802 <joystick_getDirection+0x1a8>
-			else
-			{
-				d = RIGHT;
-			}
-		}
-		else if(fabsf(x)<50 && fabsf(y)>50)
      738:	8a 81       	ldd	r24, Y+2	; 0x02
      73a:	9b 81       	ldd	r25, Y+3	; 0x03
      73c:	ac 81       	ldd	r26, Y+4	; 0x04
@@ -923,8 +858,6 @@ direction joystick_getDirection(float x, float y)
      76c:	0e 94 05 0e 	call	0x1c0a	; 0x1c0a <__gesf2>
      770:	18 16       	cp	r1, r24
      772:	84 f4       	brge	.+32     	; 0x794 <joystick_getDirection+0x13a>
-		{
-			if (y<0)
      774:	20 e0       	ldi	r18, 0x00	; 0
      776:	30 e0       	ldi	r19, 0x00	; 0
      778:	a9 01       	movw	r20, r18
@@ -935,37 +868,11 @@ direction joystick_getDirection(float x, float y)
      782:	0e 94 e7 0c 	call	0x19ce	; 0x19ce <__cmpsf2>
      786:	88 23       	and	r24, r24
      788:	1c f4       	brge	.+6      	; 0x790 <joystick_getDirection+0x136>
-			{
-				d = DOWN;
      78a:	81 e0       	ldi	r24, 0x01	; 1
      78c:	89 83       	std	Y+1, r24	; 0x01
-				d = RIGHT;
-			}
-		}
-		else if(fabsf(x)<50 && fabsf(y)>50)
-		{
-			if (y<0)
      78e:	39 c0       	rjmp	.+114    	; 0x802 <joystick_getDirection+0x1a8>
-			{
-				d = DOWN;
-			}
-			else
-			{
-				d = UP;
      790:	19 82       	std	Y+1, r1	; 0x01
-				d = RIGHT;
-			}
-		}
-		else if(fabsf(x)<50 && fabsf(y)>50)
-		{
-			if (y<0)
      792:	37 c0       	rjmp	.+110    	; 0x802 <joystick_getDirection+0x1a8>
-				d = UP;
-			}
-		}
-		else
-		{
-			if (fabsf(y/x)>1)
      794:	2a 81       	ldd	r18, Y+2	; 0x02
      796:	3b 81       	ldd	r19, Y+3	; 0x03
      798:	4c 81       	ldd	r20, Y+4	; 0x04
@@ -987,8 +894,6 @@ direction joystick_getDirection(float x, float y)
      7ba:	0e 94 05 0e 	call	0x1c0a	; 0x1c0a <__gesf2>
      7be:	18 16       	cp	r1, r24
      7c0:	84 f4       	brge	.+32     	; 0x7e2 <joystick_getDirection+0x188>
-			{
-				if (y<0)
      7c2:	20 e0       	ldi	r18, 0x00	; 0
      7c4:	30 e0       	ldi	r19, 0x00	; 0
      7c6:	a9 01       	movw	r20, r18
@@ -999,22 +904,11 @@ direction joystick_getDirection(float x, float y)
      7d0:	0e 94 e7 0c 	call	0x19ce	; 0x19ce <__cmpsf2>
      7d4:	88 23       	and	r24, r24
      7d6:	1c f4       	brge	.+6      	; 0x7de <joystick_getDirection+0x184>
-				{
-					d = DOWN;
      7d8:	81 e0       	ldi	r24, 0x01	; 1
      7da:	89 83       	std	Y+1, r24	; 0x01
      7dc:	12 c0       	rjmp	.+36     	; 0x802 <joystick_getDirection+0x1a8>
-				}
-				else
-				{
-					d = UP;
      7de:	19 82       	std	Y+1, r1	; 0x01
      7e0:	10 c0       	rjmp	.+32     	; 0x802 <joystick_getDirection+0x1a8>
-				}
-			}
-			else
-			{
-				if (x<0)
      7e2:	20 e0       	ldi	r18, 0x00	; 0
      7e4:	30 e0       	ldi	r19, 0x00	; 0
      7e6:	a9 01       	movw	r20, r18
@@ -1025,25 +919,12 @@ direction joystick_getDirection(float x, float y)
      7f0:	0e 94 e7 0c 	call	0x19ce	; 0x19ce <__cmpsf2>
      7f4:	88 23       	and	r24, r24
      7f6:	1c f4       	brge	.+6      	; 0x7fe <joystick_getDirection+0x1a4>
-				{
-					d = LEFT;
      7f8:	82 e0       	ldi	r24, 0x02	; 2
      7fa:	89 83       	std	Y+1, r24	; 0x01
      7fc:	02 c0       	rjmp	.+4      	; 0x802 <joystick_getDirection+0x1a8>
-				}
-				else
-				{
-					d = RIGHT;
      7fe:	83 e0       	ldi	r24, 0x03	; 3
      800:	89 83       	std	Y+1, r24	; 0x01
-				}
-			}
-		}
-		
-	}
-	return d;
      802:	89 81       	ldd	r24, Y+1	; 0x01
-}
      804:	29 96       	adiw	r28, 0x09	; 9
      806:	0f b6       	in	r0, 0x3f	; 63
      808:	f8 94       	cli
@@ -1056,25 +937,18 @@ direction joystick_getDirection(float x, float y)
      816:	08 95       	ret
 
 00000818 <joystick_get_x_percentage>:
-
-// Get Joystick position in percentage (center = 50%)
-float joystick_get_x_percentage()
-{
      818:	cf 93       	push	r28
      81a:	df 93       	push	r29
      81c:	1f 92       	push	r1
      81e:	cd b7       	in	r28, 0x3d	; 61
      820:	de b7       	in	r29, 0x3e	; 62
-	uint8_t data = read_ADC(1);
      822:	81 e0       	ldi	r24, 0x01	; 1
      824:	0e 94 64 02 	call	0x4c8	; 0x4c8 <read_ADC>
      828:	89 83       	std	Y+1, r24	; 0x01
-	return convert_to_percentage(data);
      82a:	89 81       	ldd	r24, Y+1	; 0x01
      82c:	0e 94 34 04 	call	0x868	; 0x868 <convert_to_percentage>
      830:	dc 01       	movw	r26, r24
      832:	cb 01       	movw	r24, r22
-} 
      834:	bc 01       	movw	r22, r24
      836:	cd 01       	movw	r24, r26
      838:	0f 90       	pop	r0
@@ -1083,25 +957,18 @@ float joystick_get_x_percentage()
      83e:	08 95       	ret
 
 00000840 <joystick_get_y_percentage>:
-
-// Get Joystick position in percentage (center = 50%)
-float joystick_get_y_percentage()
-{
      840:	cf 93       	push	r28
      842:	df 93       	push	r29
      844:	1f 92       	push	r1
      846:	cd b7       	in	r28, 0x3d	; 61
      848:	de b7       	in	r29, 0x3e	; 62
-	uint8_t data = read_ADC(0);
      84a:	80 e0       	ldi	r24, 0x00	; 0
      84c:	0e 94 64 02 	call	0x4c8	; 0x4c8 <read_ADC>
      850:	89 83       	std	Y+1, r24	; 0x01
-	return convert_to_percentage(data);
      852:	89 81       	ldd	r24, Y+1	; 0x01
      854:	0e 94 34 04 	call	0x868	; 0x868 <convert_to_percentage>
      858:	dc 01       	movw	r26, r24
      85a:	cb 01       	movw	r24, r22
-}
      85c:	bc 01       	movw	r22, r24
      85e:	cd 01       	movw	r24, r26
      860:	0f 90       	pop	r0
@@ -1110,12 +977,6 @@ float joystick_get_y_percentage()
      866:	08 95       	ret
 
 00000868 <convert_to_percentage>:
-	return (value/255)*5;
-}
-
-// Convert digital value to percentage (0-255 -> 0-100%)
-float convert_to_percentage(uint8_t digital_value)
-{
      868:	cf 93       	push	r28
      86a:	df 93       	push	r29
      86c:	00 d0       	rcall	.+0      	; 0x86e <convert_to_percentage+0x6>
@@ -1124,7 +985,6 @@ float convert_to_percentage(uint8_t digital_value)
      872:	cd b7       	in	r28, 0x3d	; 61
      874:	de b7       	in	r29, 0x3e	; 62
      876:	8d 83       	std	Y+5, r24	; 0x05
-	float value = digital_value;
      878:	8d 81       	ldd	r24, Y+5	; 0x05
      87a:	88 2f       	mov	r24, r24
      87c:	90 e0       	ldi	r25, 0x00	; 0
@@ -1139,7 +999,6 @@ float convert_to_percentage(uint8_t digital_value)
      890:	9a 83       	std	Y+2, r25	; 0x02
      892:	ab 83       	std	Y+3, r26	; 0x03
      894:	bc 83       	std	Y+4, r27	; 0x04
-	return ((value-128)/128)*100;
      896:	20 e0       	ldi	r18, 0x00	; 0
      898:	30 e0       	ldi	r19, 0x00	; 0
      89a:	40 e0       	ldi	r20, 0x00	; 0
@@ -1169,7 +1028,6 @@ float convert_to_percentage(uint8_t digital_value)
      8ce:	0e 94 09 0e 	call	0x1c12	; 0x1c12 <__mulsf3>
      8d2:	dc 01       	movw	r26, r24
      8d4:	cb 01       	movw	r24, r22
-}
      8d6:	bc 01       	movw	r22, r24
      8d8:	cd 01       	movw	r24, r26
      8da:	0f 90       	pop	r0
@@ -1182,33 +1040,18 @@ float convert_to_percentage(uint8_t digital_value)
      8e8:	08 95       	ret
 
 000008ea <main>:
-uint8_t arrow_line = 2;
-uint8_t previous_joystick_button;
-uint8_t game_on = 0;
-
-int main(void)
-{
      8ea:	cf 93       	push	r28
      8ec:	df 93       	push	r29
      8ee:	00 d0       	rcall	.+0      	; 0x8f0 <main+0x6>
      8f0:	cd b7       	in	r28, 0x3d	; 61
      8f2:	de b7       	in	r29, 0x3e	; 62
-	initializations();
      8f4:	0e 94 f1 04 	call	0x9e2	; 0x9e2 <initializations>
-	main_menu = menu_init();
      8f8:	0e 94 33 05 	call	0xa66	; 0xa66 <menu_init>
      8fc:	90 93 6b 02 	sts	0x026B, r25
      900:	80 93 6a 02 	sts	0x026A, r24
-	
-	
-	int mode = 0;
      904:	1a 82       	std	Y+2, r1	; 0x02
      906:	19 82       	std	Y+1, r1	; 0x01
-	while (truemaddafakka)
      908:	0e c0       	rjmp	.+28     	; 0x926 <main+0x3c>
-	{
-		
-		switch(mode){
      90a:	89 81       	ldd	r24, Y+1	; 0x01
      90c:	9a 81       	ldd	r25, Y+2	; 0x02
      90e:	00 97       	sbiw	r24, 0x00	; 0
@@ -1217,35 +1060,15 @@ int main(void)
      914:	91 05       	cpc	r25, r1
      916:	21 f0       	breq	.+8      	; 0x920 <main+0x36>
      918:	06 c0       	rjmp	.+12     	; 0x926 <main+0x3c>
-			case 0:
-			in_menus();
      91a:	0e 94 9e 04 	call	0x93c	; 0x93c <in_menus>
-			break;
      91e:	03 c0       	rjmp	.+6      	; 0x926 <main+0x3c>
-			
-			case 1:
-			playing_the_game();
      920:	0e 94 ea 04 	call	0x9d4	; 0x9d4 <playing_the_game>
-			break;
      924:	00 00       	nop
-	initializations();
-	main_menu = menu_init();
-	
-	
-	int mode = 0;
-	while (truemaddafakka)
      926:	80 91 0a 01 	lds	r24, 0x010A
      92a:	88 23       	and	r24, r24
      92c:	71 f7       	brne	.-36     	; 0x90a <main+0x20>
-		//
-		//printf("X prosent: %3.2f, Y prosent: %3.2f, Slider venstre: %3.2f, Slider høyre: %3.2f, Retning: %d ",j.x_percentage,j.y_percentage,slider_left,slider_right, d1);
-		//printf("Knapp 1: %d, Knapp 2: %d, Joystick knapp: %d\n",j.left_button,j.right_button,j.joystick_button);
-	}
-	
-	return 0;
      92e:	80 e0       	ldi	r24, 0x00	; 0
      930:	90 e0       	ldi	r25, 0x00	; 0
-}
      932:	0f 90       	pop	r0
      934:	0f 90       	pop	r0
      936:	df 91       	pop	r29
@@ -1253,8 +1076,6 @@ int main(void)
      93a:	08 95       	ret
 
 0000093c <in_menus>:
-
-void in_menus(){
      93c:	cf 93       	push	r28
      93e:	df 93       	push	r29
      940:	cd b7       	in	r28, 0x3d	; 61
@@ -1265,35 +1086,23 @@ void in_menus(){
      94a:	de bf       	out	0x3e, r29	; 62
      94c:	0f be       	out	0x3f, r0	; 63
      94e:	cd bf       	out	0x3d, r28	; 61
-	
-	int menu_printed = 0;
      950:	1a 82       	std	Y+2, r1	; 0x02
      952:	19 82       	std	Y+1, r1	; 0x01
-	while(truemaddafakka){
      954:	32 c0       	rjmp	.+100    	; 0x9ba <in_menus+0x7e>
-		if (menu_printed == 0)
      956:	89 81       	ldd	r24, Y+1	; 0x01
      958:	9a 81       	ldd	r25, Y+2	; 0x02
      95a:	00 97       	sbiw	r24, 0x00	; 0
      95c:	51 f4       	brne	.+20     	; 0x972 <in_menus+0x36>
-		{
-			print_menu(main_menu);
      95e:	80 91 6a 02 	lds	r24, 0x026A
      962:	90 91 6b 02 	lds	r25, 0x026B
      966:	0e 94 0b 08 	call	0x1016	; 0x1016 <print_menu>
-			menu_printed = 1;
      96a:	81 e0       	ldi	r24, 0x01	; 1
      96c:	90 e0       	ldi	r25, 0x00	; 0
      96e:	9a 83       	std	Y+2, r25	; 0x02
      970:	89 83       	std	Y+1, r24	; 0x01
-		}
-		
-		joyValues j;
-		read_joystick(&j);
      972:	ce 01       	movw	r24, r28
      974:	04 96       	adiw	r24, 0x04	; 4
      976:	0e 94 c6 02 	call	0x58c	; 0x58c <read_joystick>
-		direction d = joystick_getDirection(j.x_percentage,j.y_percentage);
      97a:	28 85       	ldd	r18, Y+8	; 0x08
      97c:	39 85       	ldd	r19, Y+9	; 0x09
      97e:	4a 85       	ldd	r20, Y+10	; 0x0a
@@ -1306,43 +1115,22 @@ void in_menus(){
      98c:	cd 01       	movw	r24, r26
      98e:	0e 94 2d 03 	call	0x65a	; 0x65a <joystick_getDirection>
      992:	8b 83       	std	Y+3, r24	; 0x03
-	
-		arrow_line = move_arrow(d,arrow_line);
      994:	80 91 0b 01 	lds	r24, 0x010B
      998:	68 2f       	mov	r22, r24
      99a:	8b 81       	ldd	r24, Y+3	; 0x03
      99c:	0e 94 a5 07 	call	0xf4a	; 0xf4a <move_arrow>
      9a0:	80 93 0b 01 	sts	0x010B, r24
-			j.joystick_button == 0;
-		}
-		else{
-			previous_joystick_button == 0;
-		}
-		if (j.joystick_button == 1) {
      9a4:	88 89       	ldd	r24, Y+16	; 0x10
      9a6:	99 89       	ldd	r25, Y+17	; 0x11
      9a8:	81 30       	cpi	r24, 0x01	; 1
      9aa:	91 05       	cpc	r25, r1
      9ac:	31 f4       	brne	.+12     	; 0x9ba <in_menus+0x7e>
-			game_on = button_action(arrow_line);
      9ae:	80 91 0b 01 	lds	r24, 0x010B
      9b2:	0e 94 8b 08 	call	0x1116	; 0x1116 <button_action>
      9b6:	80 93 66 02 	sts	0x0266, r24
-}
-
-void in_menus(){
-	
-	int menu_printed = 0;
-	while(truemaddafakka){
      9ba:	80 91 0a 01 	lds	r24, 0x010A
      9be:	88 23       	and	r24, r24
      9c0:	51 f6       	brne	.-108    	; 0x956 <in_menus+0x1a>
-		{
-			// Start game!
-		}
-		
-	}
-}
      9c2:	66 96       	adiw	r28, 0x16	; 22
      9c4:	0f b6       	in	r0, 0x3f	; 63
      9c6:	f8 94       	cli
@@ -1354,32 +1142,20 @@ void in_menus(){
      9d2:	08 95       	ret
 
 000009d4 <playing_the_game>:
-
-void playing_the_game(){
      9d4:	cf 93       	push	r28
      9d6:	df 93       	push	r29
      9d8:	cd b7       	in	r28, 0x3d	; 61
      9da:	de b7       	in	r29, 0x3e	; 62
-	
-}
      9dc:	df 91       	pop	r29
      9de:	cf 91       	pop	r28
      9e0:	08 95       	ret
 
 000009e2 <initializations>:
-
-
-
-void initializations(){
      9e2:	cf 93       	push	r28
      9e4:	df 93       	push	r29
      9e6:	00 d0       	rcall	.+0      	; 0x9e8 <initializations+0x6>
      9e8:	cd b7       	in	r28, 0x3d	; 61
      9ea:	de b7       	in	r29, 0x3e	; 62
-	//static volatile long temp = F_OSC; //For testing
-	//Breakpoint x2
-	// Enable external memory
-	set_bit(MCUCR,SRE);
      9ec:	85 e5       	ldi	r24, 0x55	; 85
      9ee:	90 e0       	ldi	r25, 0x00	; 0
      9f0:	25 e5       	ldi	r18, 0x55	; 85
@@ -1389,8 +1165,6 @@ void initializations(){
      9f8:	20 68       	ori	r18, 0x80	; 128
      9fa:	fc 01       	movw	r30, r24
      9fc:	20 83       	st	Z, r18
-	// Mask PC7-PC4
-	set_bit(SFIOR,XMM2);
      9fe:	80 e5       	ldi	r24, 0x50	; 80
      a00:	90 e0       	ldi	r25, 0x00	; 0
      a02:	20 e5       	ldi	r18, 0x50	; 80
@@ -1400,24 +1174,17 @@ void initializations(){
      a0a:	20 62       	ori	r18, 0x20	; 32
      a0c:	fc 01       	movw	r30, r24
      a0e:	20 83       	st	Z, r18
-	int baud = (int) MYUBRR;
      a10:	8f e1       	ldi	r24, 0x1F	; 31
      a12:	90 e0       	ldi	r25, 0x00	; 0
      a14:	9a 83       	std	Y+2, r25	; 0x02
      a16:	89 83       	std	Y+1, r24	; 0x01
-	USART_Init(baud);
      a18:	89 81       	ldd	r24, Y+1	; 0x01
      a1a:	9a 81       	ldd	r25, Y+2	; 0x02
      a1c:	0e 94 1b 0c 	call	0x1836	; 0x1836 <USART_Init>
-	sram_setup();
      a20:	0e 94 37 0b 	call	0x166e	; 0x166e <sram_setup>
-	SRAM_test();
      a24:	0e 94 40 0b 	call	0x1680	; 0x1680 <SRAM_test>
-	setup_ADC();
      a28:	0e 94 54 02 	call	0x4a8	; 0x4a8 <setup_ADC>
-	joystick_init();
      a2c:	0e 94 9b 02 	call	0x536	; 0x536 <joystick_init>
-	oled_init();
      a30:	0e 94 8c 09 	call	0x1318	; 0x1318 <oled_init>
      a34:	0f 90       	pop	r0
      a36:	0f 90       	pop	r0
@@ -1426,20 +1193,12 @@ void initializations(){
      a3c:	08 95       	ret
 
 00000a3e <stringFromDifficulty>:
-}menu_t;
-
-typedef enum {EASY, MEDIUM, HARD} difficulty;
-	
-static inline char *stringFromDifficulty(difficulty d)
-{
      a3e:	cf 93       	push	r28
      a40:	df 93       	push	r29
      a42:	1f 92       	push	r1
      a44:	cd b7       	in	r28, 0x3d	; 61
      a46:	de b7       	in	r29, 0x3e	; 62
      a48:	89 83       	std	Y+1, r24	; 0x01
-	static const char *strings[] = { "EASY", "MEDIUM", "HARD"};
-	return strings[d];
      a4a:	89 81       	ldd	r24, Y+1	; 0x01
      a4c:	88 2f       	mov	r24, r24
      a4e:	90 e0       	ldi	r25, 0x00	; 0
@@ -1450,19 +1209,12 @@ static inline char *stringFromDifficulty(difficulty d)
      a58:	fc 01       	movw	r30, r24
      a5a:	80 81       	ld	r24, Z
      a5c:	91 81       	ldd	r25, Z+1	; 0x01
-}
      a5e:	0f 90       	pop	r0
      a60:	df 91       	pop	r29
      a62:	cf 91       	pop	r28
      a64:	08 95       	ret
 
 00000a66 <menu_init>:
-// Variabel for å holde på nåværende meny, kan være nyttig i main f. eks.
-menu_t * current_menu;
-difficulty GitGud = EASY;
-uint8_t game_started = 0;
-
-menu_t * menu_init (){
      a66:	0f 93       	push	r16
      a68:	1f 93       	push	r17
      a6a:	cf 93       	push	r28
@@ -1470,14 +1222,11 @@ menu_t * menu_init (){
      a6e:	00 d0       	rcall	.+0      	; 0xa70 <menu_init+0xa>
      a70:	cd b7       	in	r28, 0x3d	; 61
      a72:	de b7       	in	r29, 0x3e	; 62
-	//Main menu
-	menu_t * main_menu = malloc(sizeof(menu_t));
      a74:	8d e0       	ldi	r24, 0x0D	; 13
      a76:	90 e0       	ldi	r25, 0x00	; 0
      a78:	0e 94 1e 12 	call	0x243c	; 0x243c <malloc>
      a7c:	9a 83       	std	Y+2, r25	; 0x02
      a7e:	89 83       	std	Y+1, r24	; 0x01
-	main_menu ->name = "MAIN MENU";
      a80:	89 81       	ldd	r24, Y+1	; 0x01
      a82:	9a 81       	ldd	r25, Y+2	; 0x02
      a84:	27 e1       	ldi	r18, 0x17	; 23
@@ -1485,8 +1234,6 @@ menu_t * menu_init (){
      a88:	fc 01       	movw	r30, r24
      a8a:	34 87       	std	Z+12, r19	; 0x0c
      a8c:	23 87       	std	Z+11, r18	; 0x0b
-	
-	main_menu -> child1 = malloc(sizeof(menu_t));
      a8e:	8d e0       	ldi	r24, 0x0D	; 13
      a90:	90 e0       	ldi	r25, 0x00	; 0
      a92:	0e 94 1e 12 	call	0x243c	; 0x243c <malloc>
@@ -1496,7 +1243,6 @@ menu_t * menu_init (){
      a9c:	fc 01       	movw	r30, r24
      a9e:	33 83       	std	Z+3, r19	; 0x03
      aa0:	22 83       	std	Z+2, r18	; 0x02
-	main_menu -> child1 -> name = "NEW GAME";
      aa2:	89 81       	ldd	r24, Y+1	; 0x01
      aa4:	9a 81       	ldd	r25, Y+2	; 0x02
      aa6:	fc 01       	movw	r30, r24
@@ -1507,7 +1253,6 @@ menu_t * menu_init (){
      ab0:	fc 01       	movw	r30, r24
      ab2:	34 87       	std	Z+12, r19	; 0x0c
      ab4:	23 87       	std	Z+11, r18	; 0x0b
-	main_menu -> child1 -> parent = main_menu;
      ab6:	89 81       	ldd	r24, Y+1	; 0x01
      ab8:	9a 81       	ldd	r25, Y+2	; 0x02
      aba:	fc 01       	movw	r30, r24
@@ -1518,7 +1263,6 @@ menu_t * menu_init (){
      ac4:	fc 01       	movw	r30, r24
      ac6:	31 83       	std	Z+1, r19	; 0x01
      ac8:	20 83       	st	Z, r18
-	main_menu -> child1 -> number_of_children = 0;
      aca:	89 81       	ldd	r24, Y+1	; 0x01
      acc:	9a 81       	ldd	r25, Y+2	; 0x02
      ace:	fc 01       	movw	r30, r24
@@ -1526,8 +1270,6 @@ menu_t * menu_init (){
      ad2:	93 81       	ldd	r25, Z+3	; 0x03
      ad4:	fc 01       	movw	r30, r24
      ad6:	12 86       	std	Z+10, r1	; 0x0a
-	
-	main_menu -> child2 = malloc(sizeof(menu_t));
      ad8:	8d e0       	ldi	r24, 0x0D	; 13
      ada:	90 e0       	ldi	r25, 0x00	; 0
      adc:	0e 94 1e 12 	call	0x243c	; 0x243c <malloc>
@@ -1537,7 +1279,6 @@ menu_t * menu_init (){
      ae6:	fc 01       	movw	r30, r24
      ae8:	35 83       	std	Z+5, r19	; 0x05
      aea:	24 83       	std	Z+4, r18	; 0x04
-	main_menu -> child2->name = "HIGH SCORE";
      aec:	89 81       	ldd	r24, Y+1	; 0x01
      aee:	9a 81       	ldd	r25, Y+2	; 0x02
      af0:	fc 01       	movw	r30, r24
@@ -1548,7 +1289,6 @@ menu_t * menu_init (){
      afa:	fc 01       	movw	r30, r24
      afc:	34 87       	std	Z+12, r19	; 0x0c
      afe:	23 87       	std	Z+11, r18	; 0x0b
-	main_menu -> child2->parent = main_menu;
      b00:	89 81       	ldd	r24, Y+1	; 0x01
      b02:	9a 81       	ldd	r25, Y+2	; 0x02
      b04:	fc 01       	movw	r30, r24
@@ -1559,7 +1299,6 @@ menu_t * menu_init (){
      b0e:	fc 01       	movw	r30, r24
      b10:	31 83       	std	Z+1, r19	; 0x01
      b12:	20 83       	st	Z, r18
-	main_menu -> child2 -> number_of_children = 1;
      b14:	89 81       	ldd	r24, Y+1	; 0x01
      b16:	9a 81       	ldd	r25, Y+2	; 0x02
      b18:	fc 01       	movw	r30, r24
@@ -1568,8 +1307,6 @@ menu_t * menu_init (){
      b1e:	21 e0       	ldi	r18, 0x01	; 1
      b20:	fc 01       	movw	r30, r24
      b22:	22 87       	std	Z+10, r18	; 0x0a
-	
-	main_menu -> child3 = malloc(sizeof(menu_t));
      b24:	8d e0       	ldi	r24, 0x0D	; 13
      b26:	90 e0       	ldi	r25, 0x00	; 0
      b28:	0e 94 1e 12 	call	0x243c	; 0x243c <malloc>
@@ -1579,7 +1316,6 @@ menu_t * menu_init (){
      b32:	fc 01       	movw	r30, r24
      b34:	37 83       	std	Z+7, r19	; 0x07
      b36:	26 83       	std	Z+6, r18	; 0x06
-	main_menu -> child3->name = "SETTINGS";
      b38:	89 81       	ldd	r24, Y+1	; 0x01
      b3a:	9a 81       	ldd	r25, Y+2	; 0x02
      b3c:	fc 01       	movw	r30, r24
@@ -1590,7 +1326,6 @@ menu_t * menu_init (){
      b46:	fc 01       	movw	r30, r24
      b48:	34 87       	std	Z+12, r19	; 0x0c
      b4a:	23 87       	std	Z+11, r18	; 0x0b
-	main_menu -> child3->parent = main_menu;
      b4c:	89 81       	ldd	r24, Y+1	; 0x01
      b4e:	9a 81       	ldd	r25, Y+2	; 0x02
      b50:	fc 01       	movw	r30, r24
@@ -1601,22 +1336,16 @@ menu_t * menu_init (){
      b5a:	fc 01       	movw	r30, r24
      b5c:	31 83       	std	Z+1, r19	; 0x01
      b5e:	20 83       	st	Z, r18
-	main_menu ->child4 = NULL;
      b60:	89 81       	ldd	r24, Y+1	; 0x01
      b62:	9a 81       	ldd	r25, Y+2	; 0x02
      b64:	fc 01       	movw	r30, r24
      b66:	11 86       	std	Z+9, r1	; 0x09
      b68:	10 86       	std	Z+8, r1	; 0x08
-
-	main_menu -> number_of_children = 3;
      b6a:	89 81       	ldd	r24, Y+1	; 0x01
      b6c:	9a 81       	ldd	r25, Y+2	; 0x02
      b6e:	23 e0       	ldi	r18, 0x03	; 3
      b70:	fc 01       	movw	r30, r24
      b72:	22 87       	std	Z+10, r18	; 0x0a
-	
-	//High score menu
-	main_menu ->child2->child1 = malloc(sizeof(menu_t));
      b74:	89 81       	ldd	r24, Y+1	; 0x01
      b76:	9a 81       	ldd	r25, Y+2	; 0x02
      b78:	fc 01       	movw	r30, r24
@@ -1628,7 +1357,6 @@ menu_t * menu_init (){
      b86:	f8 01       	movw	r30, r16
      b88:	93 83       	std	Z+3, r25	; 0x03
      b8a:	82 83       	std	Z+2, r24	; 0x02
-	main_menu ->child2->child1->name = "RETURN";
      b8c:	89 81       	ldd	r24, Y+1	; 0x01
      b8e:	9a 81       	ldd	r25, Y+2	; 0x02
      b90:	fc 01       	movw	r30, r24
@@ -1642,7 +1370,6 @@ menu_t * menu_init (){
      ba0:	fc 01       	movw	r30, r24
      ba2:	34 87       	std	Z+12, r19	; 0x0c
      ba4:	23 87       	std	Z+11, r18	; 0x0b
-	main_menu ->child2->child1->parent = main_menu ->child2;
      ba6:	89 81       	ldd	r24, Y+1	; 0x01
      ba8:	9a 81       	ldd	r25, Y+2	; 0x02
      baa:	fc 01       	movw	r30, r24
@@ -1659,7 +1386,6 @@ menu_t * menu_init (){
      bc0:	fc 01       	movw	r30, r24
      bc2:	31 83       	std	Z+1, r19	; 0x01
      bc4:	20 83       	st	Z, r18
-	main_menu ->child2->child1->number_of_children = 0;
      bc6:	89 81       	ldd	r24, Y+1	; 0x01
      bc8:	9a 81       	ldd	r25, Y+2	; 0x02
      bca:	fc 01       	movw	r30, r24
@@ -1670,7 +1396,6 @@ menu_t * menu_init (){
      bd4:	93 81       	ldd	r25, Z+3	; 0x03
      bd6:	fc 01       	movw	r30, r24
      bd8:	12 86       	std	Z+10, r1	; 0x0a
-	main_menu ->child2->child2 =main_menu ->child2->child3=main_menu ->child2->child4 = NULL;
      bda:	89 81       	ldd	r24, Y+1	; 0x01
      bdc:	9a 81       	ldd	r25, Y+2	; 0x02
      bde:	fc 01       	movw	r30, r24
@@ -1701,9 +1426,6 @@ menu_t * menu_init (){
      c10:	fa 01       	movw	r30, r20
      c12:	95 83       	std	Z+5, r25	; 0x05
      c14:	84 83       	std	Z+4, r24	; 0x04
-	
-	//Settings menu
-	main_menu ->child3->child1 = malloc(sizeof(menu_t));
      c16:	89 81       	ldd	r24, Y+1	; 0x01
      c18:	9a 81       	ldd	r25, Y+2	; 0x02
      c1a:	fc 01       	movw	r30, r24
@@ -1715,7 +1437,6 @@ menu_t * menu_init (){
      c28:	f8 01       	movw	r30, r16
      c2a:	93 83       	std	Z+3, r25	; 0x03
      c2c:	82 83       	std	Z+2, r24	; 0x02
-	main_menu ->child3->child1->name = "SET DIFFICULTY";
      c2e:	89 81       	ldd	r24, Y+1	; 0x01
      c30:	9a 81       	ldd	r25, Y+2	; 0x02
      c32:	fc 01       	movw	r30, r24
@@ -1729,7 +1450,6 @@ menu_t * menu_init (){
      c42:	fc 01       	movw	r30, r24
      c44:	34 87       	std	Z+12, r19	; 0x0c
      c46:	23 87       	std	Z+11, r18	; 0x0b
-	main_menu ->child3->child1->parent = main_menu->child3;
      c48:	89 81       	ldd	r24, Y+1	; 0x01
      c4a:	9a 81       	ldd	r25, Y+2	; 0x02
      c4c:	fc 01       	movw	r30, r24
@@ -1746,9 +1466,6 @@ menu_t * menu_init (){
      c62:	fc 01       	movw	r30, r24
      c64:	31 83       	std	Z+1, r19	; 0x01
      c66:	20 83       	st	Z, r18
-	
-	// Difficulty settings
-	main_menu -> child3 -> child1 -> child1 = malloc(sizeof(menu_t));
      c68:	89 81       	ldd	r24, Y+1	; 0x01
      c6a:	9a 81       	ldd	r25, Y+2	; 0x02
      c6c:	fc 01       	movw	r30, r24
@@ -1763,7 +1480,6 @@ menu_t * menu_init (){
      c80:	f8 01       	movw	r30, r16
      c82:	93 83       	std	Z+3, r25	; 0x03
      c84:	82 83       	std	Z+2, r24	; 0x02
-	main_menu -> child3 -> child1 -> child1 -> name = "EASY";
      c86:	89 81       	ldd	r24, Y+1	; 0x01
      c88:	9a 81       	ldd	r25, Y+2	; 0x02
      c8a:	fc 01       	movw	r30, r24
@@ -1780,7 +1496,6 @@ menu_t * menu_init (){
      ca0:	fc 01       	movw	r30, r24
      ca2:	34 87       	std	Z+12, r19	; 0x0c
      ca4:	23 87       	std	Z+11, r18	; 0x0b
-	main_menu -> child3 -> child1 -> child1 ->parent = main_menu ->child3 ->child1;
      ca6:	89 81       	ldd	r24, Y+1	; 0x01
      ca8:	9a 81       	ldd	r25, Y+2	; 0x02
      caa:	fc 01       	movw	r30, r24
@@ -1803,7 +1518,6 @@ menu_t * menu_init (){
      ccc:	fc 01       	movw	r30, r24
      cce:	31 83       	std	Z+1, r19	; 0x01
      cd0:	20 83       	st	Z, r18
-	main_menu -> child3 -> child1 -> child2 = malloc(sizeof(menu_t));
      cd2:	89 81       	ldd	r24, Y+1	; 0x01
      cd4:	9a 81       	ldd	r25, Y+2	; 0x02
      cd6:	fc 01       	movw	r30, r24
@@ -1818,7 +1532,6 @@ menu_t * menu_init (){
      cea:	f8 01       	movw	r30, r16
      cec:	95 83       	std	Z+5, r25	; 0x05
      cee:	84 83       	std	Z+4, r24	; 0x04
-	main_menu -> child3 -> child1 -> child2 -> name = "MEDIUM";
      cf0:	89 81       	ldd	r24, Y+1	; 0x01
      cf2:	9a 81       	ldd	r25, Y+2	; 0x02
      cf4:	fc 01       	movw	r30, r24
@@ -1835,7 +1548,6 @@ menu_t * menu_init (){
      d0a:	fc 01       	movw	r30, r24
      d0c:	34 87       	std	Z+12, r19	; 0x0c
      d0e:	23 87       	std	Z+11, r18	; 0x0b
-	main_menu -> child3 -> child1 -> child2 ->parent = main_menu ->child3 ->child1;
      d10:	89 81       	ldd	r24, Y+1	; 0x01
      d12:	9a 81       	ldd	r25, Y+2	; 0x02
      d14:	fc 01       	movw	r30, r24
@@ -1858,7 +1570,6 @@ menu_t * menu_init (){
      d36:	fc 01       	movw	r30, r24
      d38:	31 83       	std	Z+1, r19	; 0x01
      d3a:	20 83       	st	Z, r18
-	main_menu -> child3 -> child1 -> child3 = malloc(sizeof(menu_t));
      d3c:	89 81       	ldd	r24, Y+1	; 0x01
      d3e:	9a 81       	ldd	r25, Y+2	; 0x02
      d40:	fc 01       	movw	r30, r24
@@ -1873,7 +1584,6 @@ menu_t * menu_init (){
      d54:	f8 01       	movw	r30, r16
      d56:	97 83       	std	Z+7, r25	; 0x07
      d58:	86 83       	std	Z+6, r24	; 0x06
-	main_menu -> child3 -> child1 -> child3 -> name = "HARD";
      d5a:	89 81       	ldd	r24, Y+1	; 0x01
      d5c:	9a 81       	ldd	r25, Y+2	; 0x02
      d5e:	fc 01       	movw	r30, r24
@@ -1890,7 +1600,6 @@ menu_t * menu_init (){
      d74:	fc 01       	movw	r30, r24
      d76:	34 87       	std	Z+12, r19	; 0x0c
      d78:	23 87       	std	Z+11, r18	; 0x0b
-	main_menu -> child3 -> child1 -> child3 ->parent = main_menu ->child3 ->child1;
      d7a:	89 81       	ldd	r24, Y+1	; 0x01
      d7c:	9a 81       	ldd	r25, Y+2	; 0x02
      d7e:	fc 01       	movw	r30, r24
@@ -1913,7 +1622,6 @@ menu_t * menu_init (){
      da0:	fc 01       	movw	r30, r24
      da2:	31 83       	std	Z+1, r19	; 0x01
      da4:	20 83       	st	Z, r18
-	main_menu -> child3 -> child1 -> child4 = malloc(sizeof(menu_t));
      da6:	89 81       	ldd	r24, Y+1	; 0x01
      da8:	9a 81       	ldd	r25, Y+2	; 0x02
      daa:	fc 01       	movw	r30, r24
@@ -1928,7 +1636,6 @@ menu_t * menu_init (){
      dbe:	f8 01       	movw	r30, r16
      dc0:	91 87       	std	Z+9, r25	; 0x09
      dc2:	80 87       	std	Z+8, r24	; 0x08
-	main_menu -> child3 -> child1 -> child4 -> name = "RETURN";
      dc4:	89 81       	ldd	r24, Y+1	; 0x01
      dc6:	9a 81       	ldd	r25, Y+2	; 0x02
      dc8:	fc 01       	movw	r30, r24
@@ -1945,7 +1652,6 @@ menu_t * menu_init (){
      dde:	fc 01       	movw	r30, r24
      de0:	34 87       	std	Z+12, r19	; 0x0c
      de2:	23 87       	std	Z+11, r18	; 0x0b
-	main_menu -> child3 -> child1 -> child4 ->parent = main_menu ->child3 ->child1;
      de4:	89 81       	ldd	r24, Y+1	; 0x01
      de6:	9a 81       	ldd	r25, Y+2	; 0x02
      de8:	fc 01       	movw	r30, r24
@@ -1968,7 +1674,6 @@ menu_t * menu_init (){
      e0a:	fc 01       	movw	r30, r24
      e0c:	31 83       	std	Z+1, r19	; 0x01
      e0e:	20 83       	st	Z, r18
-	main_menu -> child3 -> child1 -> number_of_children = 4;
      e10:	89 81       	ldd	r24, Y+1	; 0x01
      e12:	9a 81       	ldd	r25, Y+2	; 0x02
      e14:	fc 01       	movw	r30, r24
@@ -1980,9 +1685,6 @@ menu_t * menu_init (){
      e20:	24 e0       	ldi	r18, 0x04	; 4
      e22:	fc 01       	movw	r30, r24
      e24:	22 87       	std	Z+10, r18	; 0x0a
-	
-	// Debugging (use?)
-	main_menu -> child3 -> child2 = malloc(sizeof(menu_t));
      e26:	89 81       	ldd	r24, Y+1	; 0x01
      e28:	9a 81       	ldd	r25, Y+2	; 0x02
      e2a:	fc 01       	movw	r30, r24
@@ -1994,7 +1696,6 @@ menu_t * menu_init (){
      e38:	f8 01       	movw	r30, r16
      e3a:	95 83       	std	Z+5, r25	; 0x05
      e3c:	84 83       	std	Z+4, r24	; 0x04
-	main_menu -> child3 -> child2 -> name = "DEBUGGING";
      e3e:	89 81       	ldd	r24, Y+1	; 0x01
      e40:	9a 81       	ldd	r25, Y+2	; 0x02
      e42:	fc 01       	movw	r30, r24
@@ -2008,7 +1709,6 @@ menu_t * menu_init (){
      e52:	fc 01       	movw	r30, r24
      e54:	34 87       	std	Z+12, r19	; 0x0c
      e56:	23 87       	std	Z+11, r18	; 0x0b
-	main_menu -> child3 -> child2 -> parent = main_menu->child3;
      e58:	89 81       	ldd	r24, Y+1	; 0x01
      e5a:	9a 81       	ldd	r25, Y+2	; 0x02
      e5c:	fc 01       	movw	r30, r24
@@ -2025,8 +1725,6 @@ menu_t * menu_init (){
      e72:	fc 01       	movw	r30, r24
      e74:	31 83       	std	Z+1, r19	; 0x01
      e76:	20 83       	st	Z, r18
-	// Calibrate joystick
-	main_menu -> child3 -> child3 = malloc(sizeof(menu_t));
      e78:	89 81       	ldd	r24, Y+1	; 0x01
      e7a:	9a 81       	ldd	r25, Y+2	; 0x02
      e7c:	fc 01       	movw	r30, r24
@@ -2038,7 +1736,6 @@ menu_t * menu_init (){
      e8a:	f8 01       	movw	r30, r16
      e8c:	97 83       	std	Z+7, r25	; 0x07
      e8e:	86 83       	std	Z+6, r24	; 0x06
-	main_menu -> child3 -> child3->name = "CAL. JOYSTICK";
      e90:	89 81       	ldd	r24, Y+1	; 0x01
      e92:	9a 81       	ldd	r25, Y+2	; 0x02
      e94:	fc 01       	movw	r30, r24
@@ -2052,7 +1749,6 @@ menu_t * menu_init (){
      ea4:	fc 01       	movw	r30, r24
      ea6:	34 87       	std	Z+12, r19	; 0x0c
      ea8:	23 87       	std	Z+11, r18	; 0x0b
-	main_menu -> child3 -> child3->parent = main_menu->child3;
      eaa:	89 81       	ldd	r24, Y+1	; 0x01
      eac:	9a 81       	ldd	r25, Y+2	; 0x02
      eae:	fc 01       	movw	r30, r24
@@ -2069,8 +1765,6 @@ menu_t * menu_init (){
      ec4:	fc 01       	movw	r30, r24
      ec6:	31 83       	std	Z+1, r19	; 0x01
      ec8:	20 83       	st	Z, r18
-	// Return to main menu
-	main_menu -> child3 -> child4 = malloc(sizeof(menu_t));
      eca:	89 81       	ldd	r24, Y+1	; 0x01
      ecc:	9a 81       	ldd	r25, Y+2	; 0x02
      ece:	fc 01       	movw	r30, r24
@@ -2082,7 +1776,6 @@ menu_t * menu_init (){
      edc:	f8 01       	movw	r30, r16
      ede:	91 87       	std	Z+9, r25	; 0x09
      ee0:	80 87       	std	Z+8, r24	; 0x08
-	main_menu -> child3 -> child4 -> name = "RETURN";
      ee2:	89 81       	ldd	r24, Y+1	; 0x01
      ee4:	9a 81       	ldd	r25, Y+2	; 0x02
      ee6:	fc 01       	movw	r30, r24
@@ -2096,7 +1789,6 @@ menu_t * menu_init (){
      ef6:	fc 01       	movw	r30, r24
      ef8:	34 87       	std	Z+12, r19	; 0x0c
      efa:	23 87       	std	Z+11, r18	; 0x0b
-	main_menu -> child3 -> child4 -> parent = main_menu->child3;
      efc:	89 81       	ldd	r24, Y+1	; 0x01
      efe:	9a 81       	ldd	r25, Y+2	; 0x02
      f00:	fc 01       	movw	r30, r24
@@ -2113,8 +1805,6 @@ menu_t * menu_init (){
      f16:	fc 01       	movw	r30, r24
      f18:	31 83       	std	Z+1, r19	; 0x01
      f1a:	20 83       	st	Z, r18
-	
-	main_menu -> child3 -> number_of_children = 4;
      f1c:	89 81       	ldd	r24, Y+1	; 0x01
      f1e:	9a 81       	ldd	r25, Y+2	; 0x02
      f20:	fc 01       	movw	r30, r24
@@ -2123,15 +1813,12 @@ menu_t * menu_init (){
      f26:	24 e0       	ldi	r18, 0x04	; 4
      f28:	fc 01       	movw	r30, r24
      f2a:	22 87       	std	Z+10, r18	; 0x0a
-	current_menu = main_menu;
      f2c:	89 81       	ldd	r24, Y+1	; 0x01
      f2e:	9a 81       	ldd	r25, Y+2	; 0x02
      f30:	90 93 6d 02 	sts	0x026D, r25
      f34:	80 93 6c 02 	sts	0x026C, r24
-	return main_menu;
      f38:	89 81       	ldd	r24, Y+1	; 0x01
      f3a:	9a 81       	ldd	r25, Y+2	; 0x02
-}
      f3c:	0f 90       	pop	r0
      f3e:	0f 90       	pop	r0
      f40:	df 91       	pop	r29
@@ -2141,7 +1828,6 @@ menu_t * menu_init (){
      f48:	08 95       	ret
 
 00000f4a <move_arrow>:
-uint8_t move_arrow(direction dir ,uint8_t current_row){
      f4a:	cf 93       	push	r28
      f4c:	df 93       	push	r29
      f4e:	00 d0       	rcall	.+0      	; 0xf50 <move_arrow+0x6>
@@ -2150,28 +1836,20 @@ uint8_t move_arrow(direction dir ,uint8_t current_row){
      f54:	de b7       	in	r29, 0x3e	; 62
      f56:	8a 83       	std	Y+2, r24	; 0x02
      f58:	6b 83       	std	Y+3, r22	; 0x03
-	uint8_t number_of_rows = current_menu -> number_of_children;
      f5a:	80 91 6c 02 	lds	r24, 0x026C
      f5e:	90 91 6d 02 	lds	r25, 0x026D
      f62:	fc 01       	movw	r30, r24
      f64:	82 85       	ldd	r24, Z+10	; 0x0a
      f66:	89 83       	std	Y+1, r24	; 0x01
-	if(dir == previousDIR){
      f68:	80 91 0c 01 	lds	r24, 0x010C
      f6c:	9a 81       	ldd	r25, Y+2	; 0x02
      f6e:	98 17       	cp	r25, r24
      f70:	19 f4       	brne	.+6      	; 0xf78 <move_arrow+0x2e>
-		dir = NEUTRAL;
      f72:	84 e0       	ldi	r24, 0x04	; 4
      f74:	8a 83       	std	Y+2, r24	; 0x02
      f76:	03 c0       	rjmp	.+6      	; 0xf7e <move_arrow+0x34>
-	}
-	else{
-		previousDIR=NEUTRAL;
      f78:	84 e0       	ldi	r24, 0x04	; 4
      f7a:	80 93 0c 01 	sts	0x010C, r24
-	}
-	switch(dir) {
      f7e:	8a 81       	ldd	r24, Y+2	; 0x02
      f80:	88 2f       	mov	r24, r24
      f82:	90 e0       	ldi	r25, 0x00	; 0
@@ -2184,47 +1862,28 @@ uint8_t move_arrow(direction dir ,uint8_t current_row){
      f90:	00 97       	sbiw	r24, 0x00	; 0
      f92:	31 f0       	breq	.+12     	; 0xfa0 <move_arrow+0x56>
      f94:	39 c0       	rjmp	.+114    	; 0x1008 <move_arrow+0xbe>
-		case NEUTRAL :
-		oled_print_arrow(current_row,0);
      f96:	60 e0       	ldi	r22, 0x00	; 0
      f98:	8b 81       	ldd	r24, Y+3	; 0x03
      f9a:	0e 94 18 0b 	call	0x1630	; 0x1630 <oled_print_arrow>
-		break;
      f9e:	34 c0       	rjmp	.+104    	; 0x1008 <move_arrow+0xbe>
-		
-		case UP  :
-		if (current_row >= 3)
      fa0:	8b 81       	ldd	r24, Y+3	; 0x03
      fa2:	83 30       	cpi	r24, 0x03	; 3
      fa4:	90 f0       	brcs	.+36     	; 0xfca <move_arrow+0x80>
-		{
-			oled_pos(current_row, 0);
      fa6:	60 e0       	ldi	r22, 0x00	; 0
      fa8:	8b 81       	ldd	r24, Y+3	; 0x03
      faa:	0e 94 93 0a 	call	0x1526	; 0x1526 <oled_pos>
-			oled_print_string("  ");
      fae:	8d e7       	ldi	r24, 0x7D	; 125
      fb0:	91 e0       	ldi	r25, 0x01	; 1
      fb2:	0e 94 de 0a 	call	0x15bc	; 0x15bc <oled_print_string>
-			current_row--;
      fb6:	8b 81       	ldd	r24, Y+3	; 0x03
      fb8:	81 50       	subi	r24, 0x01	; 1
      fba:	8b 83       	std	Y+3, r24	; 0x03
-			oled_print_arrow(current_row,0);
      fbc:	60 e0       	ldi	r22, 0x00	; 0
      fbe:	8b 81       	ldd	r24, Y+3	; 0x03
      fc0:	0e 94 18 0b 	call	0x1630	; 0x1630 <oled_print_arrow>
-			previousDIR=UP;
      fc4:	10 92 0c 01 	sts	0x010C, r1
-		}
-
-		break;
      fc8:	1f c0       	rjmp	.+62     	; 0x1008 <move_arrow+0xbe>
      fca:	1e c0       	rjmp	.+60     	; 0x1008 <move_arrow+0xbe>
-		
-		case DOWN  :
-		
-		if (current_row <= 3 + number_of_rows)
      fcc:	8b 81       	ldd	r24, Y+3	; 0x03
      fce:	28 2f       	mov	r18, r24
      fd0:	30 e0       	ldi	r19, 0x00	; 0
@@ -2235,34 +1894,23 @@ uint8_t move_arrow(direction dir ,uint8_t current_row){
      fda:	82 17       	cp	r24, r18
      fdc:	93 07       	cpc	r25, r19
      fde:	9c f0       	brlt	.+38     	; 0x1006 <move_arrow+0xbc>
-		{
-			oled_pos(current_row, 0);
      fe0:	60 e0       	ldi	r22, 0x00	; 0
      fe2:	8b 81       	ldd	r24, Y+3	; 0x03
      fe4:	0e 94 93 0a 	call	0x1526	; 0x1526 <oled_pos>
-			oled_print_string("  ");
      fe8:	8d e7       	ldi	r24, 0x7D	; 125
      fea:	91 e0       	ldi	r25, 0x01	; 1
      fec:	0e 94 de 0a 	call	0x15bc	; 0x15bc <oled_print_string>
-			current_row++;
      ff0:	8b 81       	ldd	r24, Y+3	; 0x03
      ff2:	8f 5f       	subi	r24, 0xFF	; 255
      ff4:	8b 83       	std	Y+3, r24	; 0x03
-			oled_print_arrow(current_row,0);
      ff6:	60 e0       	ldi	r22, 0x00	; 0
      ff8:	8b 81       	ldd	r24, Y+3	; 0x03
      ffa:	0e 94 18 0b 	call	0x1630	; 0x1630 <oled_print_arrow>
-			previousDIR=DOWN;
      ffe:	81 e0       	ldi	r24, 0x01	; 1
     1000:	80 93 0c 01 	sts	0x010C, r24
-		}	
-		break;
     1004:	00 c0       	rjmp	.+0      	; 0x1006 <move_arrow+0xbc>
     1006:	00 00       	nop
-	}
-	return current_row;
     1008:	8b 81       	ldd	r24, Y+3	; 0x03
-}
     100a:	0f 90       	pop	r0
     100c:	0f 90       	pop	r0
     100e:	0f 90       	pop	r0
@@ -2271,8 +1919,6 @@ uint8_t move_arrow(direction dir ,uint8_t current_row){
     1014:	08 95       	ret
 
 00001016 <print_menu>:
-
-void print_menu (menu_t *menu){
     1016:	cf 93       	push	r28
     1018:	df 93       	push	r29
     101a:	00 d0       	rcall	.+0      	; 0x101c <print_menu+0x6>
@@ -2281,28 +1927,21 @@ void print_menu (menu_t *menu){
     1020:	de b7       	in	r29, 0x3e	; 62
     1022:	9c 83       	std	Y+4, r25	; 0x04
     1024:	8b 83       	std	Y+3, r24	; 0x03
-	menu_t * current = menu;
     1026:	8b 81       	ldd	r24, Y+3	; 0x03
     1028:	9c 81       	ldd	r25, Y+4	; 0x04
     102a:	9a 83       	std	Y+2, r25	; 0x02
     102c:	89 83       	std	Y+1, r24	; 0x01
-	oled_reset();
     102e:	0e 94 fb 09 	call	0x13f6	; 0x13f6 <oled_reset>
-	oled_home();
     1032:	0e 94 15 0a 	call	0x142a	; 0x142a <oled_home>
-	oled_pos(0,2);
     1036:	62 e0       	ldi	r22, 0x02	; 2
     1038:	80 e0       	ldi	r24, 0x00	; 0
     103a:	0e 94 93 0a 	call	0x1526	; 0x1526 <oled_pos>
-	oled_print_string(menu->name); //Skriver ut overskrift
     103e:	8b 81       	ldd	r24, Y+3	; 0x03
     1040:	9c 81       	ldd	r25, Y+4	; 0x04
     1042:	fc 01       	movw	r30, r24
     1044:	83 85       	ldd	r24, Z+11	; 0x0b
     1046:	94 85       	ldd	r25, Z+12	; 0x0c
     1048:	0e 94 de 0a 	call	0x15bc	; 0x15bc <oled_print_string>
-	
-	if (menu->child1 != NULL)
     104c:	8b 81       	ldd	r24, Y+3	; 0x03
     104e:	9c 81       	ldd	r25, Y+4	; 0x04
     1050:	fc 01       	movw	r30, r24
@@ -2310,12 +1949,9 @@ void print_menu (menu_t *menu){
     1054:	93 81       	ldd	r25, Z+3	; 0x03
     1056:	00 97       	sbiw	r24, 0x00	; 0
     1058:	71 f0       	breq	.+28     	; 0x1076 <print_menu+0x60>
-	{
-		oled_pos(2,2);
     105a:	62 e0       	ldi	r22, 0x02	; 2
     105c:	82 e0       	ldi	r24, 0x02	; 2
     105e:	0e 94 93 0a 	call	0x1526	; 0x1526 <oled_pos>
-		oled_print_string(menu->child1->name);
     1062:	8b 81       	ldd	r24, Y+3	; 0x03
     1064:	9c 81       	ldd	r25, Y+4	; 0x04
     1066:	fc 01       	movw	r30, r24
@@ -2325,9 +1961,6 @@ void print_menu (menu_t *menu){
     106e:	83 85       	ldd	r24, Z+11	; 0x0b
     1070:	94 85       	ldd	r25, Z+12	; 0x0c
     1072:	0e 94 de 0a 	call	0x15bc	; 0x15bc <oled_print_string>
-	}
-	
-	if (menu->child2 != NULL)
     1076:	8b 81       	ldd	r24, Y+3	; 0x03
     1078:	9c 81       	ldd	r25, Y+4	; 0x04
     107a:	fc 01       	movw	r30, r24
@@ -2335,12 +1968,9 @@ void print_menu (menu_t *menu){
     107e:	95 81       	ldd	r25, Z+5	; 0x05
     1080:	00 97       	sbiw	r24, 0x00	; 0
     1082:	71 f0       	breq	.+28     	; 0x10a0 <print_menu+0x8a>
-	{
-		oled_pos(3,2);
     1084:	62 e0       	ldi	r22, 0x02	; 2
     1086:	83 e0       	ldi	r24, 0x03	; 3
     1088:	0e 94 93 0a 	call	0x1526	; 0x1526 <oled_pos>
-		oled_print_string(menu->child2->name);
     108c:	8b 81       	ldd	r24, Y+3	; 0x03
     108e:	9c 81       	ldd	r25, Y+4	; 0x04
     1090:	fc 01       	movw	r30, r24
@@ -2350,9 +1980,6 @@ void print_menu (menu_t *menu){
     1098:	83 85       	ldd	r24, Z+11	; 0x0b
     109a:	94 85       	ldd	r25, Z+12	; 0x0c
     109c:	0e 94 de 0a 	call	0x15bc	; 0x15bc <oled_print_string>
-	}
-
-	if (menu->child3 != NULL)
     10a0:	8b 81       	ldd	r24, Y+3	; 0x03
     10a2:	9c 81       	ldd	r25, Y+4	; 0x04
     10a4:	fc 01       	movw	r30, r24
@@ -2360,12 +1987,9 @@ void print_menu (menu_t *menu){
     10a8:	97 81       	ldd	r25, Z+7	; 0x07
     10aa:	00 97       	sbiw	r24, 0x00	; 0
     10ac:	71 f0       	breq	.+28     	; 0x10ca <print_menu+0xb4>
-	{
-		oled_pos(4,2);
     10ae:	62 e0       	ldi	r22, 0x02	; 2
     10b0:	84 e0       	ldi	r24, 0x04	; 4
     10b2:	0e 94 93 0a 	call	0x1526	; 0x1526 <oled_pos>
-		oled_print_string(menu->child3->name);
     10b6:	8b 81       	ldd	r24, Y+3	; 0x03
     10b8:	9c 81       	ldd	r25, Y+4	; 0x04
     10ba:	fc 01       	movw	r30, r24
@@ -2375,8 +1999,6 @@ void print_menu (menu_t *menu){
     10c2:	83 85       	ldd	r24, Z+11	; 0x0b
     10c4:	94 85       	ldd	r25, Z+12	; 0x0c
     10c6:	0e 94 de 0a 	call	0x15bc	; 0x15bc <oled_print_string>
-	}
-	if (menu->child4 != NULL)
     10ca:	8b 81       	ldd	r24, Y+3	; 0x03
     10cc:	9c 81       	ldd	r25, Y+4	; 0x04
     10ce:	fc 01       	movw	r30, r24
@@ -2384,12 +2006,9 @@ void print_menu (menu_t *menu){
     10d2:	91 85       	ldd	r25, Z+9	; 0x09
     10d4:	00 97       	sbiw	r24, 0x00	; 0
     10d6:	71 f0       	breq	.+28     	; 0x10f4 <print_menu+0xde>
-	{
-		oled_pos(5,2);
     10d8:	62 e0       	ldi	r22, 0x02	; 2
     10da:	85 e0       	ldi	r24, 0x05	; 5
     10dc:	0e 94 93 0a 	call	0x1526	; 0x1526 <oled_pos>
-		oled_print_string(menu->child4->name);
     10e0:	8b 81       	ldd	r24, Y+3	; 0x03
     10e2:	9c 81       	ldd	r25, Y+4	; 0x04
     10e4:	fc 01       	movw	r30, r24
@@ -2399,18 +2018,12 @@ void print_menu (menu_t *menu){
     10ec:	83 85       	ldd	r24, Z+11	; 0x0b
     10ee:	94 85       	ldd	r25, Z+12	; 0x0c
     10f0:	0e 94 de 0a 	call	0x15bc	; 0x15bc <oled_print_string>
-	}
-	
-	// Print the current difficulty setting.
-	oled_pos(7,2);
     10f4:	62 e0       	ldi	r22, 0x02	; 2
     10f6:	87 e0       	ldi	r24, 0x07	; 7
     10f8:	0e 94 93 0a 	call	0x1526	; 0x1526 <oled_pos>
-	oled_print_string(("DFFCLTY: %s", stringFromDifficulty(GitGud)));
     10fc:	80 91 67 02 	lds	r24, 0x0267
     1100:	0e 94 1f 05 	call	0xa3e	; 0xa3e <stringFromDifficulty>
     1104:	0e 94 de 0a 	call	0x15bc	; 0x15bc <oled_print_string>
-}
     1108:	0f 90       	pop	r0
     110a:	0f 90       	pop	r0
     110c:	0f 90       	pop	r0
@@ -2420,19 +2033,12 @@ void print_menu (menu_t *menu){
     1114:	08 95       	ret
 
 00001116 <button_action>:
-	return GitGud;
-}
-
-// Implements action based on joystick button presses
-// Possibility for cleaner code, written in a hurry :-)
-uint8_t button_action (uint8_t current_line) {
     1116:	cf 93       	push	r28
     1118:	df 93       	push	r29
     111a:	00 d0       	rcall	.+0      	; 0x111c <button_action+0x6>
     111c:	cd b7       	in	r28, 0x3d	; 61
     111e:	de b7       	in	r29, 0x3e	; 62
     1120:	89 83       	std	Y+1, r24	; 0x01
-	if (strcmp(current_menu->name, "MAIN MENU") == 0)
     1122:	80 91 6c 02 	lds	r24, 0x026C
     1126:	90 91 6d 02 	lds	r25, 0x026D
     112a:	fc 01       	movw	r30, r24
@@ -2443,36 +2049,24 @@ uint8_t button_action (uint8_t current_line) {
     1134:	0e 94 86 14 	call	0x290c	; 0x290c <strcmp>
     1138:	00 97       	sbiw	r24, 0x00	; 0
     113a:	a9 f4       	brne	.+42     	; 0x1166 <button_action+0x50>
-	{
-		if(current_line == 2)
     113c:	89 81       	ldd	r24, Y+1	; 0x01
     113e:	82 30       	cpi	r24, 0x02	; 2
     1140:	09 f4       	brne	.+2      	; 0x1144 <button_action+0x2e>
     1142:	4e c0       	rjmp	.+156    	; 0x11e0 <button_action+0xca>
-		{
-			game_started == 1;
-		}
-		else if (current_line == 3) {
     1144:	89 81       	ldd	r24, Y+1	; 0x01
     1146:	83 30       	cpi	r24, 0x03	; 3
     1148:	41 f4       	brne	.+16     	; 0x115a <button_action+0x44>
-			print_highscore();
     114a:	0e 94 85 09 	call	0x130a	; 0x130a <print_highscore>
-			navigateMenu(current_line);
     114e:	89 81       	ldd	r24, Y+1	; 0x01
     1150:	88 2f       	mov	r24, r24
     1152:	90 e0       	ldi	r25, 0x00	; 0
     1154:	0e 94 f7 08 	call	0x11ee	; 0x11ee <navigateMenu>
     1158:	43 c0       	rjmp	.+134    	; 0x11e0 <button_action+0xca>
-		}
-		else navigateMenu(current_line);
     115a:	89 81       	ldd	r24, Y+1	; 0x01
     115c:	88 2f       	mov	r24, r24
     115e:	90 e0       	ldi	r25, 0x00	; 0
     1160:	0e 94 f7 08 	call	0x11ee	; 0x11ee <navigateMenu>
     1164:	3d c0       	rjmp	.+122    	; 0x11e0 <button_action+0xca>
-	}
-	else if (strcmp(current_menu->name, "SETTINGS") == 0)
     1166:	80 91 6c 02 	lds	r24, 0x026C
     116a:	90 91 6d 02 	lds	r25, 0x026D
     116e:	fc 01       	movw	r30, r24
@@ -2483,43 +2077,27 @@ uint8_t button_action (uint8_t current_line) {
     1178:	0e 94 86 14 	call	0x290c	; 0x290c <strcmp>
     117c:	00 97       	sbiw	r24, 0x00	; 0
     117e:	c9 f4       	brne	.+50     	; 0x11b2 <button_action+0x9c>
-	{
-		if (current_line == 2)
     1180:	89 81       	ldd	r24, Y+1	; 0x01
     1182:	82 30       	cpi	r24, 0x02	; 2
     1184:	31 f4       	brne	.+12     	; 0x1192 <button_action+0x7c>
-		{
-			navigateMenu(current_line);
     1186:	89 81       	ldd	r24, Y+1	; 0x01
     1188:	88 2f       	mov	r24, r24
     118a:	90 e0       	ldi	r25, 0x00	; 0
     118c:	0e 94 f7 08 	call	0x11ee	; 0x11ee <navigateMenu>
     1190:	27 c0       	rjmp	.+78     	; 0x11e0 <button_action+0xca>
-		}
-		else if (current_line == 3); // TODO Debugging
     1192:	89 81       	ldd	r24, Y+1	; 0x01
     1194:	83 30       	cpi	r24, 0x03	; 3
     1196:	21 f1       	breq	.+72     	; 0x11e0 <button_action+0xca>
-		
-		else if (current_line == 4); // TODO Calibrate joystick
     1198:	89 81       	ldd	r24, Y+1	; 0x01
     119a:	84 30       	cpi	r24, 0x04	; 4
     119c:	09 f1       	breq	.+66     	; 0x11e0 <button_action+0xca>
-		
-		else if (current_line == 5) {
     119e:	89 81       	ldd	r24, Y+1	; 0x01
     11a0:	85 30       	cpi	r24, 0x05	; 5
     11a2:	f1 f4       	brne	.+60     	; 0x11e0 <button_action+0xca>
-			current_menu == current_menu -> parent;
-			print_menu(current_menu);
     11a4:	80 91 6c 02 	lds	r24, 0x026C
     11a8:	90 91 6d 02 	lds	r25, 0x026D
     11ac:	0e 94 0b 08 	call	0x1016	; 0x1016 <print_menu>
     11b0:	17 c0       	rjmp	.+46     	; 0x11e0 <button_action+0xca>
-		}
-		
-	}
-	else if (strcmp(current_menu->name, "SET DIFFICULTY") == 0) {
     11b2:	80 91 6c 02 	lds	r24, 0x026C
     11b6:	90 91 6d 02 	lds	r25, 0x026D
     11ba:	fc 01       	movw	r30, r24
@@ -2530,22 +2108,14 @@ uint8_t button_action (uint8_t current_line) {
     11c4:	0e 94 86 14 	call	0x290c	; 0x290c <strcmp>
     11c8:	00 97       	sbiw	r24, 0x00	; 0
     11ca:	51 f4       	brne	.+20     	; 0x11e0 <button_action+0xca>
-		if (current_line == 2) GitGud == EASY;
     11cc:	89 81       	ldd	r24, Y+1	; 0x01
     11ce:	82 30       	cpi	r24, 0x02	; 2
     11d0:	09 f0       	breq	.+2      	; 0x11d4 <button_action+0xbe>
-		else if (current_line == 3) GitGud == MEDIUM;
     11d2:	89 81       	ldd	r24, Y+1	; 0x01
-		else if (current_line == 4) GitGud == HARD;
-		current_menu == current_menu->parent;
-		print_menu(current_menu);
     11d4:	80 91 6c 02 	lds	r24, 0x026C
     11d8:	90 91 6d 02 	lds	r25, 0x026D
     11dc:	0e 94 0b 08 	call	0x1016	; 0x1016 <print_menu>
-	}
-	return game_started;
     11e0:	80 91 68 02 	lds	r24, 0x0268
-}
     11e4:	0f 90       	pop	r0
     11e6:	0f 90       	pop	r0
     11e8:	df 91       	pop	r29
@@ -2553,17 +2123,12 @@ uint8_t button_action (uint8_t current_line) {
     11ec:	08 95       	ret
 
 000011ee <navigateMenu>:
-	
-
-// Traverses the linked list into submenus
-void navigateMenu(uint8_t current_line) {
     11ee:	cf 93       	push	r28
     11f0:	df 93       	push	r29
     11f2:	1f 92       	push	r1
     11f4:	cd b7       	in	r28, 0x3d	; 61
     11f6:	de b7       	in	r29, 0x3e	; 62
     11f8:	89 83       	std	Y+1, r24	; 0x01
-	switch(current_line) {
     11fa:	89 81       	ldd	r24, Y+1	; 0x01
     11fc:	88 2f       	mov	r24, r24
     11fe:	90 e0       	ldi	r25, 0x00	; 0
@@ -2578,8 +2143,6 @@ void navigateMenu(uint8_t current_line) {
     1210:	91 05       	cpc	r25, r1
     1212:	09 f0       	breq	.+2      	; 0x1216 <navigateMenu+0x28>
     1214:	76 c0       	rjmp	.+236    	; 0x1302 <navigateMenu+0x114>
-		case 2:
-		if (current_menu->child1 != NULL) {
     1216:	80 91 6c 02 	lds	r24, 0x026C
     121a:	90 91 6d 02 	lds	r25, 0x026D
     121e:	fc 01       	movw	r30, r24
@@ -2587,7 +2150,6 @@ void navigateMenu(uint8_t current_line) {
     1222:	93 81       	ldd	r25, Z+3	; 0x03
     1224:	00 97       	sbiw	r24, 0x00	; 0
     1226:	f1 f0       	breq	.+60     	; 0x1264 <navigateMenu+0x76>
-			current_menu = current_menu -> child1;
     1228:	80 91 6c 02 	lds	r24, 0x026C
     122c:	90 91 6d 02 	lds	r25, 0x026D
     1230:	fc 01       	movw	r30, r24
@@ -2595,29 +2157,20 @@ void navigateMenu(uint8_t current_line) {
     1234:	93 81       	ldd	r25, Z+3	; 0x03
     1236:	90 93 6d 02 	sts	0x026D, r25
     123a:	80 93 6c 02 	sts	0x026C, r24
-			oled_pos(current_line, 0);
     123e:	60 e0       	ldi	r22, 0x00	; 0
     1240:	89 81       	ldd	r24, Y+1	; 0x01
     1242:	0e 94 93 0a 	call	0x1526	; 0x1526 <oled_pos>
-			oled_print_string("  ");
     1246:	8d e7       	ldi	r24, 0x7D	; 125
     1248:	91 e0       	ldi	r25, 0x01	; 1
     124a:	0e 94 de 0a 	call	0x15bc	; 0x15bc <oled_print_string>
-			move_arrow(NEUTRAL, 2);
     124e:	62 e0       	ldi	r22, 0x02	; 2
     1250:	84 e0       	ldi	r24, 0x04	; 4
     1252:	0e 94 a5 07 	call	0xf4a	; 0xf4a <move_arrow>
-			print_menu(current_menu);
     1256:	80 91 6c 02 	lds	r24, 0x026C
     125a:	90 91 6d 02 	lds	r25, 0x026D
     125e:	0e 94 0b 08 	call	0x1016	; 0x1016 <print_menu>
-		}
-		break;
     1262:	4f c0       	rjmp	.+158    	; 0x1302 <navigateMenu+0x114>
     1264:	4e c0       	rjmp	.+156    	; 0x1302 <navigateMenu+0x114>
-		
-		case 3:
-		if (current_menu->child2 != NULL) {
     1266:	80 91 6c 02 	lds	r24, 0x026C
     126a:	90 91 6d 02 	lds	r25, 0x026D
     126e:	fc 01       	movw	r30, r24
@@ -2625,7 +2178,6 @@ void navigateMenu(uint8_t current_line) {
     1272:	95 81       	ldd	r25, Z+5	; 0x05
     1274:	00 97       	sbiw	r24, 0x00	; 0
     1276:	f1 f0       	breq	.+60     	; 0x12b4 <navigateMenu+0xc6>
-			current_menu = current_menu -> child2;
     1278:	80 91 6c 02 	lds	r24, 0x026C
     127c:	90 91 6d 02 	lds	r25, 0x026D
     1280:	fc 01       	movw	r30, r24
@@ -2633,29 +2185,20 @@ void navigateMenu(uint8_t current_line) {
     1284:	95 81       	ldd	r25, Z+5	; 0x05
     1286:	90 93 6d 02 	sts	0x026D, r25
     128a:	80 93 6c 02 	sts	0x026C, r24
-			oled_pos(current_line, 0);
     128e:	60 e0       	ldi	r22, 0x00	; 0
     1290:	89 81       	ldd	r24, Y+1	; 0x01
     1292:	0e 94 93 0a 	call	0x1526	; 0x1526 <oled_pos>
-			oled_print_string("  ");
     1296:	8d e7       	ldi	r24, 0x7D	; 125
     1298:	91 e0       	ldi	r25, 0x01	; 1
     129a:	0e 94 de 0a 	call	0x15bc	; 0x15bc <oled_print_string>
-			move_arrow(NEUTRAL, 2);
     129e:	62 e0       	ldi	r22, 0x02	; 2
     12a0:	84 e0       	ldi	r24, 0x04	; 4
     12a2:	0e 94 a5 07 	call	0xf4a	; 0xf4a <move_arrow>
-			print_menu(current_menu);
     12a6:	80 91 6c 02 	lds	r24, 0x026C
     12aa:	90 91 6d 02 	lds	r25, 0x026D
     12ae:	0e 94 0b 08 	call	0x1016	; 0x1016 <print_menu>
-		}
-		break;
     12b2:	27 c0       	rjmp	.+78     	; 0x1302 <navigateMenu+0x114>
     12b4:	26 c0       	rjmp	.+76     	; 0x1302 <navigateMenu+0x114>
-		
-		case 4:
-		if (current_menu->child3 != NULL) {
     12b6:	80 91 6c 02 	lds	r24, 0x026C
     12ba:	90 91 6d 02 	lds	r25, 0x026D
     12be:	fc 01       	movw	r30, r24
@@ -2663,7 +2206,6 @@ void navigateMenu(uint8_t current_line) {
     12c2:	97 81       	ldd	r25, Z+7	; 0x07
     12c4:	00 97       	sbiw	r24, 0x00	; 0
     12c6:	e9 f0       	breq	.+58     	; 0x1302 <navigateMenu+0x114>
-			current_menu = current_menu -> child3;
     12c8:	80 91 6c 02 	lds	r24, 0x026C
     12cc:	90 91 6d 02 	lds	r25, 0x026D
     12d0:	fc 01       	movw	r30, r24
@@ -2671,41 +2213,28 @@ void navigateMenu(uint8_t current_line) {
     12d4:	97 81       	ldd	r25, Z+7	; 0x07
     12d6:	90 93 6d 02 	sts	0x026D, r25
     12da:	80 93 6c 02 	sts	0x026C, r24
-			oled_pos(current_line, 0);
     12de:	60 e0       	ldi	r22, 0x00	; 0
     12e0:	89 81       	ldd	r24, Y+1	; 0x01
     12e2:	0e 94 93 0a 	call	0x1526	; 0x1526 <oled_pos>
-			oled_print_string("  ");
     12e6:	8d e7       	ldi	r24, 0x7D	; 125
     12e8:	91 e0       	ldi	r25, 0x01	; 1
     12ea:	0e 94 de 0a 	call	0x15bc	; 0x15bc <oled_print_string>
-			move_arrow(NEUTRAL, 2);
     12ee:	62 e0       	ldi	r22, 0x02	; 2
     12f0:	84 e0       	ldi	r24, 0x04	; 4
     12f2:	0e 94 a5 07 	call	0xf4a	; 0xf4a <move_arrow>
-			print_menu(current_menu);
     12f6:	80 91 6c 02 	lds	r24, 0x026C
     12fa:	90 91 6d 02 	lds	r25, 0x026D
     12fe:	0e 94 0b 08 	call	0x1016	; 0x1016 <print_menu>
-		}
-	}
-	
-}
     1302:	0f 90       	pop	r0
     1304:	df 91       	pop	r29
     1306:	cf 91       	pop	r28
     1308:	08 95       	ret
 
 0000130a <print_highscore>:
-
-// TODO save highscore in EEPROM??
-void print_highscore() {
     130a:	cf 93       	push	r28
     130c:	df 93       	push	r29
     130e:	cd b7       	in	r28, 0x3d	; 61
     1310:	de b7       	in	r29, 0x3e	; 62
-	
-}
     1312:	df 91       	pop	r29
     1314:	cf 91       	pop	r28
     1316:	08 95       	ret

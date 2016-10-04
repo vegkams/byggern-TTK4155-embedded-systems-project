@@ -152,7 +152,7 @@ Discarded input sections
                 0x00000000       0x28 spi.o
  .debug_ranges  0x00000000       0x18 spi.o
  .debug_line    0x00000000       0xc4 spi.o
- .debug_str     0x00000000      0x183 spi.o
+ .debug_str     0x00000000      0x177 spi.o
  .comment       0x00000000       0x31 spi.o
  .debug_frame   0x00000000       0x54 spi.o
  .text          0x00000000        0x0 sram.o
