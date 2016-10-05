@@ -6,19 +6,43 @@
  */ 
 #include <avr/io.h>
 #include <stdio.h>
-void SPI_MasterInit(void)
+#include "spi.h"
+#include "setup.h"
+
+
+void spi_init(void)
 {
 	/* Set MOSI and SCK output, all others input */
-	// TODO: DDB5 = data ut, DDB4 = Klokkepuls
-	DDRB = (1<<DDB5)|(1<<DDB4); 
+	// PB4 = !SS, PB5 = MOSI, PB6 = MISO, PB7 = SCK
+	DDRB = (1<<SPI_SS|1<<MOSI)|0<<MISO|(1<<SCK);
+	 
 	/* Enable SPI, Master, set clock rate fck/16 */
 	SPCR = (1<<SPE)|(1<<MSTR)|(1<<SPR0);
 }
-void SPI_MasterTransmit(char cData)
+void spi_send(char cData)
 {
 	/* Start transmission */
 	SPDR = cData;
 	/* Wait for transmission complete */
 	while(!(SPSR & (1<<SPIF)))
 	;
+}
+
+char spi_read() 
+{
+
+	SPDR = 0x00; // send dummy data
+	while(!(SPSR & (1<<SPIF))); // Wait until data is shifted into SPDR
+
+	return SPDR;
+}
+
+void spi_enable()
+{
+	clear_bit(PORTB,SPI_SS);
+}
+
+void spi_disable()
+{
+	set_bit(PORTB,SPI_SS);
 }
