@@ -18,6 +18,9 @@ void spi_init(void)
 	 
 	/* Enable SPI, Master, set clock rate fck/16 */
 	SPCR = (1<<SPE)|(1<<MSTR)|(1<<SPR0);
+	// Read SPSR and SPDR to clear interrupt flag
+	char 1 = SPSR;
+	char 2 = SPDR;
 }
 void spi_send(char cData)
 {
