@@ -21,11 +21,11 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
   8 .debug_frame  00000680  00000000  00000000  000055fc  2**2
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_str    0000071e  00000000  00000000  00005c7c  2**0
+  9 .debug_str    000006d6  00000000  00000000  00005c7c  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_loc    00000cda  00000000  00000000  0000639a  2**0
+ 10 .debug_loc    00000cda  00000000  00000000  00006352  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_ranges 000001b0  00000000  00000000  00007074  2**0
+ 11 .debug_ranges 000001b0  00000000  00000000  0000702c  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -605,10 +605,18 @@ uint8_t read_ADC(uint8_t channel)
      534:	08 95       	ret
 
 00000536 <joystick_init>:
+#include "setup.h"
+#include "ADC.h"
+#include "joystick.h"
+
+void joystick_init()
+{
      536:	cf 93       	push	r28
      538:	df 93       	push	r29
      53a:	cd b7       	in	r28, 0x3d	; 61
      53c:	de b7       	in	r29, 0x3e	; 62
+	// Set PB0-1 as input
+	clear_bit(DDRB,PB0);
      53e:	87 e3       	ldi	r24, 0x37	; 55
      540:	90 e0       	ldi	r25, 0x00	; 0
      542:	27 e3       	ldi	r18, 0x37	; 55
@@ -618,6 +626,7 @@ uint8_t read_ADC(uint8_t channel)
      54a:	2e 7f       	andi	r18, 0xFE	; 254
      54c:	fc 01       	movw	r30, r24
      54e:	20 83       	st	Z, r18
+	clear_bit(DDRB,PB1);
      550:	87 e3       	ldi	r24, 0x37	; 55
      552:	90 e0       	ldi	r25, 0x00	; 0
      554:	27 e3       	ldi	r18, 0x37	; 55
@@ -627,6 +636,8 @@ uint8_t read_ADC(uint8_t channel)
      55c:	2d 7f       	andi	r18, 0xFD	; 253
      55e:	fc 01       	movw	r30, r24
      560:	20 83       	st	Z, r18
+	// Pull-up on PB2
+	set_bit(PORTB,PB2);
      562:	88 e3       	ldi	r24, 0x38	; 56
      564:	90 e0       	ldi	r25, 0x00	; 0
      566:	28 e3       	ldi	r18, 0x38	; 56
@@ -636,6 +647,8 @@ uint8_t read_ADC(uint8_t channel)
      56e:	24 60       	ori	r18, 0x04	; 4
      570:	fc 01       	movw	r30, r24
      572:	20 83       	st	Z, r18
+	//Set PB2 as input
+	clear_bit(DDRB,PB2);
      574:	87 e3       	ldi	r24, 0x37	; 55
      576:	90 e0       	ldi	r25, 0x00	; 0
      578:	27 e3       	ldi	r18, 0x37	; 55
@@ -645,11 +658,15 @@ uint8_t read_ADC(uint8_t channel)
      580:	2b 7f       	andi	r18, 0xFB	; 251
      582:	fc 01       	movw	r30, r24
      584:	20 83       	st	Z, r18
+}
      586:	df 91       	pop	r29
      588:	cf 91       	pop	r28
      58a:	08 95       	ret
 
 0000058c <read_joystick>:
+
+void read_joystick(joyValues *joy)
+{
      58c:	cf 93       	push	r28
      58e:	df 93       	push	r29
      590:	00 d0       	rcall	.+0      	; 0x592 <read_joystick+0x6>
@@ -657,6 +674,8 @@ uint8_t read_ADC(uint8_t channel)
      594:	de b7       	in	r29, 0x3e	; 62
      596:	9a 83       	std	Y+2, r25	; 0x02
      598:	89 83       	std	Y+1, r24	; 0x01
+	//joyValues joystick;
+	joy->x_percentage = joystick_get_x_percentage();
      59a:	0e 94 0c 04 	call	0x818	; 0x818 <joystick_get_x_percentage>
      59e:	dc 01       	movw	r26, r24
      5a0:	cb 01       	movw	r24, r22
@@ -667,6 +686,7 @@ uint8_t read_ADC(uint8_t channel)
      5aa:	91 83       	std	Z+1, r25	; 0x01
      5ac:	a2 83       	std	Z+2, r26	; 0x02
      5ae:	b3 83       	std	Z+3, r27	; 0x03
+	joy->y_percentage = joystick_get_y_percentage();
      5b0:	0e 94 20 04 	call	0x840	; 0x840 <joystick_get_y_percentage>
      5b4:	dc 01       	movw	r26, r24
      5b6:	cb 01       	movw	r24, r22
@@ -677,6 +697,8 @@ uint8_t read_ADC(uint8_t channel)
      5c0:	95 83       	std	Z+5, r25	; 0x05
      5c2:	a6 83       	std	Z+6, r26	; 0x06
      5c4:	b7 83       	std	Z+7, r27	; 0x07
+	// If PB0 || PB1 =1, button is pressed
+	if (test_bit(PINB,PB0)) joy->left_button = 1;
      5c6:	86 e3       	ldi	r24, 0x36	; 54
      5c8:	90 e0       	ldi	r25, 0x00	; 0
      5ca:	fc 01       	movw	r30, r24
@@ -695,11 +717,13 @@ uint8_t read_ADC(uint8_t channel)
      5e4:	31 87       	std	Z+9, r19	; 0x09
      5e6:	20 87       	std	Z+8, r18	; 0x08
      5e8:	05 c0       	rjmp	.+10     	; 0x5f4 <read_joystick+0x68>
+	else joy->left_button = 0;
      5ea:	89 81       	ldd	r24, Y+1	; 0x01
      5ec:	9a 81       	ldd	r25, Y+2	; 0x02
      5ee:	fc 01       	movw	r30, r24
      5f0:	11 86       	std	Z+9, r1	; 0x09
      5f2:	10 86       	std	Z+8, r1	; 0x08
+	if (test_bit(PINB,PB1)) joy->right_button = 1;
      5f4:	86 e3       	ldi	r24, 0x36	; 54
      5f6:	90 e0       	ldi	r25, 0x00	; 0
      5f8:	fc 01       	movw	r30, r24
@@ -718,11 +742,15 @@ uint8_t read_ADC(uint8_t channel)
      612:	33 87       	std	Z+11, r19	; 0x0b
      614:	22 87       	std	Z+10, r18	; 0x0a
      616:	05 c0       	rjmp	.+10     	; 0x622 <read_joystick+0x96>
+	else joy->right_button = 0;
      618:	89 81       	ldd	r24, Y+1	; 0x01
      61a:	9a 81       	ldd	r25, Y+2	; 0x02
      61c:	fc 01       	movw	r30, r24
      61e:	13 86       	std	Z+11, r1	; 0x0b
      620:	12 86       	std	Z+10, r1	; 0x0a
+	
+	// If PB2=0, button is pressed
+	if (test_bit(PINB,PB2)) joy->joystick_button = 0;
      622:	86 e3       	ldi	r24, 0x36	; 54
      624:	90 e0       	ldi	r25, 0x00	; 0
      626:	fc 01       	movw	r30, r24
@@ -739,6 +767,7 @@ uint8_t read_ADC(uint8_t channel)
      63c:	15 86       	std	Z+13, r1	; 0x0d
      63e:	14 86       	std	Z+12, r1	; 0x0c
      640:	07 c0       	rjmp	.+14     	; 0x650 <read_joystick+0xc4>
+	else joy->joystick_button = 1;
      642:	89 81       	ldd	r24, Y+1	; 0x01
      644:	9a 81       	ldd	r25, Y+2	; 0x02
      646:	21 e0       	ldi	r18, 0x01	; 1
@@ -746,6 +775,7 @@ uint8_t read_ADC(uint8_t channel)
      64a:	fc 01       	movw	r30, r24
      64c:	35 87       	std	Z+13, r19	; 0x0d
      64e:	24 87       	std	Z+12, r18	; 0x0c
+}
      650:	0f 90       	pop	r0
      652:	0f 90       	pop	r0
      654:	df 91       	pop	r29
@@ -753,6 +783,9 @@ uint8_t read_ADC(uint8_t channel)
      658:	08 95       	ret
 
 0000065a <joystick_getDirection>:
+
+direction joystick_getDirection(float x, float y)
+{
      65a:	1f 93       	push	r17
      65c:	cf 93       	push	r28
      65e:	df 93       	push	r29
@@ -772,8 +805,10 @@ uint8_t read_ADC(uint8_t channel)
      67a:	3f 83       	std	Y+7, r19	; 0x07
      67c:	48 87       	std	Y+8, r20	; 0x08
      67e:	59 87       	std	Y+9, r21	; 0x09
+	direction d = NEUTRAL;
      680:	84 e0       	ldi	r24, 0x04	; 4
      682:	89 83       	std	Y+1, r24	; 0x01
+	if (!(fabsf(x)<50 && fabsf(y)<50)) 
      684:	8a 81       	ldd	r24, Y+2	; 0x02
      686:	9b 81       	ldd	r25, Y+3	; 0x03
      688:	ac 81       	ldd	r26, Y+4	; 0x04
@@ -815,6 +850,8 @@ uint8_t read_ADC(uint8_t channel)
      6d4:	88 23       	and	r24, r24
      6d6:	09 f4       	brne	.+2      	; 0x6da <joystick_getDirection+0x80>
      6d8:	94 c0       	rjmp	.+296    	; 0x802 <joystick_getDirection+0x1a8>
+	{
+		if (fabsf(x)>50 && fabsf(y)<50)
      6da:	8a 81       	ldd	r24, Y+2	; 0x02
      6dc:	9b 81       	ldd	r25, Y+3	; 0x03
      6de:	ac 81       	ldd	r26, Y+4	; 0x04
@@ -843,6 +880,8 @@ uint8_t read_ADC(uint8_t channel)
      70e:	0e 94 56 0d 	call	0x1aac	; 0x1aac <__cmpsf2>
      712:	88 23       	and	r24, r24
      714:	8c f4       	brge	.+34     	; 0x738 <joystick_getDirection+0xde>
+		{
+			if (x<0)
      716:	20 e0       	ldi	r18, 0x00	; 0
      718:	30 e0       	ldi	r19, 0x00	; 0
      71a:	a9 01       	movw	r20, r18
@@ -853,12 +892,38 @@ uint8_t read_ADC(uint8_t channel)
      724:	0e 94 56 0d 	call	0x1aac	; 0x1aac <__cmpsf2>
      728:	88 23       	and	r24, r24
      72a:	1c f4       	brge	.+6      	; 0x732 <joystick_getDirection+0xd8>
+			{
+				d = LEFT;
      72c:	82 e0       	ldi	r24, 0x02	; 2
      72e:	89 83       	std	Y+1, r24	; 0x01
+	direction d = NEUTRAL;
+	if (!(fabsf(x)<50 && fabsf(y)<50)) 
+	{
+		if (fabsf(x)>50 && fabsf(y)<50)
+		{
+			if (x<0)
      730:	68 c0       	rjmp	.+208    	; 0x802 <joystick_getDirection+0x1a8>
+			{
+				d = LEFT;
+			}
+			else
+			{
+				d = RIGHT;
      732:	83 e0       	ldi	r24, 0x03	; 3
      734:	89 83       	std	Y+1, r24	; 0x01
+	direction d = NEUTRAL;
+	if (!(fabsf(x)<50 && fabsf(y)<50)) 
+	{
+		if (fabsf(x)>50 && fabsf(y)<50)
+		{
+			if (x<0)
      736:	65 c0       	rjmp	.+202    	; 0x802 <joystick_getDirection+0x1a8>
+			else
+			{
+				d = RIGHT;
+			}
+		}
+		else if(fabsf(x)<50 && fabsf(y)>50)
      738:	8a 81       	ldd	r24, Y+2	; 0x02
      73a:	9b 81       	ldd	r25, Y+3	; 0x03
      73c:	ac 81       	ldd	r26, Y+4	; 0x04
@@ -887,6 +952,8 @@ uint8_t read_ADC(uint8_t channel)
      76c:	0e 94 74 0e 	call	0x1ce8	; 0x1ce8 <__gesf2>
      770:	18 16       	cp	r1, r24
      772:	84 f4       	brge	.+32     	; 0x794 <joystick_getDirection+0x13a>
+		{
+			if (y<0)
      774:	20 e0       	ldi	r18, 0x00	; 0
      776:	30 e0       	ldi	r19, 0x00	; 0
      778:	a9 01       	movw	r20, r18
@@ -897,11 +964,37 @@ uint8_t read_ADC(uint8_t channel)
      782:	0e 94 56 0d 	call	0x1aac	; 0x1aac <__cmpsf2>
      786:	88 23       	and	r24, r24
      788:	1c f4       	brge	.+6      	; 0x790 <joystick_getDirection+0x136>
+			{
+				d = DOWN;
      78a:	81 e0       	ldi	r24, 0x01	; 1
      78c:	89 83       	std	Y+1, r24	; 0x01
+				d = RIGHT;
+			}
+		}
+		else if(fabsf(x)<50 && fabsf(y)>50)
+		{
+			if (y<0)
      78e:	39 c0       	rjmp	.+114    	; 0x802 <joystick_getDirection+0x1a8>
+			{
+				d = DOWN;
+			}
+			else
+			{
+				d = UP;
      790:	19 82       	std	Y+1, r1	; 0x01
+				d = RIGHT;
+			}
+		}
+		else if(fabsf(x)<50 && fabsf(y)>50)
+		{
+			if (y<0)
      792:	37 c0       	rjmp	.+110    	; 0x802 <joystick_getDirection+0x1a8>
+				d = UP;
+			}
+		}
+		else
+		{
+			if (fabsf(y/x)>1)
      794:	2a 81       	ldd	r18, Y+2	; 0x02
      796:	3b 81       	ldd	r19, Y+3	; 0x03
      798:	4c 81       	ldd	r20, Y+4	; 0x04
@@ -923,6 +1016,8 @@ uint8_t read_ADC(uint8_t channel)
      7ba:	0e 94 74 0e 	call	0x1ce8	; 0x1ce8 <__gesf2>
      7be:	18 16       	cp	r1, r24
      7c0:	84 f4       	brge	.+32     	; 0x7e2 <joystick_getDirection+0x188>
+			{
+				if (y<0)
      7c2:	20 e0       	ldi	r18, 0x00	; 0
      7c4:	30 e0       	ldi	r19, 0x00	; 0
      7c6:	a9 01       	movw	r20, r18
@@ -933,11 +1028,22 @@ uint8_t read_ADC(uint8_t channel)
      7d0:	0e 94 56 0d 	call	0x1aac	; 0x1aac <__cmpsf2>
      7d4:	88 23       	and	r24, r24
      7d6:	1c f4       	brge	.+6      	; 0x7de <joystick_getDirection+0x184>
+				{
+					d = DOWN;
      7d8:	81 e0       	ldi	r24, 0x01	; 1
      7da:	89 83       	std	Y+1, r24	; 0x01
      7dc:	12 c0       	rjmp	.+36     	; 0x802 <joystick_getDirection+0x1a8>
+				}
+				else
+				{
+					d = UP;
      7de:	19 82       	std	Y+1, r1	; 0x01
      7e0:	10 c0       	rjmp	.+32     	; 0x802 <joystick_getDirection+0x1a8>
+				}
+			}
+			else
+			{
+				if (x<0)
      7e2:	20 e0       	ldi	r18, 0x00	; 0
      7e4:	30 e0       	ldi	r19, 0x00	; 0
      7e6:	a9 01       	movw	r20, r18
@@ -948,12 +1054,25 @@ uint8_t read_ADC(uint8_t channel)
      7f0:	0e 94 56 0d 	call	0x1aac	; 0x1aac <__cmpsf2>
      7f4:	88 23       	and	r24, r24
      7f6:	1c f4       	brge	.+6      	; 0x7fe <joystick_getDirection+0x1a4>
+				{
+					d = LEFT;
      7f8:	82 e0       	ldi	r24, 0x02	; 2
      7fa:	89 83       	std	Y+1, r24	; 0x01
      7fc:	02 c0       	rjmp	.+4      	; 0x802 <joystick_getDirection+0x1a8>
+				}
+				else
+				{
+					d = RIGHT;
      7fe:	83 e0       	ldi	r24, 0x03	; 3
      800:	89 83       	std	Y+1, r24	; 0x01
+				}
+			}
+		}
+		
+	}
+	return d;
      802:	89 81       	ldd	r24, Y+1	; 0x01
+}
      804:	29 96       	adiw	r28, 0x09	; 9
      806:	0f b6       	in	r0, 0x3f	; 63
      808:	f8 94       	cli
@@ -966,18 +1085,25 @@ uint8_t read_ADC(uint8_t channel)
      816:	08 95       	ret
 
 00000818 <joystick_get_x_percentage>:
+
+// Get Joystick position in percentage (center = 50%)
+float joystick_get_x_percentage()
+{
      818:	cf 93       	push	r28
      81a:	df 93       	push	r29
      81c:	1f 92       	push	r1
      81e:	cd b7       	in	r28, 0x3d	; 61
      820:	de b7       	in	r29, 0x3e	; 62
+	uint8_t data = read_ADC(1);
      822:	81 e0       	ldi	r24, 0x01	; 1
      824:	0e 94 64 02 	call	0x4c8	; 0x4c8 <read_ADC>
      828:	89 83       	std	Y+1, r24	; 0x01
+	return convert_to_percentage(data);
      82a:	89 81       	ldd	r24, Y+1	; 0x01
      82c:	0e 94 34 04 	call	0x868	; 0x868 <convert_to_percentage>
      830:	dc 01       	movw	r26, r24
      832:	cb 01       	movw	r24, r22
+} 
      834:	bc 01       	movw	r22, r24
      836:	cd 01       	movw	r24, r26
      838:	0f 90       	pop	r0
@@ -986,18 +1112,25 @@ uint8_t read_ADC(uint8_t channel)
      83e:	08 95       	ret
 
 00000840 <joystick_get_y_percentage>:
+
+// Get Joystick position in percentage (center = 50%)
+float joystick_get_y_percentage()
+{
      840:	cf 93       	push	r28
      842:	df 93       	push	r29
      844:	1f 92       	push	r1
      846:	cd b7       	in	r28, 0x3d	; 61
      848:	de b7       	in	r29, 0x3e	; 62
+	uint8_t data = read_ADC(0);
      84a:	80 e0       	ldi	r24, 0x00	; 0
      84c:	0e 94 64 02 	call	0x4c8	; 0x4c8 <read_ADC>
      850:	89 83       	std	Y+1, r24	; 0x01
+	return convert_to_percentage(data);
      852:	89 81       	ldd	r24, Y+1	; 0x01
      854:	0e 94 34 04 	call	0x868	; 0x868 <convert_to_percentage>
      858:	dc 01       	movw	r26, r24
      85a:	cb 01       	movw	r24, r22
+}
      85c:	bc 01       	movw	r22, r24
      85e:	cd 01       	movw	r24, r26
      860:	0f 90       	pop	r0
@@ -1006,6 +1139,12 @@ uint8_t read_ADC(uint8_t channel)
      866:	08 95       	ret
 
 00000868 <convert_to_percentage>:
+	return (value/255)*5;
+}
+
+// Convert digital value to percentage (0-255 -> 0-100%)
+float convert_to_percentage(uint8_t digital_value)
+{
      868:	cf 93       	push	r28
      86a:	df 93       	push	r29
      86c:	00 d0       	rcall	.+0      	; 0x86e <convert_to_percentage+0x6>
@@ -1014,6 +1153,7 @@ uint8_t read_ADC(uint8_t channel)
      872:	cd b7       	in	r28, 0x3d	; 61
      874:	de b7       	in	r29, 0x3e	; 62
      876:	8d 83       	std	Y+5, r24	; 0x05
+	float value = digital_value;
      878:	8d 81       	ldd	r24, Y+5	; 0x05
      87a:	88 2f       	mov	r24, r24
      87c:	90 e0       	ldi	r25, 0x00	; 0
@@ -1028,6 +1168,7 @@ uint8_t read_ADC(uint8_t channel)
      890:	9a 83       	std	Y+2, r25	; 0x02
      892:	ab 83       	std	Y+3, r26	; 0x03
      894:	bc 83       	std	Y+4, r27	; 0x04
+	return ((value-128)/128)*100;
      896:	20 e0       	ldi	r18, 0x00	; 0
      898:	30 e0       	ldi	r19, 0x00	; 0
      89a:	40 e0       	ldi	r20, 0x00	; 0
@@ -1057,6 +1198,7 @@ uint8_t read_ADC(uint8_t channel)
      8ce:	0e 94 78 0e 	call	0x1cf0	; 0x1cf0 <__mulsf3>
      8d2:	dc 01       	movw	r26, r24
      8d4:	cb 01       	movw	r24, r22
+}
      8d6:	bc 01       	movw	r22, r24
      8d8:	cd 01       	movw	r24, r26
      8da:	0f 90       	pop	r0

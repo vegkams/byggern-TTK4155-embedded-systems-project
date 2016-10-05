@@ -40,6 +40,7 @@ C_SRCS +=  \
 ../ADC.c \
 ../joystick.c \
 ../main.c \
+../MCP2515.c \
 ../menu.c \
 ../OLED.c \
 ../spi.c \
@@ -57,6 +58,7 @@ OBJS +=  \
 ADC.o \
 joystick.o \
 main.o \
+MCP2515.o \
 menu.o \
 OLED.o \
 spi.o \
@@ -67,6 +69,7 @@ OBJS_AS_ARGS +=  \
 ADC.o \
 joystick.o \
 main.o \
+MCP2515.o \
 menu.o \
 OLED.o \
 spi.o \
@@ -77,6 +80,7 @@ C_DEPS +=  \
 ADC.d \
 joystick.d \
 main.d \
+MCP2515.d \
 menu.d \
 OLED.d \
 spi.d \
@@ -87,6 +91,7 @@ C_DEPS_AS_ARGS +=  \
 ADC.d \
 joystick.d \
 main.d \
+MCP2515.d \
 menu.d \
 OLED.d \
 spi.d \
@@ -107,6 +112,8 @@ LINKER_SCRIPT_DEP+=
 
 
 # AVR32/GNU C Compiler
+
+
 
 
 

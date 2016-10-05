@@ -67,7 +67,7 @@ c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-t
 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avr5\libc.a(printf.o)
                               sram.o (printf)
 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avr5\libc.a(puts.o)
-                              sram.o (puts)
+                              MCP2515.o (puts)
 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avr5\libc.a(ultoa_invert.o)
                               c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avr5\libprintf_flt.a(vfprintf_flt.o) (__ultoa_invert)
 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avr5\libc.a(calloc.o)
@@ -131,6 +131,34 @@ Discarded input sections
  .data          0x00000000        0x0 main.o
  .bss           0x00000000        0x0 main.o
  .bss.game_on   0x00000000        0x1 main.o
+ .text          0x00000000        0x0 MCP2515.o
+ .data          0x00000000        0x0 MCP2515.o
+ .bss           0x00000000        0x0 MCP2515.o
+ .rodata        0x00000000       0x32 MCP2515.o
+ .text.mcp_2515_init
+                0x00000000       0x3e MCP2515.o
+ .text.mcp_2515_read
+                0x00000000       0x32 MCP2515.o
+ .text.mcp_2515_write
+                0x00000000       0x32 MCP2515.o
+ .text.mcp_2515_request_to_send
+                0x00000000       0x22 MCP2515.o
+ .text.mcp_2515_bit_modify
+                0x00000000        0xe MCP2515.o
+ .text.mcp_2515_reset
+                0x00000000       0x1c MCP2515.o
+ .text.mcp_2515_read_status
+                0x00000000       0x28 MCP2515.o
+ .debug_info    0x00000000      0x18d MCP2515.o
+ .debug_abbrev  0x00000000       0xeb MCP2515.o
+ .debug_loc     0x00000000      0x1de MCP2515.o
+ .debug_aranges
+                0x00000000       0x50 MCP2515.o
+ .debug_ranges  0x00000000       0x40 MCP2515.o
+ .debug_line    0x00000000      0x12a MCP2515.o
+ .debug_str     0x00000000      0x1e7 MCP2515.o
+ .comment       0x00000000       0x31 MCP2515.o
+ .debug_frame   0x00000000       0xf4 MCP2515.o
  .text          0x00000000        0x0 menu.o
  .data          0x00000000        0x0 menu.o
  .bss           0x00000000        0x0 menu.o
@@ -144,20 +172,26 @@ Discarded input sections
  .text          0x00000000        0x0 spi.o
  .data          0x00000000        0x0 spi.o
  .bss           0x00000000        0x0 spi.o
- .text.SPI_MasterInit
+ .text.spi_init
                 0x00000000       0x22 spi.o
- .text.SPI_MasterTransmit
+ .text.spi_send
                 0x00000000       0x2c spi.o
- .debug_info    0x00000000       0xaf spi.o
- .debug_abbrev  0x00000000       0x78 spi.o
- .debug_loc     0x00000000       0x83 spi.o
+ .text.spi_read
+                0x00000000       0x2c spi.o
+ .text.spi_enable
+                0x00000000       0x20 spi.o
+ .text.spi_disable
+                0x00000000       0x20 spi.o
+ .debug_info    0x00000000       0xf5 spi.o
+ .debug_abbrev  0x00000000       0x90 spi.o
+ .debug_loc     0x00000000      0x134 spi.o
  .debug_aranges
-                0x00000000       0x28 spi.o
- .debug_ranges  0x00000000       0x18 spi.o
- .debug_line    0x00000000       0xc4 spi.o
- .debug_str     0x00000000      0x167 spi.o
+                0x00000000       0x40 spi.o
+ .debug_ranges  0x00000000       0x30 spi.o
+ .debug_line    0x00000000      0x100 spi.o
+ .debug_str     0x00000000      0x177 spi.o
  .comment       0x00000000       0x31 spi.o
- .debug_frame   0x00000000       0x54 spi.o
+ .debug_frame   0x00000000       0xb4 spi.o
  .text          0x00000000        0x0 sram.o
  .data          0x00000000        0x0 sram.o
  .bss           0x00000000        0x0 sram.o
@@ -442,6 +476,7 @@ LOAD c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-
 LOAD ADC.o
 LOAD joystick.o
 LOAD main.o
+LOAD MCP2515.o
 LOAD menu.o
 LOAD OLED.o
 LOAD spi.o
@@ -1105,21 +1140,21 @@ END GROUP
  .debug_frame   0x00000578       0x94 sram.o
  .debug_frame   0x0000060c       0x74 USART.o
 
-.debug_str      0x00000000      0x71e
+.debug_str      0x00000000      0x6d6
  *(.debug_str)
  .debug_str     0x00000000      0x139 ADC.o
                                 0x17a (size before relaxing)
- .debug_str     0x00000139      0x1d9 joystick.o
-                                0x311 (size before relaxing)
- .debug_str     0x00000312       0xca main.o
+ .debug_str     0x00000139      0x191 joystick.o
+                                0x2f5 (size before relaxing)
+ .debug_str     0x000002ca       0xca main.o
                                 0x282 (size before relaxing)
- .debug_str     0x000003dc      0x101 menu.o
+ .debug_str     0x00000394      0x101 menu.o
                                 0x2b9 (size before relaxing)
- .debug_str     0x000004dd      0x12f OLED.o
+ .debug_str     0x00000495      0x12f OLED.o
                                 0x27d (size before relaxing)
- .debug_str     0x0000060c       0xb4 sram.o
+ .debug_str     0x000005c4       0xb4 sram.o
                                 0x203 (size before relaxing)
- .debug_str     0x000006c0       0x5e USART.o
+ .debug_str     0x00000678       0x5e USART.o
                                 0x19c (size before relaxing)
 
 .debug_loc      0x00000000      0xcda

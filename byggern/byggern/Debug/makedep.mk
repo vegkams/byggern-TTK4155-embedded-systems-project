@@ -8,6 +8,8 @@ joystick.c
 
 main.c
 
+MCP2515.c
+
 menu.c
 
 OLED.c

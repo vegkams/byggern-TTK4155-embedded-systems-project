@@ -13,7 +13,7 @@
 #define SCK PB7
 #define SPI_SS PB4
 
-void spi_init(void);
+void spi_init();
 void spi_send(char cData);
 char spi_read();
 void spi_enable();
