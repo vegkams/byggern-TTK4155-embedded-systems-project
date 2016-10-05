@@ -129,6 +129,12 @@
     <Compile Include="main.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="MCP2515.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="MCP2515.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="menu.c">
       <SubType>compile</SubType>
     </Compile>
@@ -145,6 +151,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="spi.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="spi.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="sram.c">

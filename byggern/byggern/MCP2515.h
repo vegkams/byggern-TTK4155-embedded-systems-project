@@ -1,6 +1,7 @@
 #ifndef __MCP2515_H
 #define __MCP2515_H
-
+#include <avr/io.h>
+#include <stdio.h>
 /*
 mcp2515.h
 
@@ -154,6 +155,12 @@ Copyright 2003 Kimberly Otten Software Consulting
 #define MCP_WAKIF		0x40
 #define MCP_MERRF		0x80
 
-
+uint8_t mcp_2515_read(uint8_t address);
+void mcp_2515_write(uint8_t address, uint8_t data);
+void mcp_2515_request_to_send(uint8_t buffer);
+void mcp_2515_bit_modify();
+void mcp_2515_reset();
+char mcp_2515_read_status();
+uint8_t mcp_2515_init();
 
 #endif

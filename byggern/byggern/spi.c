@@ -10,7 +10,7 @@
 #include "setup.h"
 
 
-void spi_init(void)
+void spi_init()
 {
 	/* Set MOSI and SCK output, all others input */
 	// PB4 = !SS, PB5 = MOSI, PB6 = MISO, PB7 = SCK
@@ -24,8 +24,7 @@ void spi_send(char cData)
 	/* Start transmission */
 	SPDR = cData;
 	/* Wait for transmission complete */
-	while(!(SPSR & (1<<SPIF)))
-	;
+	while(!(SPSR & (1<<SPIF)));
 }
 
 char spi_read() 
@@ -33,7 +32,6 @@ char spi_read()
 
 	SPDR = 0x00; // send dummy data
 	while(!(SPSR & (1<<SPIF))); // Wait until data is shifted into SPDR
-
 	return SPDR;
 }
 
