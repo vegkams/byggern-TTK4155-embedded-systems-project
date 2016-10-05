@@ -16,14 +16,15 @@ menu_t * main_menu;
 uint8_t arrow_line = 2;
 uint8_t previous_joystick_button;
 uint8_t game_on = 0;
-
+uint8_t mode;
+uint8_t menu_printed;
 int main(void)
 {
 	initializations();
 	main_menu = menu_init();
 	
-	
-	int mode = 0;
+	menu_printed = 0;
+	mode = 0;
 	while (TRUEMADDAFAKKA)
 	{
 		
@@ -52,7 +53,7 @@ int main(void)
 
 void in_menus(){
 	
-	int menu_printed = 0;
+	
 	if (menu_printed == 0)
 	{
 		print_menu(main_menu);
@@ -65,14 +66,15 @@ void in_menus(){
 	
 	arrow_line = move_arrow(d,arrow_line);
 	if(j.joystick_button == previous_joystick_button){
-		j.joystick_button == 0;
+		j.joystick_button = 0;
 	}
 	else{
-		previous_joystick_button == 0;
+		previous_joystick_button = 0;
 	}
 	if (j.joystick_button == 1) {
 		mode = button_action(arrow_line);
-		previous_joystick_button == j.joystick_button;
+		previous_joystick_button = j.joystick_button;
+		arrow_line = 2;
 	}
 }
 

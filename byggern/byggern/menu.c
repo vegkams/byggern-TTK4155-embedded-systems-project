@@ -111,7 +111,7 @@ uint8_t move_arrow(direction dir ,uint8_t current_row){
 		
 		case DOWN  :
 		
-		if (current_row <= 3 + number_of_rows)
+		if (current_row <= number_of_rows)
 		{
 			oled_pos(current_row, 0);
 			oled_print_string("  ");
@@ -189,21 +189,40 @@ uint8_t button_action (uint8_t current_line) {
 		{
 			navigateMenu(current_line);
 		}
-		else if (current_line == 3); // TODO Debugging
+		else if (current_line == 3) {
+			oled_pos(current_line, 0);
+			oled_print_string("  ");
+		} // TODO Debugging
 		
-		else if (current_line == 4); // TODO Calibrate joystick
+		else if (current_line == 4) {
+			oled_pos(current_line, 0);
+			oled_print_string("  ");
+		} // TODO Calibrate joystick
 		
 		else if (current_line == 5) {
-			current_menu == current_menu -> parent;
+			current_menu = current_menu -> parent;
+			oled_pos(current_line, 0);
+			oled_print_string("  ");
 			print_menu(current_menu);
 		}
 		
 	}
 	else if (strcmp(current_menu->name, "SET DIFFICULTY") == 0) {
-		if (current_line == 2) GitGud == EASY;
-		else if (current_line == 3) GitGud == MEDIUM;
-		else if (current_line == 4) GitGud == HARD;
-		current_menu == current_menu->parent;
+		if (current_line == 2) GitGud = EASY;
+		else if (current_line == 3) GitGud = MEDIUM;
+		else if (current_line == 4) GitGud = HARD;
+		else {
+			current_menu = current_menu->parent;
+			oled_pos(current_line, 0);
+			oled_print_string("  ");
+		}
+		print_menu(current_menu);
+	}
+	
+	else if (strcmp(current_menu->name, "HIGH SCORE") == 0) {
+		current_menu = current_menu -> parent;
+		oled_pos(current_line, 0);
+		oled_print_string("  ");
 		print_menu(current_menu);
 	}
 	return game_started;
