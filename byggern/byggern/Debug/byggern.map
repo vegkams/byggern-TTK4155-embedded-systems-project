@@ -39,7 +39,7 @@ c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-t
 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avr5\libgcc.a(_exit.o)
                               c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avr5/crtm162.o (exit)
 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avr5\libgcc.a(_copy_data.o)
-                              main.o (__do_copy_data)
+                              CAN.o (__do_copy_data)
 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avr5\libgcc.a(_clear_bss.o)
                               main.o (__do_clear_bss)
 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avr5\libgcc.a(_prologue.o)
@@ -115,18 +115,29 @@ Discarded input sections
  .text          0x00000000        0x0 CAN.o
  .data          0x00000000        0x0 CAN.o
  .bss           0x00000000        0x0 CAN.o
+ .text.can_init
+                0x00000000       0x12 CAN.o
+ .rodata        0x00000000        0x6 CAN.o
  .text.can_send_message
-                0x00000000       0x2a CAN.o
- .debug_info    0x00000000       0xc9 CAN.o
- .debug_abbrev  0x00000000       0x7c CAN.o
- .debug_loc     0x00000000       0x48 CAN.o
+                0x00000000       0x98 CAN.o
+ .text.can_error
+                0x00000000       0x10 CAN.o
+ .text.can_transmitt_complete
+                0x00000000       0x10 CAN.o
+ .text.can_data_received
+                0x00000000       0x10 CAN.o
+ .text.can_int_vect
+                0x00000000       0x10 CAN.o
+ .debug_info    0x00000000      0x1b6 CAN.o
+ .debug_abbrev  0x00000000      0x103 CAN.o
+ .debug_loc     0x00000000      0x16e CAN.o
  .debug_aranges
-                0x00000000       0x20 CAN.o
- .debug_ranges  0x00000000       0x10 CAN.o
- .debug_line    0x00000000       0xa8 CAN.o
- .debug_str     0x00000000      0x175 CAN.o
+                0x00000000       0x48 CAN.o
+ .debug_ranges  0x00000000       0x38 CAN.o
+ .debug_line    0x00000000      0x11c CAN.o
+ .debug_str     0x00000000      0x1d1 CAN.o
  .comment       0x00000000       0x31 CAN.o
- .debug_frame   0x00000000       0x34 CAN.o
+ .debug_frame   0x00000000       0xd4 CAN.o
  .text          0x00000000        0x0 joystick.o
  .data          0x00000000        0x0 joystick.o
  .bss           0x00000000        0x0 joystick.o
@@ -152,28 +163,32 @@ Discarded input sections
  .rodata        0x00000000       0x32 MCP2515.o
  .text.mcp_2515_init
                 0x00000000       0x4a MCP2515.o
+ .text.mcp_2515_enable_loopback
+                0x00000000       0x3a MCP2515.o
+ .text.mcp_2515_enable_normal_operation
+                0x00000000       0x38 MCP2515.o
  .text.mcp_2515_read
                 0x00000000       0x32 MCP2515.o
  .text.mcp_2515_write
                 0x00000000       0x32 MCP2515.o
  .text.mcp_2515_request_to_send
-                0x00000000       0x22 MCP2515.o
+                0x00000000       0x34 MCP2515.o
  .text.mcp_2515_bit_modify
                 0x00000000       0x3e MCP2515.o
  .text.mcp_2515_reset
                 0x00000000       0x1c MCP2515.o
  .text.mcp_2515_read_status
                 0x00000000       0x28 MCP2515.o
- .debug_info    0x00000000      0x1bd MCP2515.o
- .debug_abbrev  0x00000000       0xd5 MCP2515.o
- .debug_loc     0x00000000      0x1eb MCP2515.o
+ .debug_info    0x00000000      0x21a MCP2515.o
+ .debug_abbrev  0x00000000       0xdc MCP2515.o
+ .debug_loc     0x00000000      0x27b MCP2515.o
  .debug_aranges
-                0x00000000       0x50 MCP2515.o
- .debug_ranges  0x00000000       0x40 MCP2515.o
- .debug_line    0x00000000      0x133 MCP2515.o
- .debug_str     0x00000000      0x1fc MCP2515.o
+                0x00000000       0x60 MCP2515.o
+ .debug_ranges  0x00000000       0x50 MCP2515.o
+ .debug_line    0x00000000      0x163 MCP2515.o
+ .debug_str     0x00000000      0x236 MCP2515.o
  .comment       0x00000000       0x31 MCP2515.o
- .debug_frame   0x00000000       0xf4 MCP2515.o
+ .debug_frame   0x00000000      0x134 MCP2515.o
  .text          0x00000000        0x0 menu.o
  .data          0x00000000        0x0 menu.o
  .bss           0x00000000        0x0 menu.o
