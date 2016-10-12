@@ -14,13 +14,13 @@ void spi_init()
 {
 	/* Set MOSI and SCK output, all others input */
 	// PB4 = !SS, PB5 = MOSI, PB6 = MISO, PB7 = SCK
-	DDRB = (1<<MOSI)|(1<<SCK);
+	DDRB = (1<<MOSI)|(1<<SCK)|(1<<SPI_SS);
 	 
 	/* Enable SPI, Master, set clock rate fck/16 */
 	SPCR = (1<<SPE)|(1<<MSTR)|(1<<SPR0);
 	// Read SPSR and SPDR to clear interrupt flag
-	char 1 = SPSR;
-	char 2 = SPDR;
+	char c1 = SPSR;
+	char c2 = SPDR;
 }
 void spi_send(char cData)
 {

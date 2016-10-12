@@ -4,6 +4,8 @@
 
 ADC.c
 
+CAN.c
+
 joystick.c
 
 main.c

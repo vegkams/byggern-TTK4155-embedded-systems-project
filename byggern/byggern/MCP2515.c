@@ -22,8 +22,9 @@ uint8_t mcp_2515_init(){
 		printf("MCP2515 is NOT in configuration mode after reset!\n");
 		return 1;
 	}
+	printf("MCP2515 mode after init: %d\n", value);
 	// Interrupt enable when receive buffer 0 is full
-	mcp_2515_bit_modify(MCP_CANINTE,0x01,0x01)
+	mcp_2515_bit_modify(MCP_CANINTE,0x01,0x01);
 	//More initialization??
 	
 	return 0;
@@ -132,7 +133,7 @@ void mcp_2515_reset(){
 	spi_disable();
 }
 
-char mcp_2515_read_status(){
+uint8_t mcp_2515_read_status(){
 	// Enable slave
 	spi_enable();
 	
