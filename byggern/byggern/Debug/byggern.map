@@ -112,6 +112,21 @@ Discarded input sections
  .bss           0x00000000        0x0 ADC.o
  .text.ADC_initiate_conversion
                 0x00000000       0x46 ADC.o
+ .text          0x00000000        0x0 CAN.o
+ .data          0x00000000        0x0 CAN.o
+ .bss           0x00000000        0x0 CAN.o
+ .text.can_send_message
+                0x00000000       0x2a CAN.o
+ .debug_info    0x00000000       0xc9 CAN.o
+ .debug_abbrev  0x00000000       0x7c CAN.o
+ .debug_loc     0x00000000       0x48 CAN.o
+ .debug_aranges
+                0x00000000       0x20 CAN.o
+ .debug_ranges  0x00000000       0x10 CAN.o
+ .debug_line    0x00000000       0xa8 CAN.o
+ .debug_str     0x00000000      0x175 CAN.o
+ .comment       0x00000000       0x31 CAN.o
+ .debug_frame   0x00000000       0x34 CAN.o
  .text          0x00000000        0x0 joystick.o
  .data          0x00000000        0x0 joystick.o
  .bss           0x00000000        0x0 joystick.o
@@ -136,7 +151,7 @@ Discarded input sections
  .bss           0x00000000        0x0 MCP2515.o
  .rodata        0x00000000       0x32 MCP2515.o
  .text.mcp_2515_init
-                0x00000000       0x3e MCP2515.o
+                0x00000000       0x4a MCP2515.o
  .text.mcp_2515_read
                 0x00000000       0x32 MCP2515.o
  .text.mcp_2515_write
@@ -144,19 +159,19 @@ Discarded input sections
  .text.mcp_2515_request_to_send
                 0x00000000       0x22 MCP2515.o
  .text.mcp_2515_bit_modify
-                0x00000000        0xe MCP2515.o
+                0x00000000       0x3e MCP2515.o
  .text.mcp_2515_reset
                 0x00000000       0x1c MCP2515.o
  .text.mcp_2515_read_status
                 0x00000000       0x28 MCP2515.o
- .debug_info    0x00000000      0x18d MCP2515.o
- .debug_abbrev  0x00000000       0xeb MCP2515.o
- .debug_loc     0x00000000      0x1de MCP2515.o
+ .debug_info    0x00000000      0x1bd MCP2515.o
+ .debug_abbrev  0x00000000       0xd5 MCP2515.o
+ .debug_loc     0x00000000      0x1eb MCP2515.o
  .debug_aranges
                 0x00000000       0x50 MCP2515.o
  .debug_ranges  0x00000000       0x40 MCP2515.o
- .debug_line    0x00000000      0x12a MCP2515.o
- .debug_str     0x00000000      0x1e7 MCP2515.o
+ .debug_line    0x00000000      0x133 MCP2515.o
+ .debug_str     0x00000000      0x1fc MCP2515.o
  .comment       0x00000000       0x31 MCP2515.o
  .debug_frame   0x00000000       0xf4 MCP2515.o
  .text          0x00000000        0x0 menu.o
@@ -173,7 +188,7 @@ Discarded input sections
  .data          0x00000000        0x0 spi.o
  .bss           0x00000000        0x0 spi.o
  .text.spi_init
-                0x00000000       0x22 spi.o
+                0x00000000       0x3c spi.o
  .text.spi_send
                 0x00000000       0x2c spi.o
  .text.spi_read
@@ -182,14 +197,14 @@ Discarded input sections
                 0x00000000       0x20 spi.o
  .text.spi_disable
                 0x00000000       0x20 spi.o
- .debug_info    0x00000000       0xf5 spi.o
- .debug_abbrev  0x00000000       0x90 spi.o
- .debug_loc     0x00000000      0x134 spi.o
+ .debug_info    0x00000000      0x114 spi.o
+ .debug_abbrev  0x00000000       0xb7 spi.o
+ .debug_loc     0x00000000      0x141 spi.o
  .debug_aranges
                 0x00000000       0x40 spi.o
  .debug_ranges  0x00000000       0x30 spi.o
- .debug_line    0x00000000      0x100 spi.o
- .debug_str     0x00000000      0x177 spi.o
+ .debug_line    0x00000000      0x102 spi.o
+ .debug_str     0x00000000      0x187 spi.o
  .comment       0x00000000       0x31 spi.o
  .debug_frame   0x00000000       0xb4 spi.o
  .text          0x00000000        0x0 sram.o
@@ -474,6 +489,7 @@ Linker script and memory map
 Address of section .data set to 0x800100
 LOAD c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avr5/crtm162.o
 LOAD ADC.o
+LOAD CAN.o
 LOAD joystick.o
 LOAD main.o
 LOAD MCP2515.o

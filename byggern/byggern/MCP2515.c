@@ -23,7 +23,7 @@ uint8_t mcp_2515_init(){
 		return 1;
 	}
 	// Interrupt enable when receive buffer 0 is full
-	mcp_2515_bit_modify(MCP_CANINTE,0x01,0x01)
+	mcp_2515_bit_modify(MCP_CANINTE,0x01,0x01);
 	//More initialization??
 	
 	return 0;

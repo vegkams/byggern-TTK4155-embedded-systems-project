@@ -501,18 +501,10 @@ Disassembly of section .text:
      4a4:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
 
 000004a8 <setup_ADC>:
-#include "setup.h"
-#include "ADC.h"
-
-
-void setup_ADC()
-{
      4a8:	cf 93       	push	r28
      4aa:	df 93       	push	r29
      4ac:	cd b7       	in	r28, 0x3d	; 61
      4ae:	de b7       	in	r29, 0x3e	; 62
-	// Sett PD2 som input (INT0)
-	clear_bit(DDRD,PD2);
      4b0:	81 e3       	ldi	r24, 0x31	; 49
      4b2:	90 e0       	ldi	r25, 0x00	; 0
      4b4:	21 e3       	ldi	r18, 0x31	; 49
@@ -522,23 +514,11 @@ void setup_ADC()
      4bc:	2b 7f       	andi	r18, 0xFB	; 251
      4be:	fc 01       	movw	r30, r24
      4c0:	20 83       	st	Z, r18
-	// Interrupt på fallende flanke INT0
-	//set_bit(MCUCR,ISC01);
-	//clear_bit(MCUCR,ISC00);
-
-	//sei(); // enable global interrupt	
-}
      4c2:	df 91       	pop	r29
      4c4:	cf 91       	pop	r28
      4c6:	08 95       	ret
 
 000004c8 <read_ADC>:
-	int x = 0x04 | channel;
-	address[0] = x; // ch1 = 3, ch2 = 4....
-}
-
-uint8_t read_ADC(uint8_t channel)
-{
      4c8:	cf 93       	push	r28
      4ca:	df 93       	push	r29
      4cc:	00 d0       	rcall	.+0      	; 0x4ce <read_ADC+0x6>
@@ -547,32 +527,26 @@ uint8_t read_ADC(uint8_t channel)
      4d2:	cd b7       	in	r28, 0x3d	; 61
      4d4:	de b7       	in	r29, 0x3e	; 62
      4d6:	8d 83       	std	Y+5, r24	; 0x05
-	volatile char *address = (char *) 0x1400; // ADC address space 0x1400 ->
      4d8:	80 e0       	ldi	r24, 0x00	; 0
      4da:	94 e1       	ldi	r25, 0x14	; 20
      4dc:	9a 83       	std	Y+2, r25	; 0x02
      4de:	89 83       	std	Y+1, r24	; 0x01
-	
-	if(channel > 3) return 0; // invalid channel
      4e0:	8d 81       	ldd	r24, Y+5	; 0x05
      4e2:	84 30       	cpi	r24, 0x04	; 4
      4e4:	10 f0       	brcs	.+4      	; 0x4ea <read_ADC+0x22>
      4e6:	80 e0       	ldi	r24, 0x00	; 0
      4e8:	1e c0       	rjmp	.+60     	; 0x526 <__stack+0x27>
-	int x = 0x04 | channel;
      4ea:	8d 81       	ldd	r24, Y+5	; 0x05
      4ec:	84 60       	ori	r24, 0x04	; 4
      4ee:	88 2f       	mov	r24, r24
      4f0:	90 e0       	ldi	r25, 0x00	; 0
      4f2:	9c 83       	std	Y+4, r25	; 0x04
      4f4:	8b 83       	std	Y+3, r24	; 0x03
-	address[0] = x; // ch1 = 3, ch2 = 4....
      4f6:	2b 81       	ldd	r18, Y+3	; 0x03
      4f8:	89 81       	ldd	r24, Y+1	; 0x01
      4fa:	9a 81       	ldd	r25, Y+2	; 0x02
      4fc:	fc 01       	movw	r30, r24
      4fe:	20 83       	st	Z, r18
-	loop_until_bit_is_clear(PIND,PIND2); // Busy wait...
      500:	00 00       	nop
      502:	80 e3       	ldi	r24, 0x30	; 48
      504:	90 e0       	ldi	r25, 0x00	; 0
@@ -584,7 +558,6 @@ uint8_t read_ADC(uint8_t channel)
      510:	99 27       	eor	r25, r25
      512:	00 97       	sbiw	r24, 0x00	; 0
      514:	b1 f7       	brne	.-20     	; 0x502 <__stack+0x3>
-	return address[x];
      516:	8b 81       	ldd	r24, Y+3	; 0x03
      518:	9c 81       	ldd	r25, Y+4	; 0x04
      51a:	29 81       	ldd	r18, Y+1	; 0x01
@@ -593,8 +566,6 @@ uint8_t read_ADC(uint8_t channel)
      520:	93 1f       	adc	r25, r19
      522:	fc 01       	movw	r30, r24
      524:	80 81       	ld	r24, Z
-	
-}
      526:	0f 90       	pop	r0
      528:	0f 90       	pop	r0
      52a:	0f 90       	pop	r0
@@ -605,18 +576,10 @@ uint8_t read_ADC(uint8_t channel)
      534:	08 95       	ret
 
 00000536 <joystick_init>:
-#include "setup.h"
-#include "ADC.h"
-#include "joystick.h"
-
-void joystick_init()
-{
      536:	cf 93       	push	r28
      538:	df 93       	push	r29
      53a:	cd b7       	in	r28, 0x3d	; 61
      53c:	de b7       	in	r29, 0x3e	; 62
-	// Set PB0-1 as input
-	clear_bit(DDRB,PB0);
      53e:	87 e3       	ldi	r24, 0x37	; 55
      540:	90 e0       	ldi	r25, 0x00	; 0
      542:	27 e3       	ldi	r18, 0x37	; 55
@@ -626,7 +589,6 @@ void joystick_init()
      54a:	2e 7f       	andi	r18, 0xFE	; 254
      54c:	fc 01       	movw	r30, r24
      54e:	20 83       	st	Z, r18
-	clear_bit(DDRB,PB1);
      550:	87 e3       	ldi	r24, 0x37	; 55
      552:	90 e0       	ldi	r25, 0x00	; 0
      554:	27 e3       	ldi	r18, 0x37	; 55
@@ -636,8 +598,6 @@ void joystick_init()
      55c:	2d 7f       	andi	r18, 0xFD	; 253
      55e:	fc 01       	movw	r30, r24
      560:	20 83       	st	Z, r18
-	// Pull-up on PB2
-	set_bit(PORTB,PB2);
      562:	88 e3       	ldi	r24, 0x38	; 56
      564:	90 e0       	ldi	r25, 0x00	; 0
      566:	28 e3       	ldi	r18, 0x38	; 56
@@ -647,8 +607,6 @@ void joystick_init()
      56e:	24 60       	ori	r18, 0x04	; 4
      570:	fc 01       	movw	r30, r24
      572:	20 83       	st	Z, r18
-	//Set PB2 as input
-	clear_bit(DDRB,PB2);
      574:	87 e3       	ldi	r24, 0x37	; 55
      576:	90 e0       	ldi	r25, 0x00	; 0
      578:	27 e3       	ldi	r18, 0x37	; 55
@@ -658,15 +616,11 @@ void joystick_init()
      580:	2b 7f       	andi	r18, 0xFB	; 251
      582:	fc 01       	movw	r30, r24
      584:	20 83       	st	Z, r18
-}
      586:	df 91       	pop	r29
      588:	cf 91       	pop	r28
      58a:	08 95       	ret
 
 0000058c <read_joystick>:
-
-void read_joystick(joyValues *joy)
-{
      58c:	cf 93       	push	r28
      58e:	df 93       	push	r29
      590:	00 d0       	rcall	.+0      	; 0x592 <read_joystick+0x6>
@@ -674,8 +628,6 @@ void read_joystick(joyValues *joy)
      594:	de b7       	in	r29, 0x3e	; 62
      596:	9a 83       	std	Y+2, r25	; 0x02
      598:	89 83       	std	Y+1, r24	; 0x01
-	//joyValues joystick;
-	joy->x_percentage = joystick_get_x_percentage();
      59a:	0e 94 0c 04 	call	0x818	; 0x818 <joystick_get_x_percentage>
      59e:	dc 01       	movw	r26, r24
      5a0:	cb 01       	movw	r24, r22
@@ -686,7 +638,6 @@ void read_joystick(joyValues *joy)
      5aa:	91 83       	std	Z+1, r25	; 0x01
      5ac:	a2 83       	std	Z+2, r26	; 0x02
      5ae:	b3 83       	std	Z+3, r27	; 0x03
-	joy->y_percentage = joystick_get_y_percentage();
      5b0:	0e 94 20 04 	call	0x840	; 0x840 <joystick_get_y_percentage>
      5b4:	dc 01       	movw	r26, r24
      5b6:	cb 01       	movw	r24, r22
@@ -697,8 +648,6 @@ void read_joystick(joyValues *joy)
      5c0:	95 83       	std	Z+5, r25	; 0x05
      5c2:	a6 83       	std	Z+6, r26	; 0x06
      5c4:	b7 83       	std	Z+7, r27	; 0x07
-	// If PB0 || PB1 =1, button is pressed
-	if (test_bit(PINB,PB0)) joy->left_button = 1;
      5c6:	86 e3       	ldi	r24, 0x36	; 54
      5c8:	90 e0       	ldi	r25, 0x00	; 0
      5ca:	fc 01       	movw	r30, r24
@@ -717,13 +666,11 @@ void read_joystick(joyValues *joy)
      5e4:	31 87       	std	Z+9, r19	; 0x09
      5e6:	20 87       	std	Z+8, r18	; 0x08
      5e8:	05 c0       	rjmp	.+10     	; 0x5f4 <read_joystick+0x68>
-	else joy->left_button = 0;
      5ea:	89 81       	ldd	r24, Y+1	; 0x01
      5ec:	9a 81       	ldd	r25, Y+2	; 0x02
      5ee:	fc 01       	movw	r30, r24
      5f0:	11 86       	std	Z+9, r1	; 0x09
      5f2:	10 86       	std	Z+8, r1	; 0x08
-	if (test_bit(PINB,PB1)) joy->right_button = 1;
      5f4:	86 e3       	ldi	r24, 0x36	; 54
      5f6:	90 e0       	ldi	r25, 0x00	; 0
      5f8:	fc 01       	movw	r30, r24
@@ -742,15 +689,11 @@ void read_joystick(joyValues *joy)
      612:	33 87       	std	Z+11, r19	; 0x0b
      614:	22 87       	std	Z+10, r18	; 0x0a
      616:	05 c0       	rjmp	.+10     	; 0x622 <read_joystick+0x96>
-	else joy->right_button = 0;
      618:	89 81       	ldd	r24, Y+1	; 0x01
      61a:	9a 81       	ldd	r25, Y+2	; 0x02
      61c:	fc 01       	movw	r30, r24
      61e:	13 86       	std	Z+11, r1	; 0x0b
      620:	12 86       	std	Z+10, r1	; 0x0a
-	
-	// If PB2=0, button is pressed
-	if (test_bit(PINB,PB2)) joy->joystick_button = 0;
      622:	86 e3       	ldi	r24, 0x36	; 54
      624:	90 e0       	ldi	r25, 0x00	; 0
      626:	fc 01       	movw	r30, r24
@@ -767,7 +710,6 @@ void read_joystick(joyValues *joy)
      63c:	15 86       	std	Z+13, r1	; 0x0d
      63e:	14 86       	std	Z+12, r1	; 0x0c
      640:	07 c0       	rjmp	.+14     	; 0x650 <read_joystick+0xc4>
-	else joy->joystick_button = 1;
      642:	89 81       	ldd	r24, Y+1	; 0x01
      644:	9a 81       	ldd	r25, Y+2	; 0x02
      646:	21 e0       	ldi	r18, 0x01	; 1
@@ -775,7 +717,6 @@ void read_joystick(joyValues *joy)
      64a:	fc 01       	movw	r30, r24
      64c:	35 87       	std	Z+13, r19	; 0x0d
      64e:	24 87       	std	Z+12, r18	; 0x0c
-}
      650:	0f 90       	pop	r0
      652:	0f 90       	pop	r0
      654:	df 91       	pop	r29
@@ -783,9 +724,6 @@ void read_joystick(joyValues *joy)
      658:	08 95       	ret
 
 0000065a <joystick_getDirection>:
-
-direction joystick_getDirection(float x, float y)
-{
      65a:	1f 93       	push	r17
      65c:	cf 93       	push	r28
      65e:	df 93       	push	r29
@@ -805,10 +743,8 @@ direction joystick_getDirection(float x, float y)
      67a:	3f 83       	std	Y+7, r19	; 0x07
      67c:	48 87       	std	Y+8, r20	; 0x08
      67e:	59 87       	std	Y+9, r21	; 0x09
-	direction d = NEUTRAL;
      680:	84 e0       	ldi	r24, 0x04	; 4
      682:	89 83       	std	Y+1, r24	; 0x01
-	if (!(fabsf(x)<50 && fabsf(y)<50)) 
      684:	8a 81       	ldd	r24, Y+2	; 0x02
      686:	9b 81       	ldd	r25, Y+3	; 0x03
      688:	ac 81       	ldd	r26, Y+4	; 0x04
@@ -850,8 +786,6 @@ direction joystick_getDirection(float x, float y)
      6d4:	88 23       	and	r24, r24
      6d6:	09 f4       	brne	.+2      	; 0x6da <joystick_getDirection+0x80>
      6d8:	94 c0       	rjmp	.+296    	; 0x802 <joystick_getDirection+0x1a8>
-	{
-		if (fabsf(x)>50 && fabsf(y)<50)
      6da:	8a 81       	ldd	r24, Y+2	; 0x02
      6dc:	9b 81       	ldd	r25, Y+3	; 0x03
      6de:	ac 81       	ldd	r26, Y+4	; 0x04
@@ -880,8 +814,6 @@ direction joystick_getDirection(float x, float y)
      70e:	0e 94 56 0d 	call	0x1aac	; 0x1aac <__cmpsf2>
      712:	88 23       	and	r24, r24
      714:	8c f4       	brge	.+34     	; 0x738 <joystick_getDirection+0xde>
-		{
-			if (x<0)
      716:	20 e0       	ldi	r18, 0x00	; 0
      718:	30 e0       	ldi	r19, 0x00	; 0
      71a:	a9 01       	movw	r20, r18
@@ -892,38 +824,12 @@ direction joystick_getDirection(float x, float y)
      724:	0e 94 56 0d 	call	0x1aac	; 0x1aac <__cmpsf2>
      728:	88 23       	and	r24, r24
      72a:	1c f4       	brge	.+6      	; 0x732 <joystick_getDirection+0xd8>
-			{
-				d = LEFT;
      72c:	82 e0       	ldi	r24, 0x02	; 2
      72e:	89 83       	std	Y+1, r24	; 0x01
-	direction d = NEUTRAL;
-	if (!(fabsf(x)<50 && fabsf(y)<50)) 
-	{
-		if (fabsf(x)>50 && fabsf(y)<50)
-		{
-			if (x<0)
      730:	68 c0       	rjmp	.+208    	; 0x802 <joystick_getDirection+0x1a8>
-			{
-				d = LEFT;
-			}
-			else
-			{
-				d = RIGHT;
      732:	83 e0       	ldi	r24, 0x03	; 3
      734:	89 83       	std	Y+1, r24	; 0x01
-	direction d = NEUTRAL;
-	if (!(fabsf(x)<50 && fabsf(y)<50)) 
-	{
-		if (fabsf(x)>50 && fabsf(y)<50)
-		{
-			if (x<0)
      736:	65 c0       	rjmp	.+202    	; 0x802 <joystick_getDirection+0x1a8>
-			else
-			{
-				d = RIGHT;
-			}
-		}
-		else if(fabsf(x)<50 && fabsf(y)>50)
      738:	8a 81       	ldd	r24, Y+2	; 0x02
      73a:	9b 81       	ldd	r25, Y+3	; 0x03
      73c:	ac 81       	ldd	r26, Y+4	; 0x04
@@ -952,8 +858,6 @@ direction joystick_getDirection(float x, float y)
      76c:	0e 94 74 0e 	call	0x1ce8	; 0x1ce8 <__gesf2>
      770:	18 16       	cp	r1, r24
      772:	84 f4       	brge	.+32     	; 0x794 <joystick_getDirection+0x13a>
-		{
-			if (y<0)
      774:	20 e0       	ldi	r18, 0x00	; 0
      776:	30 e0       	ldi	r19, 0x00	; 0
      778:	a9 01       	movw	r20, r18
@@ -964,37 +868,11 @@ direction joystick_getDirection(float x, float y)
      782:	0e 94 56 0d 	call	0x1aac	; 0x1aac <__cmpsf2>
      786:	88 23       	and	r24, r24
      788:	1c f4       	brge	.+6      	; 0x790 <joystick_getDirection+0x136>
-			{
-				d = DOWN;
      78a:	81 e0       	ldi	r24, 0x01	; 1
      78c:	89 83       	std	Y+1, r24	; 0x01
-				d = RIGHT;
-			}
-		}
-		else if(fabsf(x)<50 && fabsf(y)>50)
-		{
-			if (y<0)
      78e:	39 c0       	rjmp	.+114    	; 0x802 <joystick_getDirection+0x1a8>
-			{
-				d = DOWN;
-			}
-			else
-			{
-				d = UP;
      790:	19 82       	std	Y+1, r1	; 0x01
-				d = RIGHT;
-			}
-		}
-		else if(fabsf(x)<50 && fabsf(y)>50)
-		{
-			if (y<0)
      792:	37 c0       	rjmp	.+110    	; 0x802 <joystick_getDirection+0x1a8>
-				d = UP;
-			}
-		}
-		else
-		{
-			if (fabsf(y/x)>1)
      794:	2a 81       	ldd	r18, Y+2	; 0x02
      796:	3b 81       	ldd	r19, Y+3	; 0x03
      798:	4c 81       	ldd	r20, Y+4	; 0x04
@@ -1016,8 +894,6 @@ direction joystick_getDirection(float x, float y)
      7ba:	0e 94 74 0e 	call	0x1ce8	; 0x1ce8 <__gesf2>
      7be:	18 16       	cp	r1, r24
      7c0:	84 f4       	brge	.+32     	; 0x7e2 <joystick_getDirection+0x188>
-			{
-				if (y<0)
      7c2:	20 e0       	ldi	r18, 0x00	; 0
      7c4:	30 e0       	ldi	r19, 0x00	; 0
      7c6:	a9 01       	movw	r20, r18
@@ -1028,22 +904,11 @@ direction joystick_getDirection(float x, float y)
      7d0:	0e 94 56 0d 	call	0x1aac	; 0x1aac <__cmpsf2>
      7d4:	88 23       	and	r24, r24
      7d6:	1c f4       	brge	.+6      	; 0x7de <joystick_getDirection+0x184>
-				{
-					d = DOWN;
      7d8:	81 e0       	ldi	r24, 0x01	; 1
      7da:	89 83       	std	Y+1, r24	; 0x01
      7dc:	12 c0       	rjmp	.+36     	; 0x802 <joystick_getDirection+0x1a8>
-				}
-				else
-				{
-					d = UP;
      7de:	19 82       	std	Y+1, r1	; 0x01
      7e0:	10 c0       	rjmp	.+32     	; 0x802 <joystick_getDirection+0x1a8>
-				}
-			}
-			else
-			{
-				if (x<0)
      7e2:	20 e0       	ldi	r18, 0x00	; 0
      7e4:	30 e0       	ldi	r19, 0x00	; 0
      7e6:	a9 01       	movw	r20, r18
@@ -1054,25 +919,12 @@ direction joystick_getDirection(float x, float y)
      7f0:	0e 94 56 0d 	call	0x1aac	; 0x1aac <__cmpsf2>
      7f4:	88 23       	and	r24, r24
      7f6:	1c f4       	brge	.+6      	; 0x7fe <joystick_getDirection+0x1a4>
-				{
-					d = LEFT;
      7f8:	82 e0       	ldi	r24, 0x02	; 2
      7fa:	89 83       	std	Y+1, r24	; 0x01
      7fc:	02 c0       	rjmp	.+4      	; 0x802 <joystick_getDirection+0x1a8>
-				}
-				else
-				{
-					d = RIGHT;
      7fe:	83 e0       	ldi	r24, 0x03	; 3
      800:	89 83       	std	Y+1, r24	; 0x01
-				}
-			}
-		}
-		
-	}
-	return d;
      802:	89 81       	ldd	r24, Y+1	; 0x01
-}
      804:	29 96       	adiw	r28, 0x09	; 9
      806:	0f b6       	in	r0, 0x3f	; 63
      808:	f8 94       	cli
@@ -1085,25 +937,18 @@ direction joystick_getDirection(float x, float y)
      816:	08 95       	ret
 
 00000818 <joystick_get_x_percentage>:
-
-// Get Joystick position in percentage (center = 50%)
-float joystick_get_x_percentage()
-{
      818:	cf 93       	push	r28
      81a:	df 93       	push	r29
      81c:	1f 92       	push	r1
      81e:	cd b7       	in	r28, 0x3d	; 61
      820:	de b7       	in	r29, 0x3e	; 62
-	uint8_t data = read_ADC(1);
      822:	81 e0       	ldi	r24, 0x01	; 1
      824:	0e 94 64 02 	call	0x4c8	; 0x4c8 <read_ADC>
      828:	89 83       	std	Y+1, r24	; 0x01
-	return convert_to_percentage(data);
      82a:	89 81       	ldd	r24, Y+1	; 0x01
      82c:	0e 94 34 04 	call	0x868	; 0x868 <convert_to_percentage>
      830:	dc 01       	movw	r26, r24
      832:	cb 01       	movw	r24, r22
-} 
      834:	bc 01       	movw	r22, r24
      836:	cd 01       	movw	r24, r26
      838:	0f 90       	pop	r0
@@ -1112,25 +957,18 @@ float joystick_get_x_percentage()
      83e:	08 95       	ret
 
 00000840 <joystick_get_y_percentage>:
-
-// Get Joystick position in percentage (center = 50%)
-float joystick_get_y_percentage()
-{
      840:	cf 93       	push	r28
      842:	df 93       	push	r29
      844:	1f 92       	push	r1
      846:	cd b7       	in	r28, 0x3d	; 61
      848:	de b7       	in	r29, 0x3e	; 62
-	uint8_t data = read_ADC(0);
      84a:	80 e0       	ldi	r24, 0x00	; 0
      84c:	0e 94 64 02 	call	0x4c8	; 0x4c8 <read_ADC>
      850:	89 83       	std	Y+1, r24	; 0x01
-	return convert_to_percentage(data);
      852:	89 81       	ldd	r24, Y+1	; 0x01
      854:	0e 94 34 04 	call	0x868	; 0x868 <convert_to_percentage>
      858:	dc 01       	movw	r26, r24
      85a:	cb 01       	movw	r24, r22
-}
      85c:	bc 01       	movw	r22, r24
      85e:	cd 01       	movw	r24, r26
      860:	0f 90       	pop	r0
@@ -1139,12 +977,6 @@ float joystick_get_y_percentage()
      866:	08 95       	ret
 
 00000868 <convert_to_percentage>:
-	return (value/255)*5;
-}
-
-// Convert digital value to percentage (0-255 -> 0-100%)
-float convert_to_percentage(uint8_t digital_value)
-{
      868:	cf 93       	push	r28
      86a:	df 93       	push	r29
      86c:	00 d0       	rcall	.+0      	; 0x86e <convert_to_percentage+0x6>
@@ -1153,7 +985,6 @@ float convert_to_percentage(uint8_t digital_value)
      872:	cd b7       	in	r28, 0x3d	; 61
      874:	de b7       	in	r29, 0x3e	; 62
      876:	8d 83       	std	Y+5, r24	; 0x05
-	float value = digital_value;
      878:	8d 81       	ldd	r24, Y+5	; 0x05
      87a:	88 2f       	mov	r24, r24
      87c:	90 e0       	ldi	r25, 0x00	; 0
@@ -1168,7 +999,6 @@ float convert_to_percentage(uint8_t digital_value)
      890:	9a 83       	std	Y+2, r25	; 0x02
      892:	ab 83       	std	Y+3, r26	; 0x03
      894:	bc 83       	std	Y+4, r27	; 0x04
-	return ((value-128)/128)*100;
      896:	20 e0       	ldi	r18, 0x00	; 0
      898:	30 e0       	ldi	r19, 0x00	; 0
      89a:	40 e0       	ldi	r20, 0x00	; 0
@@ -1198,7 +1028,6 @@ float convert_to_percentage(uint8_t digital_value)
      8ce:	0e 94 78 0e 	call	0x1cf0	; 0x1cf0 <__mulsf3>
      8d2:	dc 01       	movw	r26, r24
      8d4:	cb 01       	movw	r24, r22
-}
      8d6:	bc 01       	movw	r22, r24
      8d8:	cd 01       	movw	r24, r26
      8da:	0f 90       	pop	r0
@@ -1211,31 +1040,16 @@ float convert_to_percentage(uint8_t digital_value)
      8e8:	08 95       	ret
 
 000008ea <main>:
-uint8_t previous_joystick_button;
-uint8_t game_on = 0;
-uint8_t mode;
-uint8_t menu_printed;
-int main(void)
-{
      8ea:	cf 93       	push	r28
      8ec:	df 93       	push	r29
      8ee:	cd b7       	in	r28, 0x3d	; 61
      8f0:	de b7       	in	r29, 0x3e	; 62
-	initializations();
      8f2:	0e 94 f6 04 	call	0x9ec	; 0x9ec <initializations>
-	main_menu = menu_init();
      8f6:	0e 94 38 05 	call	0xa70	; 0xa70 <menu_init>
      8fa:	90 93 6a 02 	sts	0x026A, r25
      8fe:	80 93 69 02 	sts	0x0269, r24
-	
-	menu_printed = 0;
      902:	10 92 68 02 	sts	0x0268, r1
-	mode = 0;
      906:	10 92 66 02 	sts	0x0266, r1
-	while (TRUEMADDAFAKKA)
-	{
-		
-		switch(mode){
      90a:	80 91 66 02 	lds	r24, 0x0266
      90e:	88 2f       	mov	r24, r24
      910:	90 e0       	ldi	r25, 0x00	; 0
@@ -1244,42 +1058,14 @@ int main(void)
      916:	81 30       	cpi	r24, 0x01	; 1
      918:	91 05       	cpc	r25, r1
      91a:	21 f0       	breq	.+8      	; 0x924 <main+0x3a>
-		//direction d = joystick_getDirection(j.x_percentage,j.y_percentage);
-		//int d1 = (int)d;
-		//
-		//printf("X prosent: %3.2f, Y prosent: %3.2f, Slider venstre: %3.2f, Slider høyre: %3.2f, Retning: %d ",j.x_percentage,j.y_percentage,slider_left,slider_right, d1);
-		//printf("Knapp 1: %d, Knapp 2: %d, Joystick knapp: %d\n",j.left_button,j.right_button,j.joystick_button);
-	}
      91c:	f6 cf       	rjmp	.-20     	; 0x90a <main+0x20>
-	while (TRUEMADDAFAKKA)
-	{
-		
-		switch(mode){
-			case 0:
-			in_menus();
      91e:	0e 94 96 04 	call	0x92c	; 0x92c <in_menus>
-			break;
      922:	03 c0       	rjmp	.+6      	; 0x92a <main+0x40>
-			
-			case 1:
-			playing_the_game();
      924:	0e 94 ef 04 	call	0x9de	; 0x9de <playing_the_game>
-			break;
      928:	00 00       	nop
-		//direction d = joystick_getDirection(j.x_percentage,j.y_percentage);
-		//int d1 = (int)d;
-		//
-		//printf("X prosent: %3.2f, Y prosent: %3.2f, Slider venstre: %3.2f, Slider høyre: %3.2f, Retning: %d ",j.x_percentage,j.y_percentage,slider_left,slider_right, d1);
-		//printf("Knapp 1: %d, Knapp 2: %d, Joystick knapp: %d\n",j.left_button,j.right_button,j.joystick_button);
-	}
      92a:	ef cf       	rjmp	.-34     	; 0x90a <main+0x20>
 
 0000092c <in_menus>:
-	
-	return 0;
-}
-
-void in_menus(){
      92c:	cf 93       	push	r28
      92e:	df 93       	push	r29
      930:	cd b7       	in	r28, 0x3d	; 61
@@ -1290,28 +1076,17 @@ void in_menus(){
      93a:	de bf       	out	0x3e, r29	; 62
      93c:	0f be       	out	0x3f, r0	; 63
      93e:	cd bf       	out	0x3d, r28	; 61
-	
-	
-	if (menu_printed == 0)
      940:	80 91 68 02 	lds	r24, 0x0268
      944:	88 23       	and	r24, r24
      946:	49 f4       	brne	.+18     	; 0x95a <in_menus+0x2e>
-	{
-		print_menu(main_menu);
      948:	80 91 69 02 	lds	r24, 0x0269
      94c:	90 91 6a 02 	lds	r25, 0x026A
      950:	0e 94 0a 08 	call	0x1014	; 0x1014 <print_menu>
-		menu_printed = 1;
      954:	81 e0       	ldi	r24, 0x01	; 1
      956:	80 93 68 02 	sts	0x0268, r24
-	}
-	
-	joyValues j;
-	read_joystick(&j);
      95a:	ce 01       	movw	r24, r28
      95c:	02 96       	adiw	r24, 0x02	; 2
      95e:	0e 94 c6 02 	call	0x58c	; 0x58c <read_joystick>
-	direction d = joystick_getDirection(j.x_percentage,j.y_percentage);
      962:	2e 81       	ldd	r18, Y+6	; 0x06
      964:	3f 81       	ldd	r19, Y+7	; 0x07
      966:	48 85       	ldd	r20, Y+8	; 0x08
@@ -1324,14 +1099,11 @@ void in_menus(){
      974:	cd 01       	movw	r24, r26
      976:	0e 94 2d 03 	call	0x65a	; 0x65a <joystick_getDirection>
      97a:	89 83       	std	Y+1, r24	; 0x01
-	
-	arrow_line = move_arrow(d,arrow_line);
      97c:	80 91 0a 01 	lds	r24, 0x010A
      980:	68 2f       	mov	r22, r24
      982:	89 81       	ldd	r24, Y+1	; 0x01
      984:	0e 94 aa 07 	call	0xf54	; 0xf54 <move_arrow>
      988:	80 93 0a 01 	sts	0x010A, r24
-	if(j.joystick_button == previous_joystick_button){
      98c:	2e 85       	ldd	r18, Y+14	; 0x0e
      98e:	3f 85       	ldd	r19, Y+15	; 0x0f
      990:	80 91 67 02 	lds	r24, 0x0267
@@ -1340,34 +1112,23 @@ void in_menus(){
      998:	28 17       	cp	r18, r24
      99a:	39 07       	cpc	r19, r25
      99c:	19 f4       	brne	.+6      	; 0x9a4 <in_menus+0x78>
-		j.joystick_button = 0;
      99e:	1f 86       	std	Y+15, r1	; 0x0f
      9a0:	1e 86       	std	Y+14, r1	; 0x0e
      9a2:	02 c0       	rjmp	.+4      	; 0x9a8 <in_menus+0x7c>
-	}
-	else{
-		previous_joystick_button = 0;
      9a4:	10 92 67 02 	sts	0x0267, r1
-	}
-	if (j.joystick_button == 1) {
      9a8:	8e 85       	ldd	r24, Y+14	; 0x0e
      9aa:	9f 85       	ldd	r25, Y+15	; 0x0f
      9ac:	81 30       	cpi	r24, 0x01	; 1
      9ae:	91 05       	cpc	r25, r1
      9b0:	69 f4       	brne	.+26     	; 0x9cc <in_menus+0xa0>
-		mode = button_action(arrow_line);
      9b2:	80 91 0a 01 	lds	r24, 0x010A
      9b6:	0e 94 8a 08 	call	0x1114	; 0x1114 <button_action>
      9ba:	80 93 66 02 	sts	0x0266, r24
-		previous_joystick_button = j.joystick_button;
      9be:	8e 85       	ldd	r24, Y+14	; 0x0e
      9c0:	9f 85       	ldd	r25, Y+15	; 0x0f
      9c2:	80 93 67 02 	sts	0x0267, r24
-		arrow_line = 2;
      9c6:	82 e0       	ldi	r24, 0x02	; 2
      9c8:	80 93 0a 01 	sts	0x010A, r24
-	}
-}
      9cc:	2f 96       	adiw	r28, 0x0f	; 15
      9ce:	0f b6       	in	r0, 0x3f	; 63
      9d0:	f8 94       	cli
@@ -1379,33 +1140,20 @@ void in_menus(){
      9dc:	08 95       	ret
 
 000009de <playing_the_game>:
-
-
-void playing_the_game(){
      9de:	cf 93       	push	r28
      9e0:	df 93       	push	r29
      9e2:	cd b7       	in	r28, 0x3d	; 61
      9e4:	de b7       	in	r29, 0x3e	; 62
-	
-}
      9e6:	df 91       	pop	r29
      9e8:	cf 91       	pop	r28
      9ea:	08 95       	ret
 
 000009ec <initializations>:
-
-
-
-void initializations(){
      9ec:	cf 93       	push	r28
      9ee:	df 93       	push	r29
      9f0:	00 d0       	rcall	.+0      	; 0x9f2 <initializations+0x6>
      9f2:	cd b7       	in	r28, 0x3d	; 61
      9f4:	de b7       	in	r29, 0x3e	; 62
-	//static volatile long temp = F_OSC; //For testing
-	//Breakpoint x2
-	// Enable external memory
-	set_bit(MCUCR,SRE);
      9f6:	85 e5       	ldi	r24, 0x55	; 85
      9f8:	90 e0       	ldi	r25, 0x00	; 0
      9fa:	25 e5       	ldi	r18, 0x55	; 85
@@ -1415,8 +1163,6 @@ void initializations(){
      a02:	20 68       	ori	r18, 0x80	; 128
      a04:	fc 01       	movw	r30, r24
      a06:	20 83       	st	Z, r18
-	// Mask PC7-PC4
-	set_bit(SFIOR,XMM2);
      a08:	80 e5       	ldi	r24, 0x50	; 80
      a0a:	90 e0       	ldi	r25, 0x00	; 0
      a0c:	20 e5       	ldi	r18, 0x50	; 80
@@ -1426,24 +1172,17 @@ void initializations(){
      a14:	20 62       	ori	r18, 0x20	; 32
      a16:	fc 01       	movw	r30, r24
      a18:	20 83       	st	Z, r18
-	int baud = (int) MYUBRR;
      a1a:	8f e1       	ldi	r24, 0x1F	; 31
      a1c:	90 e0       	ldi	r25, 0x00	; 0
      a1e:	9a 83       	std	Y+2, r25	; 0x02
      a20:	89 83       	std	Y+1, r24	; 0x01
-	USART_Init(baud);
      a22:	89 81       	ldd	r24, Y+1	; 0x01
      a24:	9a 81       	ldd	r25, Y+2	; 0x02
      a26:	0e 94 8a 0c 	call	0x1914	; 0x1914 <USART_Init>
-	sram_setup();
      a2a:	0e 94 a6 0b 	call	0x174c	; 0x174c <sram_setup>
-	SRAM_test();
      a2e:	0e 94 af 0b 	call	0x175e	; 0x175e <SRAM_test>
-	setup_ADC();
      a32:	0e 94 54 02 	call	0x4a8	; 0x4a8 <setup_ADC>
-	joystick_init();
      a36:	0e 94 9b 02 	call	0x536	; 0x536 <joystick_init>
-	oled_init();
      a3a:	0e 94 fb 09 	call	0x13f6	; 0x13f6 <oled_init>
      a3e:	0f 90       	pop	r0
      a40:	0f 90       	pop	r0
@@ -1452,20 +1191,12 @@ void initializations(){
      a46:	08 95       	ret
 
 00000a48 <stringFromDifficulty>:
-}menu_t;
-
-typedef enum {EASY, MEDIUM, HARD} difficulty;
-	
-static inline char *stringFromDifficulty(difficulty d)
-{
      a48:	cf 93       	push	r28
      a4a:	df 93       	push	r29
      a4c:	1f 92       	push	r1
      a4e:	cd b7       	in	r28, 0x3d	; 61
      a50:	de b7       	in	r29, 0x3e	; 62
      a52:	89 83       	std	Y+1, r24	; 0x01
-	static const char *strings[] = { "EASY", "MEDIUM", "HARD"};
-	return strings[d];
      a54:	89 81       	ldd	r24, Y+1	; 0x01
      a56:	88 2f       	mov	r24, r24
      a58:	90 e0       	ldi	r25, 0x00	; 0
@@ -1476,19 +1207,12 @@ static inline char *stringFromDifficulty(difficulty d)
      a62:	fc 01       	movw	r30, r24
      a64:	80 81       	ld	r24, Z
      a66:	91 81       	ldd	r25, Z+1	; 0x01
-}
      a68:	0f 90       	pop	r0
      a6a:	df 91       	pop	r29
      a6c:	cf 91       	pop	r28
      a6e:	08 95       	ret
 
 00000a70 <menu_init>:
-// Variabel for å holde på nåværende meny, kan være nyttig i main f. eks.
-menu_t * current_menu;
-difficulty GitGud = EASY;
-uint8_t game_started = 0;
-
-menu_t * menu_init (){
      a70:	0f 93       	push	r16
      a72:	1f 93       	push	r17
      a74:	cf 93       	push	r28
@@ -1496,14 +1220,11 @@ menu_t * menu_init (){
      a78:	00 d0       	rcall	.+0      	; 0xa7a <menu_init+0xa>
      a7a:	cd b7       	in	r28, 0x3d	; 61
      a7c:	de b7       	in	r29, 0x3e	; 62
-	//Main menu
-	menu_t * main_menu = malloc(sizeof(menu_t));
      a7e:	8d e0       	ldi	r24, 0x0D	; 13
      a80:	90 e0       	ldi	r25, 0x00	; 0
      a82:	0e 94 8d 12 	call	0x251a	; 0x251a <malloc>
      a86:	9a 83       	std	Y+2, r25	; 0x02
      a88:	89 83       	std	Y+1, r24	; 0x01
-	main_menu ->name = "MAIN MENU";
      a8a:	89 81       	ldd	r24, Y+1	; 0x01
      a8c:	9a 81       	ldd	r25, Y+2	; 0x02
      a8e:	26 e1       	ldi	r18, 0x16	; 22
@@ -1511,8 +1232,6 @@ menu_t * menu_init (){
      a92:	fc 01       	movw	r30, r24
      a94:	34 87       	std	Z+12, r19	; 0x0c
      a96:	23 87       	std	Z+11, r18	; 0x0b
-	
-	main_menu -> child1 = malloc(sizeof(menu_t));
      a98:	8d e0       	ldi	r24, 0x0D	; 13
      a9a:	90 e0       	ldi	r25, 0x00	; 0
      a9c:	0e 94 8d 12 	call	0x251a	; 0x251a <malloc>
@@ -1522,7 +1241,6 @@ menu_t * menu_init (){
      aa6:	fc 01       	movw	r30, r24
      aa8:	33 83       	std	Z+3, r19	; 0x03
      aaa:	22 83       	std	Z+2, r18	; 0x02
-	main_menu -> child1 -> name = "NEW GAME";
      aac:	89 81       	ldd	r24, Y+1	; 0x01
      aae:	9a 81       	ldd	r25, Y+2	; 0x02
      ab0:	fc 01       	movw	r30, r24
@@ -1533,7 +1251,6 @@ menu_t * menu_init (){
      aba:	fc 01       	movw	r30, r24
      abc:	34 87       	std	Z+12, r19	; 0x0c
      abe:	23 87       	std	Z+11, r18	; 0x0b
-	main_menu -> child1 -> parent = main_menu;
      ac0:	89 81       	ldd	r24, Y+1	; 0x01
      ac2:	9a 81       	ldd	r25, Y+2	; 0x02
      ac4:	fc 01       	movw	r30, r24
@@ -1544,7 +1261,6 @@ menu_t * menu_init (){
      ace:	fc 01       	movw	r30, r24
      ad0:	31 83       	std	Z+1, r19	; 0x01
      ad2:	20 83       	st	Z, r18
-	main_menu -> child1 -> number_of_children = 0;
      ad4:	89 81       	ldd	r24, Y+1	; 0x01
      ad6:	9a 81       	ldd	r25, Y+2	; 0x02
      ad8:	fc 01       	movw	r30, r24
@@ -1552,8 +1268,6 @@ menu_t * menu_init (){
      adc:	93 81       	ldd	r25, Z+3	; 0x03
      ade:	fc 01       	movw	r30, r24
      ae0:	12 86       	std	Z+10, r1	; 0x0a
-	
-	main_menu -> child2 = malloc(sizeof(menu_t));
      ae2:	8d e0       	ldi	r24, 0x0D	; 13
      ae4:	90 e0       	ldi	r25, 0x00	; 0
      ae6:	0e 94 8d 12 	call	0x251a	; 0x251a <malloc>
@@ -1563,7 +1277,6 @@ menu_t * menu_init (){
      af0:	fc 01       	movw	r30, r24
      af2:	35 83       	std	Z+5, r19	; 0x05
      af4:	24 83       	std	Z+4, r18	; 0x04
-	main_menu -> child2->name = "HIGH SCORE";
      af6:	89 81       	ldd	r24, Y+1	; 0x01
      af8:	9a 81       	ldd	r25, Y+2	; 0x02
      afa:	fc 01       	movw	r30, r24
@@ -1574,7 +1287,6 @@ menu_t * menu_init (){
      b04:	fc 01       	movw	r30, r24
      b06:	34 87       	std	Z+12, r19	; 0x0c
      b08:	23 87       	std	Z+11, r18	; 0x0b
-	main_menu -> child2->parent = main_menu;
      b0a:	89 81       	ldd	r24, Y+1	; 0x01
      b0c:	9a 81       	ldd	r25, Y+2	; 0x02
      b0e:	fc 01       	movw	r30, r24
@@ -1585,7 +1297,6 @@ menu_t * menu_init (){
      b18:	fc 01       	movw	r30, r24
      b1a:	31 83       	std	Z+1, r19	; 0x01
      b1c:	20 83       	st	Z, r18
-	main_menu -> child2 -> number_of_children = 1;
      b1e:	89 81       	ldd	r24, Y+1	; 0x01
      b20:	9a 81       	ldd	r25, Y+2	; 0x02
      b22:	fc 01       	movw	r30, r24
@@ -1594,8 +1305,6 @@ menu_t * menu_init (){
      b28:	21 e0       	ldi	r18, 0x01	; 1
      b2a:	fc 01       	movw	r30, r24
      b2c:	22 87       	std	Z+10, r18	; 0x0a
-	
-	main_menu -> child3 = malloc(sizeof(menu_t));
      b2e:	8d e0       	ldi	r24, 0x0D	; 13
      b30:	90 e0       	ldi	r25, 0x00	; 0
      b32:	0e 94 8d 12 	call	0x251a	; 0x251a <malloc>
@@ -1605,7 +1314,6 @@ menu_t * menu_init (){
      b3c:	fc 01       	movw	r30, r24
      b3e:	37 83       	std	Z+7, r19	; 0x07
      b40:	26 83       	std	Z+6, r18	; 0x06
-	main_menu -> child3->name = "SETTINGS";
      b42:	89 81       	ldd	r24, Y+1	; 0x01
      b44:	9a 81       	ldd	r25, Y+2	; 0x02
      b46:	fc 01       	movw	r30, r24
@@ -1616,7 +1324,6 @@ menu_t * menu_init (){
      b50:	fc 01       	movw	r30, r24
      b52:	34 87       	std	Z+12, r19	; 0x0c
      b54:	23 87       	std	Z+11, r18	; 0x0b
-	main_menu -> child3->parent = main_menu;
      b56:	89 81       	ldd	r24, Y+1	; 0x01
      b58:	9a 81       	ldd	r25, Y+2	; 0x02
      b5a:	fc 01       	movw	r30, r24
@@ -1627,22 +1334,16 @@ menu_t * menu_init (){
      b64:	fc 01       	movw	r30, r24
      b66:	31 83       	std	Z+1, r19	; 0x01
      b68:	20 83       	st	Z, r18
-	main_menu ->child4 = NULL;
      b6a:	89 81       	ldd	r24, Y+1	; 0x01
      b6c:	9a 81       	ldd	r25, Y+2	; 0x02
      b6e:	fc 01       	movw	r30, r24
      b70:	11 86       	std	Z+9, r1	; 0x09
      b72:	10 86       	std	Z+8, r1	; 0x08
-
-	main_menu -> number_of_children = 3;
      b74:	89 81       	ldd	r24, Y+1	; 0x01
      b76:	9a 81       	ldd	r25, Y+2	; 0x02
      b78:	23 e0       	ldi	r18, 0x03	; 3
      b7a:	fc 01       	movw	r30, r24
      b7c:	22 87       	std	Z+10, r18	; 0x0a
-	
-	//High score menu
-	main_menu ->child2->child1 = malloc(sizeof(menu_t));
      b7e:	89 81       	ldd	r24, Y+1	; 0x01
      b80:	9a 81       	ldd	r25, Y+2	; 0x02
      b82:	fc 01       	movw	r30, r24
@@ -1654,7 +1355,6 @@ menu_t * menu_init (){
      b90:	f8 01       	movw	r30, r16
      b92:	93 83       	std	Z+3, r25	; 0x03
      b94:	82 83       	std	Z+2, r24	; 0x02
-	main_menu ->child2->child1->name = "RETURN";
      b96:	89 81       	ldd	r24, Y+1	; 0x01
      b98:	9a 81       	ldd	r25, Y+2	; 0x02
      b9a:	fc 01       	movw	r30, r24
@@ -1668,7 +1368,6 @@ menu_t * menu_init (){
      baa:	fc 01       	movw	r30, r24
      bac:	34 87       	std	Z+12, r19	; 0x0c
      bae:	23 87       	std	Z+11, r18	; 0x0b
-	main_menu ->child2->child1->parent = main_menu ->child2;
      bb0:	89 81       	ldd	r24, Y+1	; 0x01
      bb2:	9a 81       	ldd	r25, Y+2	; 0x02
      bb4:	fc 01       	movw	r30, r24
@@ -1685,7 +1384,6 @@ menu_t * menu_init (){
      bca:	fc 01       	movw	r30, r24
      bcc:	31 83       	std	Z+1, r19	; 0x01
      bce:	20 83       	st	Z, r18
-	main_menu ->child2->child1->number_of_children = 0;
      bd0:	89 81       	ldd	r24, Y+1	; 0x01
      bd2:	9a 81       	ldd	r25, Y+2	; 0x02
      bd4:	fc 01       	movw	r30, r24
@@ -1696,7 +1394,6 @@ menu_t * menu_init (){
      bde:	93 81       	ldd	r25, Z+3	; 0x03
      be0:	fc 01       	movw	r30, r24
      be2:	12 86       	std	Z+10, r1	; 0x0a
-	main_menu ->child2->child2 =main_menu ->child2->child3=main_menu ->child2->child4 = NULL;
      be4:	89 81       	ldd	r24, Y+1	; 0x01
      be6:	9a 81       	ldd	r25, Y+2	; 0x02
      be8:	fc 01       	movw	r30, r24
@@ -1727,9 +1424,6 @@ menu_t * menu_init (){
      c1a:	fa 01       	movw	r30, r20
      c1c:	95 83       	std	Z+5, r25	; 0x05
      c1e:	84 83       	std	Z+4, r24	; 0x04
-	
-	//Settings menu
-	main_menu ->child3->child1 = malloc(sizeof(menu_t));
      c20:	89 81       	ldd	r24, Y+1	; 0x01
      c22:	9a 81       	ldd	r25, Y+2	; 0x02
      c24:	fc 01       	movw	r30, r24
@@ -1741,7 +1435,6 @@ menu_t * menu_init (){
      c32:	f8 01       	movw	r30, r16
      c34:	93 83       	std	Z+3, r25	; 0x03
      c36:	82 83       	std	Z+2, r24	; 0x02
-	main_menu ->child3->child1->name = "SET DIFFICULTY";
      c38:	89 81       	ldd	r24, Y+1	; 0x01
      c3a:	9a 81       	ldd	r25, Y+2	; 0x02
      c3c:	fc 01       	movw	r30, r24
@@ -1755,7 +1448,6 @@ menu_t * menu_init (){
      c4c:	fc 01       	movw	r30, r24
      c4e:	34 87       	std	Z+12, r19	; 0x0c
      c50:	23 87       	std	Z+11, r18	; 0x0b
-	main_menu ->child3->child1->parent = main_menu->child3;
      c52:	89 81       	ldd	r24, Y+1	; 0x01
      c54:	9a 81       	ldd	r25, Y+2	; 0x02
      c56:	fc 01       	movw	r30, r24
@@ -1772,9 +1464,6 @@ menu_t * menu_init (){
      c6c:	fc 01       	movw	r30, r24
      c6e:	31 83       	std	Z+1, r19	; 0x01
      c70:	20 83       	st	Z, r18
-	
-	// Difficulty settings
-	main_menu -> child3 -> child1 -> child1 = malloc(sizeof(menu_t));
      c72:	89 81       	ldd	r24, Y+1	; 0x01
      c74:	9a 81       	ldd	r25, Y+2	; 0x02
      c76:	fc 01       	movw	r30, r24
@@ -1789,7 +1478,6 @@ menu_t * menu_init (){
      c8a:	f8 01       	movw	r30, r16
      c8c:	93 83       	std	Z+3, r25	; 0x03
      c8e:	82 83       	std	Z+2, r24	; 0x02
-	main_menu -> child3 -> child1 -> child1 -> name = "EASY";
      c90:	89 81       	ldd	r24, Y+1	; 0x01
      c92:	9a 81       	ldd	r25, Y+2	; 0x02
      c94:	fc 01       	movw	r30, r24
@@ -1806,7 +1494,6 @@ menu_t * menu_init (){
      caa:	fc 01       	movw	r30, r24
      cac:	34 87       	std	Z+12, r19	; 0x0c
      cae:	23 87       	std	Z+11, r18	; 0x0b
-	main_menu -> child3 -> child1 -> child1 ->parent = main_menu ->child3 ->child1;
      cb0:	89 81       	ldd	r24, Y+1	; 0x01
      cb2:	9a 81       	ldd	r25, Y+2	; 0x02
      cb4:	fc 01       	movw	r30, r24
@@ -1829,7 +1516,6 @@ menu_t * menu_init (){
      cd6:	fc 01       	movw	r30, r24
      cd8:	31 83       	std	Z+1, r19	; 0x01
      cda:	20 83       	st	Z, r18
-	main_menu -> child3 -> child1 -> child2 = malloc(sizeof(menu_t));
      cdc:	89 81       	ldd	r24, Y+1	; 0x01
      cde:	9a 81       	ldd	r25, Y+2	; 0x02
      ce0:	fc 01       	movw	r30, r24
@@ -1844,7 +1530,6 @@ menu_t * menu_init (){
      cf4:	f8 01       	movw	r30, r16
      cf6:	95 83       	std	Z+5, r25	; 0x05
      cf8:	84 83       	std	Z+4, r24	; 0x04
-	main_menu -> child3 -> child1 -> child2 -> name = "MEDIUM";
      cfa:	89 81       	ldd	r24, Y+1	; 0x01
      cfc:	9a 81       	ldd	r25, Y+2	; 0x02
      cfe:	fc 01       	movw	r30, r24
@@ -1861,7 +1546,6 @@ menu_t * menu_init (){
      d14:	fc 01       	movw	r30, r24
      d16:	34 87       	std	Z+12, r19	; 0x0c
      d18:	23 87       	std	Z+11, r18	; 0x0b
-	main_menu -> child3 -> child1 -> child2 ->parent = main_menu ->child3 ->child1;
      d1a:	89 81       	ldd	r24, Y+1	; 0x01
      d1c:	9a 81       	ldd	r25, Y+2	; 0x02
      d1e:	fc 01       	movw	r30, r24
@@ -1884,7 +1568,6 @@ menu_t * menu_init (){
      d40:	fc 01       	movw	r30, r24
      d42:	31 83       	std	Z+1, r19	; 0x01
      d44:	20 83       	st	Z, r18
-	main_menu -> child3 -> child1 -> child3 = malloc(sizeof(menu_t));
      d46:	89 81       	ldd	r24, Y+1	; 0x01
      d48:	9a 81       	ldd	r25, Y+2	; 0x02
      d4a:	fc 01       	movw	r30, r24
@@ -1899,7 +1582,6 @@ menu_t * menu_init (){
      d5e:	f8 01       	movw	r30, r16
      d60:	97 83       	std	Z+7, r25	; 0x07
      d62:	86 83       	std	Z+6, r24	; 0x06
-	main_menu -> child3 -> child1 -> child3 -> name = "HARD";
      d64:	89 81       	ldd	r24, Y+1	; 0x01
      d66:	9a 81       	ldd	r25, Y+2	; 0x02
      d68:	fc 01       	movw	r30, r24
@@ -1916,7 +1598,6 @@ menu_t * menu_init (){
      d7e:	fc 01       	movw	r30, r24
      d80:	34 87       	std	Z+12, r19	; 0x0c
      d82:	23 87       	std	Z+11, r18	; 0x0b
-	main_menu -> child3 -> child1 -> child3 ->parent = main_menu ->child3 ->child1;
      d84:	89 81       	ldd	r24, Y+1	; 0x01
      d86:	9a 81       	ldd	r25, Y+2	; 0x02
      d88:	fc 01       	movw	r30, r24
@@ -1939,7 +1620,6 @@ menu_t * menu_init (){
      daa:	fc 01       	movw	r30, r24
      dac:	31 83       	std	Z+1, r19	; 0x01
      dae:	20 83       	st	Z, r18
-	main_menu -> child3 -> child1 -> child4 = malloc(sizeof(menu_t));
      db0:	89 81       	ldd	r24, Y+1	; 0x01
      db2:	9a 81       	ldd	r25, Y+2	; 0x02
      db4:	fc 01       	movw	r30, r24
@@ -1954,7 +1634,6 @@ menu_t * menu_init (){
      dc8:	f8 01       	movw	r30, r16
      dca:	91 87       	std	Z+9, r25	; 0x09
      dcc:	80 87       	std	Z+8, r24	; 0x08
-	main_menu -> child3 -> child1 -> child4 -> name = "RETURN";
      dce:	89 81       	ldd	r24, Y+1	; 0x01
      dd0:	9a 81       	ldd	r25, Y+2	; 0x02
      dd2:	fc 01       	movw	r30, r24
@@ -1971,7 +1650,6 @@ menu_t * menu_init (){
      de8:	fc 01       	movw	r30, r24
      dea:	34 87       	std	Z+12, r19	; 0x0c
      dec:	23 87       	std	Z+11, r18	; 0x0b
-	main_menu -> child3 -> child1 -> child4 ->parent = main_menu ->child3 ->child1;
      dee:	89 81       	ldd	r24, Y+1	; 0x01
      df0:	9a 81       	ldd	r25, Y+2	; 0x02
      df2:	fc 01       	movw	r30, r24
@@ -1994,7 +1672,6 @@ menu_t * menu_init (){
      e14:	fc 01       	movw	r30, r24
      e16:	31 83       	std	Z+1, r19	; 0x01
      e18:	20 83       	st	Z, r18
-	main_menu -> child3 -> child1 -> number_of_children = 4;
      e1a:	89 81       	ldd	r24, Y+1	; 0x01
      e1c:	9a 81       	ldd	r25, Y+2	; 0x02
      e1e:	fc 01       	movw	r30, r24
@@ -2006,9 +1683,6 @@ menu_t * menu_init (){
      e2a:	24 e0       	ldi	r18, 0x04	; 4
      e2c:	fc 01       	movw	r30, r24
      e2e:	22 87       	std	Z+10, r18	; 0x0a
-	
-	// Debugging (use?)
-	main_menu -> child3 -> child2 = malloc(sizeof(menu_t));
      e30:	89 81       	ldd	r24, Y+1	; 0x01
      e32:	9a 81       	ldd	r25, Y+2	; 0x02
      e34:	fc 01       	movw	r30, r24
@@ -2020,7 +1694,6 @@ menu_t * menu_init (){
      e42:	f8 01       	movw	r30, r16
      e44:	95 83       	std	Z+5, r25	; 0x05
      e46:	84 83       	std	Z+4, r24	; 0x04
-	main_menu -> child3 -> child2 -> name = "DEBUGGING";
      e48:	89 81       	ldd	r24, Y+1	; 0x01
      e4a:	9a 81       	ldd	r25, Y+2	; 0x02
      e4c:	fc 01       	movw	r30, r24
@@ -2034,7 +1707,6 @@ menu_t * menu_init (){
      e5c:	fc 01       	movw	r30, r24
      e5e:	34 87       	std	Z+12, r19	; 0x0c
      e60:	23 87       	std	Z+11, r18	; 0x0b
-	main_menu -> child3 -> child2 -> parent = main_menu->child3;
      e62:	89 81       	ldd	r24, Y+1	; 0x01
      e64:	9a 81       	ldd	r25, Y+2	; 0x02
      e66:	fc 01       	movw	r30, r24
@@ -2051,8 +1723,6 @@ menu_t * menu_init (){
      e7c:	fc 01       	movw	r30, r24
      e7e:	31 83       	std	Z+1, r19	; 0x01
      e80:	20 83       	st	Z, r18
-	// Calibrate joystick
-	main_menu -> child3 -> child3 = malloc(sizeof(menu_t));
      e82:	89 81       	ldd	r24, Y+1	; 0x01
      e84:	9a 81       	ldd	r25, Y+2	; 0x02
      e86:	fc 01       	movw	r30, r24
@@ -2064,7 +1734,6 @@ menu_t * menu_init (){
      e94:	f8 01       	movw	r30, r16
      e96:	97 83       	std	Z+7, r25	; 0x07
      e98:	86 83       	std	Z+6, r24	; 0x06
-	main_menu -> child3 -> child3->name = "CAL. JOYSTICK";
      e9a:	89 81       	ldd	r24, Y+1	; 0x01
      e9c:	9a 81       	ldd	r25, Y+2	; 0x02
      e9e:	fc 01       	movw	r30, r24
@@ -2078,7 +1747,6 @@ menu_t * menu_init (){
      eae:	fc 01       	movw	r30, r24
      eb0:	34 87       	std	Z+12, r19	; 0x0c
      eb2:	23 87       	std	Z+11, r18	; 0x0b
-	main_menu -> child3 -> child3->parent = main_menu->child3;
      eb4:	89 81       	ldd	r24, Y+1	; 0x01
      eb6:	9a 81       	ldd	r25, Y+2	; 0x02
      eb8:	fc 01       	movw	r30, r24
@@ -2095,8 +1763,6 @@ menu_t * menu_init (){
      ece:	fc 01       	movw	r30, r24
      ed0:	31 83       	std	Z+1, r19	; 0x01
      ed2:	20 83       	st	Z, r18
-	// Return to main menu
-	main_menu -> child3 -> child4 = malloc(sizeof(menu_t));
      ed4:	89 81       	ldd	r24, Y+1	; 0x01
      ed6:	9a 81       	ldd	r25, Y+2	; 0x02
      ed8:	fc 01       	movw	r30, r24
@@ -2108,7 +1774,6 @@ menu_t * menu_init (){
      ee6:	f8 01       	movw	r30, r16
      ee8:	91 87       	std	Z+9, r25	; 0x09
      eea:	80 87       	std	Z+8, r24	; 0x08
-	main_menu -> child3 -> child4 -> name = "RETURN";
      eec:	89 81       	ldd	r24, Y+1	; 0x01
      eee:	9a 81       	ldd	r25, Y+2	; 0x02
      ef0:	fc 01       	movw	r30, r24
@@ -2122,7 +1787,6 @@ menu_t * menu_init (){
      f00:	fc 01       	movw	r30, r24
      f02:	34 87       	std	Z+12, r19	; 0x0c
      f04:	23 87       	std	Z+11, r18	; 0x0b
-	main_menu -> child3 -> child4 -> parent = main_menu->child3;
      f06:	89 81       	ldd	r24, Y+1	; 0x01
      f08:	9a 81       	ldd	r25, Y+2	; 0x02
      f0a:	fc 01       	movw	r30, r24
@@ -2139,8 +1803,6 @@ menu_t * menu_init (){
      f20:	fc 01       	movw	r30, r24
      f22:	31 83       	std	Z+1, r19	; 0x01
      f24:	20 83       	st	Z, r18
-	
-	main_menu -> child3 -> number_of_children = 4;
      f26:	89 81       	ldd	r24, Y+1	; 0x01
      f28:	9a 81       	ldd	r25, Y+2	; 0x02
      f2a:	fc 01       	movw	r30, r24
@@ -2149,15 +1811,12 @@ menu_t * menu_init (){
      f30:	24 e0       	ldi	r18, 0x04	; 4
      f32:	fc 01       	movw	r30, r24
      f34:	22 87       	std	Z+10, r18	; 0x0a
-	current_menu = main_menu;
      f36:	89 81       	ldd	r24, Y+1	; 0x01
      f38:	9a 81       	ldd	r25, Y+2	; 0x02
      f3a:	90 93 6c 02 	sts	0x026C, r25
      f3e:	80 93 6b 02 	sts	0x026B, r24
-	return main_menu;
      f42:	89 81       	ldd	r24, Y+1	; 0x01
      f44:	9a 81       	ldd	r25, Y+2	; 0x02
-}
      f46:	0f 90       	pop	r0
      f48:	0f 90       	pop	r0
      f4a:	df 91       	pop	r29
@@ -2167,7 +1826,6 @@ menu_t * menu_init (){
      f52:	08 95       	ret
 
 00000f54 <move_arrow>:
-uint8_t move_arrow(direction dir ,uint8_t current_row){
      f54:	cf 93       	push	r28
      f56:	df 93       	push	r29
      f58:	00 d0       	rcall	.+0      	; 0xf5a <move_arrow+0x6>
@@ -2176,28 +1834,20 @@ uint8_t move_arrow(direction dir ,uint8_t current_row){
      f5e:	de b7       	in	r29, 0x3e	; 62
      f60:	8a 83       	std	Y+2, r24	; 0x02
      f62:	6b 83       	std	Y+3, r22	; 0x03
-	uint8_t number_of_rows = current_menu -> number_of_children;
      f64:	80 91 6b 02 	lds	r24, 0x026B
      f68:	90 91 6c 02 	lds	r25, 0x026C
      f6c:	fc 01       	movw	r30, r24
      f6e:	82 85       	ldd	r24, Z+10	; 0x0a
      f70:	89 83       	std	Y+1, r24	; 0x01
-	if(dir == previousDIR){
      f72:	80 91 0b 01 	lds	r24, 0x010B
      f76:	9a 81       	ldd	r25, Y+2	; 0x02
      f78:	98 17       	cp	r25, r24
      f7a:	19 f4       	brne	.+6      	; 0xf82 <move_arrow+0x2e>
-		dir = NEUTRAL;
      f7c:	84 e0       	ldi	r24, 0x04	; 4
      f7e:	8a 83       	std	Y+2, r24	; 0x02
      f80:	03 c0       	rjmp	.+6      	; 0xf88 <move_arrow+0x34>
-	}
-	else{
-		previousDIR=NEUTRAL;
      f82:	84 e0       	ldi	r24, 0x04	; 4
      f84:	80 93 0b 01 	sts	0x010B, r24
-	}
-	switch(dir) {
      f88:	8a 81       	ldd	r24, Y+2	; 0x02
      f8a:	88 2f       	mov	r24, r24
      f8c:	90 e0       	ldi	r25, 0x00	; 0
@@ -2210,79 +1860,49 @@ uint8_t move_arrow(direction dir ,uint8_t current_row){
      f9a:	00 97       	sbiw	r24, 0x00	; 0
      f9c:	31 f0       	breq	.+12     	; 0xfaa <move_arrow+0x56>
      f9e:	33 c0       	rjmp	.+102    	; 0x1006 <move_arrow+0xb2>
-		case NEUTRAL :
-		oled_print_arrow(current_row,0);
      fa0:	60 e0       	ldi	r22, 0x00	; 0
      fa2:	8b 81       	ldd	r24, Y+3	; 0x03
      fa4:	0e 94 87 0b 	call	0x170e	; 0x170e <oled_print_arrow>
-		break;
      fa8:	2e c0       	rjmp	.+92     	; 0x1006 <move_arrow+0xb2>
-		
-		case UP  :
-		if (current_row >= 3)
      faa:	8b 81       	ldd	r24, Y+3	; 0x03
      fac:	83 30       	cpi	r24, 0x03	; 3
      fae:	90 f0       	brcs	.+36     	; 0xfd4 <move_arrow+0x80>
-		{
-			oled_pos(current_row, 0);
      fb0:	60 e0       	ldi	r22, 0x00	; 0
      fb2:	8b 81       	ldd	r24, Y+3	; 0x03
      fb4:	0e 94 02 0b 	call	0x1604	; 0x1604 <oled_pos>
-			oled_print_string("  ");
      fb8:	8c e7       	ldi	r24, 0x7C	; 124
      fba:	91 e0       	ldi	r25, 0x01	; 1
      fbc:	0e 94 4d 0b 	call	0x169a	; 0x169a <oled_print_string>
-			current_row--;
      fc0:	8b 81       	ldd	r24, Y+3	; 0x03
      fc2:	81 50       	subi	r24, 0x01	; 1
      fc4:	8b 83       	std	Y+3, r24	; 0x03
-			oled_print_arrow(current_row,0);
      fc6:	60 e0       	ldi	r22, 0x00	; 0
      fc8:	8b 81       	ldd	r24, Y+3	; 0x03
      fca:	0e 94 87 0b 	call	0x170e	; 0x170e <oled_print_arrow>
-			previousDIR=UP;
      fce:	10 92 0b 01 	sts	0x010B, r1
-		}
-
-		break;
      fd2:	19 c0       	rjmp	.+50     	; 0x1006 <move_arrow+0xb2>
      fd4:	18 c0       	rjmp	.+48     	; 0x1006 <move_arrow+0xb2>
-		
-		case DOWN  :
-		
-		if (current_row <= number_of_rows)
      fd6:	9b 81       	ldd	r25, Y+3	; 0x03
      fd8:	89 81       	ldd	r24, Y+1	; 0x01
      fda:	89 17       	cp	r24, r25
      fdc:	98 f0       	brcs	.+38     	; 0x1004 <move_arrow+0xb0>
-		{
-			oled_pos(current_row, 0);
      fde:	60 e0       	ldi	r22, 0x00	; 0
      fe0:	8b 81       	ldd	r24, Y+3	; 0x03
      fe2:	0e 94 02 0b 	call	0x1604	; 0x1604 <oled_pos>
-			oled_print_string("  ");
      fe6:	8c e7       	ldi	r24, 0x7C	; 124
      fe8:	91 e0       	ldi	r25, 0x01	; 1
      fea:	0e 94 4d 0b 	call	0x169a	; 0x169a <oled_print_string>
-			current_row++;
      fee:	8b 81       	ldd	r24, Y+3	; 0x03
      ff0:	8f 5f       	subi	r24, 0xFF	; 255
      ff2:	8b 83       	std	Y+3, r24	; 0x03
-			oled_print_arrow(current_row,0);
      ff4:	60 e0       	ldi	r22, 0x00	; 0
      ff6:	8b 81       	ldd	r24, Y+3	; 0x03
      ff8:	0e 94 87 0b 	call	0x170e	; 0x170e <oled_print_arrow>
-			previousDIR=DOWN;
      ffc:	81 e0       	ldi	r24, 0x01	; 1
      ffe:	80 93 0b 01 	sts	0x010B, r24
-		}	
-		break;
     1002:	00 c0       	rjmp	.+0      	; 0x1004 <move_arrow+0xb0>
     1004:	00 00       	nop
-	}
-	return current_row;
     1006:	8b 81       	ldd	r24, Y+3	; 0x03
-}
     1008:	0f 90       	pop	r0
     100a:	0f 90       	pop	r0
     100c:	0f 90       	pop	r0
@@ -2291,8 +1911,6 @@ uint8_t move_arrow(direction dir ,uint8_t current_row){
     1012:	08 95       	ret
 
 00001014 <print_menu>:
-
-void print_menu (menu_t *menu){
     1014:	cf 93       	push	r28
     1016:	df 93       	push	r29
     1018:	00 d0       	rcall	.+0      	; 0x101a <print_menu+0x6>
@@ -2301,28 +1919,21 @@ void print_menu (menu_t *menu){
     101e:	de b7       	in	r29, 0x3e	; 62
     1020:	9c 83       	std	Y+4, r25	; 0x04
     1022:	8b 83       	std	Y+3, r24	; 0x03
-	menu_t * current = menu;
     1024:	8b 81       	ldd	r24, Y+3	; 0x03
     1026:	9c 81       	ldd	r25, Y+4	; 0x04
     1028:	9a 83       	std	Y+2, r25	; 0x02
     102a:	89 83       	std	Y+1, r24	; 0x01
-	oled_reset();
     102c:	0e 94 6a 0a 	call	0x14d4	; 0x14d4 <oled_reset>
-	oled_home();
     1030:	0e 94 84 0a 	call	0x1508	; 0x1508 <oled_home>
-	oled_pos(0,2);
     1034:	62 e0       	ldi	r22, 0x02	; 2
     1036:	80 e0       	ldi	r24, 0x00	; 0
     1038:	0e 94 02 0b 	call	0x1604	; 0x1604 <oled_pos>
-	oled_print_string(menu->name); //Skriver ut overskrift
     103c:	8b 81       	ldd	r24, Y+3	; 0x03
     103e:	9c 81       	ldd	r25, Y+4	; 0x04
     1040:	fc 01       	movw	r30, r24
     1042:	83 85       	ldd	r24, Z+11	; 0x0b
     1044:	94 85       	ldd	r25, Z+12	; 0x0c
     1046:	0e 94 4d 0b 	call	0x169a	; 0x169a <oled_print_string>
-	
-	if (menu->child1 != NULL)
     104a:	8b 81       	ldd	r24, Y+3	; 0x03
     104c:	9c 81       	ldd	r25, Y+4	; 0x04
     104e:	fc 01       	movw	r30, r24
@@ -2330,12 +1941,9 @@ void print_menu (menu_t *menu){
     1052:	93 81       	ldd	r25, Z+3	; 0x03
     1054:	00 97       	sbiw	r24, 0x00	; 0
     1056:	71 f0       	breq	.+28     	; 0x1074 <print_menu+0x60>
-	{
-		oled_pos(2,2);
     1058:	62 e0       	ldi	r22, 0x02	; 2
     105a:	82 e0       	ldi	r24, 0x02	; 2
     105c:	0e 94 02 0b 	call	0x1604	; 0x1604 <oled_pos>
-		oled_print_string(menu->child1->name);
     1060:	8b 81       	ldd	r24, Y+3	; 0x03
     1062:	9c 81       	ldd	r25, Y+4	; 0x04
     1064:	fc 01       	movw	r30, r24
@@ -2345,9 +1953,6 @@ void print_menu (menu_t *menu){
     106c:	83 85       	ldd	r24, Z+11	; 0x0b
     106e:	94 85       	ldd	r25, Z+12	; 0x0c
     1070:	0e 94 4d 0b 	call	0x169a	; 0x169a <oled_print_string>
-	}
-	
-	if (menu->child2 != NULL)
     1074:	8b 81       	ldd	r24, Y+3	; 0x03
     1076:	9c 81       	ldd	r25, Y+4	; 0x04
     1078:	fc 01       	movw	r30, r24
@@ -2355,12 +1960,9 @@ void print_menu (menu_t *menu){
     107c:	95 81       	ldd	r25, Z+5	; 0x05
     107e:	00 97       	sbiw	r24, 0x00	; 0
     1080:	71 f0       	breq	.+28     	; 0x109e <print_menu+0x8a>
-	{
-		oled_pos(3,2);
     1082:	62 e0       	ldi	r22, 0x02	; 2
     1084:	83 e0       	ldi	r24, 0x03	; 3
     1086:	0e 94 02 0b 	call	0x1604	; 0x1604 <oled_pos>
-		oled_print_string(menu->child2->name);
     108a:	8b 81       	ldd	r24, Y+3	; 0x03
     108c:	9c 81       	ldd	r25, Y+4	; 0x04
     108e:	fc 01       	movw	r30, r24
@@ -2370,9 +1972,6 @@ void print_menu (menu_t *menu){
     1096:	83 85       	ldd	r24, Z+11	; 0x0b
     1098:	94 85       	ldd	r25, Z+12	; 0x0c
     109a:	0e 94 4d 0b 	call	0x169a	; 0x169a <oled_print_string>
-	}
-
-	if (menu->child3 != NULL)
     109e:	8b 81       	ldd	r24, Y+3	; 0x03
     10a0:	9c 81       	ldd	r25, Y+4	; 0x04
     10a2:	fc 01       	movw	r30, r24
@@ -2380,12 +1979,9 @@ void print_menu (menu_t *menu){
     10a6:	97 81       	ldd	r25, Z+7	; 0x07
     10a8:	00 97       	sbiw	r24, 0x00	; 0
     10aa:	71 f0       	breq	.+28     	; 0x10c8 <print_menu+0xb4>
-	{
-		oled_pos(4,2);
     10ac:	62 e0       	ldi	r22, 0x02	; 2
     10ae:	84 e0       	ldi	r24, 0x04	; 4
     10b0:	0e 94 02 0b 	call	0x1604	; 0x1604 <oled_pos>
-		oled_print_string(menu->child3->name);
     10b4:	8b 81       	ldd	r24, Y+3	; 0x03
     10b6:	9c 81       	ldd	r25, Y+4	; 0x04
     10b8:	fc 01       	movw	r30, r24
@@ -2395,8 +1991,6 @@ void print_menu (menu_t *menu){
     10c0:	83 85       	ldd	r24, Z+11	; 0x0b
     10c2:	94 85       	ldd	r25, Z+12	; 0x0c
     10c4:	0e 94 4d 0b 	call	0x169a	; 0x169a <oled_print_string>
-	}
-	if (menu->child4 != NULL)
     10c8:	8b 81       	ldd	r24, Y+3	; 0x03
     10ca:	9c 81       	ldd	r25, Y+4	; 0x04
     10cc:	fc 01       	movw	r30, r24
@@ -2404,12 +1998,9 @@ void print_menu (menu_t *menu){
     10d0:	91 85       	ldd	r25, Z+9	; 0x09
     10d2:	00 97       	sbiw	r24, 0x00	; 0
     10d4:	71 f0       	breq	.+28     	; 0x10f2 <print_menu+0xde>
-	{
-		oled_pos(5,2);
     10d6:	62 e0       	ldi	r22, 0x02	; 2
     10d8:	85 e0       	ldi	r24, 0x05	; 5
     10da:	0e 94 02 0b 	call	0x1604	; 0x1604 <oled_pos>
-		oled_print_string(menu->child4->name);
     10de:	8b 81       	ldd	r24, Y+3	; 0x03
     10e0:	9c 81       	ldd	r25, Y+4	; 0x04
     10e2:	fc 01       	movw	r30, r24
@@ -2419,18 +2010,12 @@ void print_menu (menu_t *menu){
     10ea:	83 85       	ldd	r24, Z+11	; 0x0b
     10ec:	94 85       	ldd	r25, Z+12	; 0x0c
     10ee:	0e 94 4d 0b 	call	0x169a	; 0x169a <oled_print_string>
-	}
-	
-	// Print the current difficulty setting.
-	oled_pos(7,2);
     10f2:	62 e0       	ldi	r22, 0x02	; 2
     10f4:	87 e0       	ldi	r24, 0x07	; 7
     10f6:	0e 94 02 0b 	call	0x1604	; 0x1604 <oled_pos>
-	oled_print_string(("DFFCLTY: %s", stringFromDifficulty(GitGud)));
     10fa:	80 91 64 02 	lds	r24, 0x0264
     10fe:	0e 94 24 05 	call	0xa48	; 0xa48 <stringFromDifficulty>
     1102:	0e 94 4d 0b 	call	0x169a	; 0x169a <oled_print_string>
-}
     1106:	0f 90       	pop	r0
     1108:	0f 90       	pop	r0
     110a:	0f 90       	pop	r0
@@ -2440,23 +2025,12 @@ void print_menu (menu_t *menu){
     1112:	08 95       	ret
 
 00001114 <button_action>:
-	return GitGud;
-}
-
-// Implements action based on joystick button presses
-// Possibility for cleaner code, written in a hurry :-)
-uint8_t button_action (uint8_t current_line) {
     1114:	cf 93       	push	r28
     1116:	df 93       	push	r29
     1118:	1f 92       	push	r1
     111a:	cd b7       	in	r28, 0x3d	; 61
     111c:	de b7       	in	r29, 0x3e	; 62
     111e:	89 83       	std	Y+1, r24	; 0x01
-	// Fix "magic numbers", current_line = some menu etc.
-	// Should be independent of the actual linked list
-	// Change the struct to an array of children, and use current_line as index?
-	// Think that should work
-	if (strcmp(current_menu->name, "MAIN MENU") == 0)
     1120:	80 91 6b 02 	lds	r24, 0x026B
     1124:	90 91 6c 02 	lds	r25, 0x026C
     1128:	fc 01       	movw	r30, r24
@@ -2467,36 +2041,24 @@ uint8_t button_action (uint8_t current_line) {
     1132:	0e 94 f5 14 	call	0x29ea	; 0x29ea <strcmp>
     1136:	00 97       	sbiw	r24, 0x00	; 0
     1138:	a9 f4       	brne	.+42     	; 0x1164 <button_action+0x50>
-	{
-		if(current_line == 2)
     113a:	89 81       	ldd	r24, Y+1	; 0x01
     113c:	82 30       	cpi	r24, 0x02	; 2
     113e:	09 f4       	brne	.+2      	; 0x1142 <button_action+0x2e>
     1140:	bf c0       	rjmp	.+382    	; 0x12c0 <button_action+0x1ac>
-		{
-			game_started == 1;
-		}
-		else if (current_line == 3) {
     1142:	89 81       	ldd	r24, Y+1	; 0x01
     1144:	83 30       	cpi	r24, 0x03	; 3
     1146:	41 f4       	brne	.+16     	; 0x1158 <button_action+0x44>
-			print_highscore();
     1148:	0e 94 f4 09 	call	0x13e8	; 0x13e8 <print_highscore>
-			navigateMenu(current_line);
     114c:	89 81       	ldd	r24, Y+1	; 0x01
     114e:	88 2f       	mov	r24, r24
     1150:	90 e0       	ldi	r25, 0x00	; 0
     1152:	0e 94 66 09 	call	0x12cc	; 0x12cc <navigateMenu>
     1156:	b4 c0       	rjmp	.+360    	; 0x12c0 <button_action+0x1ac>
-		}
-		else navigateMenu(current_line);
     1158:	89 81       	ldd	r24, Y+1	; 0x01
     115a:	88 2f       	mov	r24, r24
     115c:	90 e0       	ldi	r25, 0x00	; 0
     115e:	0e 94 66 09 	call	0x12cc	; 0x12cc <navigateMenu>
     1162:	ae c0       	rjmp	.+348    	; 0x12c0 <button_action+0x1ac>
-	}
-	else if (strcmp(current_menu->name, "SETTINGS") == 0)
     1164:	80 91 6b 02 	lds	r24, 0x026B
     1168:	90 91 6c 02 	lds	r25, 0x026C
     116c:	fc 01       	movw	r30, r24
@@ -2508,55 +2070,38 @@ uint8_t button_action (uint8_t current_line) {
     117a:	00 97       	sbiw	r24, 0x00	; 0
     117c:	09 f0       	breq	.+2      	; 0x1180 <button_action+0x6c>
     117e:	3f c0       	rjmp	.+126    	; 0x11fe <button_action+0xea>
-	{
-		if (current_line == 2)
     1180:	89 81       	ldd	r24, Y+1	; 0x01
     1182:	82 30       	cpi	r24, 0x02	; 2
     1184:	31 f4       	brne	.+12     	; 0x1192 <button_action+0x7e>
-		{
-			navigateMenu(current_line);
     1186:	89 81       	ldd	r24, Y+1	; 0x01
     1188:	88 2f       	mov	r24, r24
     118a:	90 e0       	ldi	r25, 0x00	; 0
     118c:	0e 94 66 09 	call	0x12cc	; 0x12cc <navigateMenu>
     1190:	97 c0       	rjmp	.+302    	; 0x12c0 <button_action+0x1ac>
-		}
-		else if (current_line == 3) {
     1192:	89 81       	ldd	r24, Y+1	; 0x01
     1194:	83 30       	cpi	r24, 0x03	; 3
     1196:	49 f4       	brne	.+18     	; 0x11aa <button_action+0x96>
-			oled_pos(current_line, 0);
     1198:	60 e0       	ldi	r22, 0x00	; 0
     119a:	89 81       	ldd	r24, Y+1	; 0x01
     119c:	0e 94 02 0b 	call	0x1604	; 0x1604 <oled_pos>
-			oled_print_string("  ");
     11a0:	8c e7       	ldi	r24, 0x7C	; 124
     11a2:	91 e0       	ldi	r25, 0x01	; 1
     11a4:	0e 94 4d 0b 	call	0x169a	; 0x169a <oled_print_string>
     11a8:	8b c0       	rjmp	.+278    	; 0x12c0 <button_action+0x1ac>
-		} // TODO Debugging
-		
-		else if (current_line == 4) {
     11aa:	89 81       	ldd	r24, Y+1	; 0x01
     11ac:	84 30       	cpi	r24, 0x04	; 4
     11ae:	49 f4       	brne	.+18     	; 0x11c2 <button_action+0xae>
-			oled_pos(current_line, 0);
     11b0:	60 e0       	ldi	r22, 0x00	; 0
     11b2:	89 81       	ldd	r24, Y+1	; 0x01
     11b4:	0e 94 02 0b 	call	0x1604	; 0x1604 <oled_pos>
-			oled_print_string("  ");
     11b8:	8c e7       	ldi	r24, 0x7C	; 124
     11ba:	91 e0       	ldi	r25, 0x01	; 1
     11bc:	0e 94 4d 0b 	call	0x169a	; 0x169a <oled_print_string>
     11c0:	7f c0       	rjmp	.+254    	; 0x12c0 <button_action+0x1ac>
-		} // TODO Calibrate joystick
-		
-		else if (current_line == 5) {
     11c2:	89 81       	ldd	r24, Y+1	; 0x01
     11c4:	85 30       	cpi	r24, 0x05	; 5
     11c6:	09 f0       	breq	.+2      	; 0x11ca <button_action+0xb6>
     11c8:	7b c0       	rjmp	.+246    	; 0x12c0 <button_action+0x1ac>
-			current_menu = current_menu -> parent;
     11ca:	80 91 6b 02 	lds	r24, 0x026B
     11ce:	90 91 6c 02 	lds	r25, 0x026C
     11d2:	fc 01       	movw	r30, r24
@@ -2564,23 +2109,16 @@ uint8_t button_action (uint8_t current_line) {
     11d6:	91 81       	ldd	r25, Z+1	; 0x01
     11d8:	90 93 6c 02 	sts	0x026C, r25
     11dc:	80 93 6b 02 	sts	0x026B, r24
-			oled_pos(current_line, 0);
     11e0:	60 e0       	ldi	r22, 0x00	; 0
     11e2:	89 81       	ldd	r24, Y+1	; 0x01
     11e4:	0e 94 02 0b 	call	0x1604	; 0x1604 <oled_pos>
-			oled_print_string("  ");
     11e8:	8c e7       	ldi	r24, 0x7C	; 124
     11ea:	91 e0       	ldi	r25, 0x01	; 1
     11ec:	0e 94 4d 0b 	call	0x169a	; 0x169a <oled_print_string>
-			print_menu(current_menu);
     11f0:	80 91 6b 02 	lds	r24, 0x026B
     11f4:	90 91 6c 02 	lds	r25, 0x026C
     11f8:	0e 94 0a 08 	call	0x1014	; 0x1014 <print_menu>
     11fc:	61 c0       	rjmp	.+194    	; 0x12c0 <button_action+0x1ac>
-		}
-		
-	}
-	else if (strcmp(current_menu->name, "SET DIFFICULTY") == 0) {
     11fe:	80 91 6b 02 	lds	r24, 0x026B
     1202:	90 91 6c 02 	lds	r25, 0x026C
     1206:	fc 01       	movw	r30, r24
@@ -2591,28 +2129,23 @@ uint8_t button_action (uint8_t current_line) {
     1210:	0e 94 f5 14 	call	0x29ea	; 0x29ea <strcmp>
     1214:	00 97       	sbiw	r24, 0x00	; 0
     1216:	71 f5       	brne	.+92     	; 0x1274 <button_action+0x160>
-		if (current_line == 2) GitGud = EASY;
     1218:	89 81       	ldd	r24, Y+1	; 0x01
     121a:	82 30       	cpi	r24, 0x02	; 2
     121c:	19 f4       	brne	.+6      	; 0x1224 <button_action+0x110>
     121e:	10 92 64 02 	sts	0x0264, r1
     1222:	21 c0       	rjmp	.+66     	; 0x1266 <button_action+0x152>
-		else if (current_line == 3) GitGud = MEDIUM;
     1224:	89 81       	ldd	r24, Y+1	; 0x01
     1226:	83 30       	cpi	r24, 0x03	; 3
     1228:	21 f4       	brne	.+8      	; 0x1232 <button_action+0x11e>
     122a:	81 e0       	ldi	r24, 0x01	; 1
     122c:	80 93 64 02 	sts	0x0264, r24
     1230:	1a c0       	rjmp	.+52     	; 0x1266 <button_action+0x152>
-		else if (current_line == 4) GitGud = HARD;
     1232:	89 81       	ldd	r24, Y+1	; 0x01
     1234:	84 30       	cpi	r24, 0x04	; 4
     1236:	21 f4       	brne	.+8      	; 0x1240 <button_action+0x12c>
     1238:	82 e0       	ldi	r24, 0x02	; 2
     123a:	80 93 64 02 	sts	0x0264, r24
     123e:	13 c0       	rjmp	.+38     	; 0x1266 <button_action+0x152>
-		else {
-			current_menu = current_menu->parent;
     1240:	80 91 6b 02 	lds	r24, 0x026B
     1244:	90 91 6c 02 	lds	r25, 0x026C
     1248:	fc 01       	movw	r30, r24
@@ -2620,23 +2153,16 @@ uint8_t button_action (uint8_t current_line) {
     124c:	91 81       	ldd	r25, Z+1	; 0x01
     124e:	90 93 6c 02 	sts	0x026C, r25
     1252:	80 93 6b 02 	sts	0x026B, r24
-			oled_pos(current_line, 0);
     1256:	60 e0       	ldi	r22, 0x00	; 0
     1258:	89 81       	ldd	r24, Y+1	; 0x01
     125a:	0e 94 02 0b 	call	0x1604	; 0x1604 <oled_pos>
-			oled_print_string("  ");
     125e:	8c e7       	ldi	r24, 0x7C	; 124
     1260:	91 e0       	ldi	r25, 0x01	; 1
     1262:	0e 94 4d 0b 	call	0x169a	; 0x169a <oled_print_string>
-		}
-		print_menu(current_menu);
     1266:	80 91 6b 02 	lds	r24, 0x026B
     126a:	90 91 6c 02 	lds	r25, 0x026C
     126e:	0e 94 0a 08 	call	0x1014	; 0x1014 <print_menu>
     1272:	26 c0       	rjmp	.+76     	; 0x12c0 <button_action+0x1ac>
-	}
-	
-	else if (strcmp(current_menu->name, "HIGH SCORE") == 0) {
     1274:	80 91 6b 02 	lds	r24, 0x026B
     1278:	90 91 6c 02 	lds	r25, 0x026C
     127c:	fc 01       	movw	r30, r24
@@ -2647,7 +2173,6 @@ uint8_t button_action (uint8_t current_line) {
     1286:	0e 94 f5 14 	call	0x29ea	; 0x29ea <strcmp>
     128a:	00 97       	sbiw	r24, 0x00	; 0
     128c:	c9 f4       	brne	.+50     	; 0x12c0 <button_action+0x1ac>
-		current_menu = current_menu -> parent;
     128e:	80 91 6b 02 	lds	r24, 0x026B
     1292:	90 91 6c 02 	lds	r25, 0x026C
     1296:	fc 01       	movw	r30, r24
@@ -2655,39 +2180,28 @@ uint8_t button_action (uint8_t current_line) {
     129a:	91 81       	ldd	r25, Z+1	; 0x01
     129c:	90 93 6c 02 	sts	0x026C, r25
     12a0:	80 93 6b 02 	sts	0x026B, r24
-		oled_pos(current_line, 0);
     12a4:	60 e0       	ldi	r22, 0x00	; 0
     12a6:	89 81       	ldd	r24, Y+1	; 0x01
     12a8:	0e 94 02 0b 	call	0x1604	; 0x1604 <oled_pos>
-		oled_print_string("  ");
     12ac:	8c e7       	ldi	r24, 0x7C	; 124
     12ae:	91 e0       	ldi	r25, 0x01	; 1
     12b0:	0e 94 4d 0b 	call	0x169a	; 0x169a <oled_print_string>
-		print_menu(current_menu);
     12b4:	80 91 6b 02 	lds	r24, 0x026B
     12b8:	90 91 6c 02 	lds	r25, 0x026C
     12bc:	0e 94 0a 08 	call	0x1014	; 0x1014 <print_menu>
-	}
-	return game_started;
     12c0:	80 91 65 02 	lds	r24, 0x0265
-}
     12c4:	0f 90       	pop	r0
     12c6:	df 91       	pop	r29
     12c8:	cf 91       	pop	r28
     12ca:	08 95       	ret
 
 000012cc <navigateMenu>:
-	
-
-// Traverses the linked list into submenus
-void navigateMenu(uint8_t current_line) {
     12cc:	cf 93       	push	r28
     12ce:	df 93       	push	r29
     12d0:	1f 92       	push	r1
     12d2:	cd b7       	in	r28, 0x3d	; 61
     12d4:	de b7       	in	r29, 0x3e	; 62
     12d6:	89 83       	std	Y+1, r24	; 0x01
-	switch(current_line) {
     12d8:	89 81       	ldd	r24, Y+1	; 0x01
     12da:	88 2f       	mov	r24, r24
     12dc:	90 e0       	ldi	r25, 0x00	; 0
@@ -2702,8 +2216,6 @@ void navigateMenu(uint8_t current_line) {
     12ee:	91 05       	cpc	r25, r1
     12f0:	09 f0       	breq	.+2      	; 0x12f4 <navigateMenu+0x28>
     12f2:	76 c0       	rjmp	.+236    	; 0x13e0 <navigateMenu+0x114>
-		case 2:
-		if (current_menu->child1 != NULL) {
     12f4:	80 91 6b 02 	lds	r24, 0x026B
     12f8:	90 91 6c 02 	lds	r25, 0x026C
     12fc:	fc 01       	movw	r30, r24
@@ -2711,7 +2223,6 @@ void navigateMenu(uint8_t current_line) {
     1300:	93 81       	ldd	r25, Z+3	; 0x03
     1302:	00 97       	sbiw	r24, 0x00	; 0
     1304:	f1 f0       	breq	.+60     	; 0x1342 <navigateMenu+0x76>
-			current_menu = current_menu -> child1;
     1306:	80 91 6b 02 	lds	r24, 0x026B
     130a:	90 91 6c 02 	lds	r25, 0x026C
     130e:	fc 01       	movw	r30, r24
@@ -2719,29 +2230,20 @@ void navigateMenu(uint8_t current_line) {
     1312:	93 81       	ldd	r25, Z+3	; 0x03
     1314:	90 93 6c 02 	sts	0x026C, r25
     1318:	80 93 6b 02 	sts	0x026B, r24
-			oled_pos(current_line, 0);
     131c:	60 e0       	ldi	r22, 0x00	; 0
     131e:	89 81       	ldd	r24, Y+1	; 0x01
     1320:	0e 94 02 0b 	call	0x1604	; 0x1604 <oled_pos>
-			oled_print_string("  ");
     1324:	8c e7       	ldi	r24, 0x7C	; 124
     1326:	91 e0       	ldi	r25, 0x01	; 1
     1328:	0e 94 4d 0b 	call	0x169a	; 0x169a <oled_print_string>
-			move_arrow(NEUTRAL, 2);
     132c:	62 e0       	ldi	r22, 0x02	; 2
     132e:	84 e0       	ldi	r24, 0x04	; 4
     1330:	0e 94 aa 07 	call	0xf54	; 0xf54 <move_arrow>
-			print_menu(current_menu);
     1334:	80 91 6b 02 	lds	r24, 0x026B
     1338:	90 91 6c 02 	lds	r25, 0x026C
     133c:	0e 94 0a 08 	call	0x1014	; 0x1014 <print_menu>
-		}
-		break;
     1340:	4f c0       	rjmp	.+158    	; 0x13e0 <navigateMenu+0x114>
     1342:	4e c0       	rjmp	.+156    	; 0x13e0 <navigateMenu+0x114>
-		
-		case 3:
-		if (current_menu->child2 != NULL) {
     1344:	80 91 6b 02 	lds	r24, 0x026B
     1348:	90 91 6c 02 	lds	r25, 0x026C
     134c:	fc 01       	movw	r30, r24
@@ -2749,7 +2251,6 @@ void navigateMenu(uint8_t current_line) {
     1350:	95 81       	ldd	r25, Z+5	; 0x05
     1352:	00 97       	sbiw	r24, 0x00	; 0
     1354:	f1 f0       	breq	.+60     	; 0x1392 <navigateMenu+0xc6>
-			current_menu = current_menu -> child2;
     1356:	80 91 6b 02 	lds	r24, 0x026B
     135a:	90 91 6c 02 	lds	r25, 0x026C
     135e:	fc 01       	movw	r30, r24
@@ -2757,29 +2258,20 @@ void navigateMenu(uint8_t current_line) {
     1362:	95 81       	ldd	r25, Z+5	; 0x05
     1364:	90 93 6c 02 	sts	0x026C, r25
     1368:	80 93 6b 02 	sts	0x026B, r24
-			oled_pos(current_line, 0);
     136c:	60 e0       	ldi	r22, 0x00	; 0
     136e:	89 81       	ldd	r24, Y+1	; 0x01
     1370:	0e 94 02 0b 	call	0x1604	; 0x1604 <oled_pos>
-			oled_print_string("  ");
     1374:	8c e7       	ldi	r24, 0x7C	; 124
     1376:	91 e0       	ldi	r25, 0x01	; 1
     1378:	0e 94 4d 0b 	call	0x169a	; 0x169a <oled_print_string>
-			move_arrow(NEUTRAL, 2);
     137c:	62 e0       	ldi	r22, 0x02	; 2
     137e:	84 e0       	ldi	r24, 0x04	; 4
     1380:	0e 94 aa 07 	call	0xf54	; 0xf54 <move_arrow>
-			print_menu(current_menu);
     1384:	80 91 6b 02 	lds	r24, 0x026B
     1388:	90 91 6c 02 	lds	r25, 0x026C
     138c:	0e 94 0a 08 	call	0x1014	; 0x1014 <print_menu>
-		}
-		break;
     1390:	27 c0       	rjmp	.+78     	; 0x13e0 <navigateMenu+0x114>
     1392:	26 c0       	rjmp	.+76     	; 0x13e0 <navigateMenu+0x114>
-		
-		case 4:
-		if (current_menu->child3 != NULL) {
     1394:	80 91 6b 02 	lds	r24, 0x026B
     1398:	90 91 6c 02 	lds	r25, 0x026C
     139c:	fc 01       	movw	r30, r24
@@ -2787,7 +2279,6 @@ void navigateMenu(uint8_t current_line) {
     13a0:	97 81       	ldd	r25, Z+7	; 0x07
     13a2:	00 97       	sbiw	r24, 0x00	; 0
     13a4:	e9 f0       	breq	.+58     	; 0x13e0 <navigateMenu+0x114>
-			current_menu = current_menu -> child3;
     13a6:	80 91 6b 02 	lds	r24, 0x026B
     13aa:	90 91 6c 02 	lds	r25, 0x026C
     13ae:	fc 01       	movw	r30, r24
@@ -2795,198 +2286,132 @@ void navigateMenu(uint8_t current_line) {
     13b2:	97 81       	ldd	r25, Z+7	; 0x07
     13b4:	90 93 6c 02 	sts	0x026C, r25
     13b8:	80 93 6b 02 	sts	0x026B, r24
-			oled_pos(current_line, 0);
     13bc:	60 e0       	ldi	r22, 0x00	; 0
     13be:	89 81       	ldd	r24, Y+1	; 0x01
     13c0:	0e 94 02 0b 	call	0x1604	; 0x1604 <oled_pos>
-			oled_print_string("  ");
     13c4:	8c e7       	ldi	r24, 0x7C	; 124
     13c6:	91 e0       	ldi	r25, 0x01	; 1
     13c8:	0e 94 4d 0b 	call	0x169a	; 0x169a <oled_print_string>
-			move_arrow(NEUTRAL, 2);
     13cc:	62 e0       	ldi	r22, 0x02	; 2
     13ce:	84 e0       	ldi	r24, 0x04	; 4
     13d0:	0e 94 aa 07 	call	0xf54	; 0xf54 <move_arrow>
-			print_menu(current_menu);
     13d4:	80 91 6b 02 	lds	r24, 0x026B
     13d8:	90 91 6c 02 	lds	r25, 0x026C
     13dc:	0e 94 0a 08 	call	0x1014	; 0x1014 <print_menu>
-		}
-	}
-	
-}
     13e0:	0f 90       	pop	r0
     13e2:	df 91       	pop	r29
     13e4:	cf 91       	pop	r28
     13e6:	08 95       	ret
 
 000013e8 <print_highscore>:
-
-// TODO save highscore in EEPROM??
-void print_highscore() {
     13e8:	cf 93       	push	r28
     13ea:	df 93       	push	r29
     13ec:	cd b7       	in	r28, 0x3d	; 61
     13ee:	de b7       	in	r29, 0x3e	; 62
-	
-}
     13f0:	df 91       	pop	r29
     13f2:	cf 91       	pop	r28
     13f4:	08 95       	ret
 
 000013f6 <oled_init>:
-uint8_t current_column;
-
-uint8_t getCurrentLine(){
-	return currentLine;
-}
-void oled_init(){
     13f6:	cf 93       	push	r28
     13f8:	df 93       	push	r29
     13fa:	cd b7       	in	r28, 0x3d	; 61
     13fc:	de b7       	in	r29, 0x3e	; 62
-	
-	//SFIOR |= (1 << XMM2);
-	
-	write_c(0xae);        //  display  off
     13fe:	8e ea       	ldi	r24, 0xAE	; 174
     1400:	0e 94 48 0a 	call	0x1490	; 0x1490 <write_c>
-	write_c(0xa1);        //segment  remap
     1404:	81 ea       	ldi	r24, 0xA1	; 161
     1406:	0e 94 48 0a 	call	0x1490	; 0x1490 <write_c>
-	write_c(0xda);        //common  pads  hardware:  alternative
     140a:	8a ed       	ldi	r24, 0xDA	; 218
     140c:	0e 94 48 0a 	call	0x1490	; 0x1490 <write_c>
-	write_c(0x12);
     1410:	82 e1       	ldi	r24, 0x12	; 18
     1412:	0e 94 48 0a 	call	0x1490	; 0x1490 <write_c>
-	write_c(0xc8);        //common output scan direction:com63~com0
     1416:	88 ec       	ldi	r24, 0xC8	; 200
     1418:	0e 94 48 0a 	call	0x1490	; 0x1490 <write_c>
-	write_c(0xa8);        //multiplex  ration  mode:63
     141c:	88 ea       	ldi	r24, 0xA8	; 168
     141e:	0e 94 48 0a 	call	0x1490	; 0x1490 <write_c>
-	write_c(0x3f);
     1422:	8f e3       	ldi	r24, 0x3F	; 63
     1424:	0e 94 48 0a 	call	0x1490	; 0x1490 <write_c>
-	write_c(0xd5);        //display divide ratio/osc. freq. mode
     1428:	85 ed       	ldi	r24, 0xD5	; 213
     142a:	0e 94 48 0a 	call	0x1490	; 0x1490 <write_c>
-	write_c(0x80);
     142e:	80 e8       	ldi	r24, 0x80	; 128
     1430:	0e 94 48 0a 	call	0x1490	; 0x1490 <write_c>
-	write_c(0x81);        //contrast  control
     1434:	81 e8       	ldi	r24, 0x81	; 129
     1436:	0e 94 48 0a 	call	0x1490	; 0x1490 <write_c>
-	write_c(0x50);
     143a:	80 e5       	ldi	r24, 0x50	; 80
     143c:	0e 94 48 0a 	call	0x1490	; 0x1490 <write_c>
-	write_c(0xd9);        //set  pre-charge  period
     1440:	89 ed       	ldi	r24, 0xD9	; 217
     1442:	0e 94 48 0a 	call	0x1490	; 0x1490 <write_c>
-	write_c(0x21);
     1446:	81 e2       	ldi	r24, 0x21	; 33
     1448:	0e 94 48 0a 	call	0x1490	; 0x1490 <write_c>
-	write_c(0x20);        //Set  Memory  Addressing  Mode
     144c:	80 e2       	ldi	r24, 0x20	; 32
     144e:	0e 94 48 0a 	call	0x1490	; 0x1490 <write_c>
-	write_c(0x02);
     1452:	82 e0       	ldi	r24, 0x02	; 2
     1454:	0e 94 48 0a 	call	0x1490	; 0x1490 <write_c>
-	write_c(0xdb);        //VCOM  deselect  level  mode
     1458:	8b ed       	ldi	r24, 0xDB	; 219
     145a:	0e 94 48 0a 	call	0x1490	; 0x1490 <write_c>
-	write_c(0x30);
     145e:	80 e3       	ldi	r24, 0x30	; 48
     1460:	0e 94 48 0a 	call	0x1490	; 0x1490 <write_c>
-	write_c(0xad);        //master  configuration
     1464:	8d ea       	ldi	r24, 0xAD	; 173
     1466:	0e 94 48 0a 	call	0x1490	; 0x1490 <write_c>
-	write_c(0x00);
     146a:	80 e0       	ldi	r24, 0x00	; 0
     146c:	0e 94 48 0a 	call	0x1490	; 0x1490 <write_c>
-	write_c(0xa4);        //out  follows  RAM  content
     1470:	84 ea       	ldi	r24, 0xA4	; 164
     1472:	0e 94 48 0a 	call	0x1490	; 0x1490 <write_c>
-	write_c(0xa6);        //set  normal  display
     1476:	86 ea       	ldi	r24, 0xA6	; 166
     1478:	0e 94 48 0a 	call	0x1490	; 0x1490 <write_c>
-	write_c(0xaf);        //  display  on
     147c:	8f ea       	ldi	r24, 0xAF	; 175
     147e:	0e 94 48 0a 	call	0x1490	; 0x1490 <write_c>
-	oled_reset();
     1482:	0e 94 6a 0a 	call	0x14d4	; 0x14d4 <oled_reset>
-	oled_home();
     1486:	0e 94 84 0a 	call	0x1508	; 0x1508 <oled_home>
-	
-}
     148a:	df 91       	pop	r29
     148c:	cf 91       	pop	r28
     148e:	08 95       	ret
 
 00001490 <write_c>:
-
-void write_c(unsigned char char_command){
     1490:	cf 93       	push	r28
     1492:	df 93       	push	r29
     1494:	1f 92       	push	r1
     1496:	cd b7       	in	r28, 0x3d	; 61
     1498:	de b7       	in	r29, 0x3e	; 62
     149a:	89 83       	std	Y+1, r24	; 0x01
-	*command_address= char_command;
     149c:	80 91 12 01 	lds	r24, 0x0112
     14a0:	90 91 13 01 	lds	r25, 0x0113
     14a4:	29 81       	ldd	r18, Y+1	; 0x01
     14a6:	fc 01       	movw	r30, r24
     14a8:	20 83       	st	Z, r18
-}
     14aa:	0f 90       	pop	r0
     14ac:	df 91       	pop	r29
     14ae:	cf 91       	pop	r28
     14b0:	08 95       	ret
 
 000014b2 <write_d>:
-
-void write_d(unsigned char char_data){
     14b2:	cf 93       	push	r28
     14b4:	df 93       	push	r29
     14b6:	1f 92       	push	r1
     14b8:	cd b7       	in	r28, 0x3d	; 61
     14ba:	de b7       	in	r29, 0x3e	; 62
     14bc:	89 83       	std	Y+1, r24	; 0x01
-	*data_address = char_data;
     14be:	80 91 14 01 	lds	r24, 0x0114
     14c2:	90 91 15 01 	lds	r25, 0x0115
     14c6:	29 81       	ldd	r18, Y+1	; 0x01
     14c8:	fc 01       	movw	r30, r24
     14ca:	20 83       	st	Z, r18
-}
     14cc:	0f 90       	pop	r0
     14ce:	df 91       	pop	r29
     14d0:	cf 91       	pop	r28
     14d2:	08 95       	ret
 
 000014d4 <oled_reset>:
-
-void oled_reset(){
     14d4:	cf 93       	push	r28
     14d6:	df 93       	push	r29
     14d8:	00 d0       	rcall	.+0      	; 0x14da <oled_reset+0x6>
     14da:	cd b7       	in	r28, 0x3d	; 61
     14dc:	de b7       	in	r29, 0x3e	; 62
-	for (int i = 0; i<8;i++){
     14de:	1a 82       	std	Y+2, r1	; 0x02
     14e0:	19 82       	std	Y+1, r1	; 0x01
     14e2:	08 c0       	rjmp	.+16     	; 0x14f4 <oled_reset+0x20>
-		oled_clear_line(i);
     14e4:	89 81       	ldd	r24, Y+1	; 0x01
     14e6:	0e 94 e2 0a 	call	0x15c4	; 0x15c4 <oled_clear_line>
-void write_d(unsigned char char_data){
-	*data_address = char_data;
-}
-
-void oled_reset(){
-	for (int i = 0; i<8;i++){
     14ea:	89 81       	ldd	r24, Y+1	; 0x01
     14ec:	9a 81       	ldd	r25, Y+2	; 0x02
     14ee:	01 96       	adiw	r24, 0x01	; 1
@@ -2997,9 +2422,6 @@ void oled_reset(){
     14f8:	88 30       	cpi	r24, 0x08	; 8
     14fa:	91 05       	cpc	r25, r1
     14fc:	9c f3       	brlt	.-26     	; 0x14e4 <oled_reset+0x10>
-		oled_clear_line(i);
-	}
-}
     14fe:	0f 90       	pop	r0
     1500:	0f 90       	pop	r0
     1502:	df 91       	pop	r29
@@ -3007,66 +2429,48 @@ void oled_reset(){
     1506:	08 95       	ret
 
 00001508 <oled_home>:
-
-void oled_home(){
     1508:	cf 93       	push	r28
     150a:	df 93       	push	r29
     150c:	cd b7       	in	r28, 0x3d	; 61
     150e:	de b7       	in	r29, 0x3e	; 62
-	write_c(0x21);//starting command(set column address)
     1510:	81 e2       	ldi	r24, 0x21	; 33
     1512:	0e 94 48 0a 	call	0x1490	; 0x1490 <write_c>
-	write_c(0x00);//start of column address
     1516:	80 e0       	ldi	r24, 0x00	; 0
     1518:	0e 94 48 0a 	call	0x1490	; 0x1490 <write_c>
-	write_c(0x7F);//end of column address
     151c:	8f e7       	ldi	r24, 0x7F	; 127
     151e:	0e 94 48 0a 	call	0x1490	; 0x1490 <write_c>
-	
-	write_c(0x22);//starting command (set page address)
     1522:	82 e2       	ldi	r24, 0x22	; 34
     1524:	0e 94 48 0a 	call	0x1490	; 0x1490 <write_c>
-	write_c(0x00);// start of page address
     1528:	80 e0       	ldi	r24, 0x00	; 0
     152a:	0e 94 48 0a 	call	0x1490	; 0x1490 <write_c>
-	write_c(0x07);//end of page address
     152e:	87 e0       	ldi	r24, 0x07	; 7
     1530:	0e 94 48 0a 	call	0x1490	; 0x1490 <write_c>
-	currentLine=0;
     1534:	10 92 6d 02 	sts	0x026D, r1
-}
     1538:	df 91       	pop	r29
     153a:	cf 91       	pop	r28
     153c:	08 95       	ret
 
 0000153e <oled_goto_line>:
-void oled_goto_line(uint8_t line){
     153e:	cf 93       	push	r28
     1540:	df 93       	push	r29
     1542:	1f 92       	push	r1
     1544:	cd b7       	in	r28, 0x3d	; 61
     1546:	de b7       	in	r29, 0x3e	; 62
     1548:	89 83       	std	Y+1, r24	; 0x01
-	if (line < 8){
     154a:	89 81       	ldd	r24, Y+1	; 0x01
     154c:	88 30       	cpi	r24, 0x08	; 8
     154e:	38 f4       	brcc	.+14     	; 0x155e <oled_goto_line+0x20>
-		currentLine=line;
     1550:	89 81       	ldd	r24, Y+1	; 0x01
     1552:	80 93 6d 02 	sts	0x026D, r24
-		write_c(0xb0 + line);
     1556:	89 81       	ldd	r24, Y+1	; 0x01
     1558:	80 55       	subi	r24, 0x50	; 80
     155a:	0e 94 48 0a 	call	0x1490	; 0x1490 <write_c>
-	}
-}
     155e:	0f 90       	pop	r0
     1560:	df 91       	pop	r29
     1562:	cf 91       	pop	r28
     1564:	08 95       	ret
 
 00001566 <oled_goto_column>:
-void oled_goto_column(uint8_t column){
     1566:	cf 93       	push	r28
     1568:	df 93       	push	r29
     156a:	00 d0       	rcall	.+0      	; 0x156c <oled_goto_column+0x6>
@@ -3074,9 +2478,6 @@ void oled_goto_column(uint8_t column){
     156e:	cd b7       	in	r28, 0x3d	; 61
     1570:	de b7       	in	r29, 0x3e	; 62
     1572:	8b 83       	std	Y+3, r24	; 0x03
-	//oled_goto_line(currentLine);
-	
-	if(column*FONTWIDTH <= 127)
     1574:	8b 81       	ldd	r24, Y+3	; 0x03
     1576:	88 2f       	mov	r24, r24
     1578:	90 e0       	ldi	r25, 0x00	; 0
@@ -3089,34 +2490,25 @@ void oled_goto_column(uint8_t column){
     1586:	80 38       	cpi	r24, 0x80	; 128
     1588:	91 05       	cpc	r25, r1
     158a:	b4 f4       	brge	.+44     	; 0x15b8 <oled_goto_column+0x52>
-	{
-		column = column*FONTWIDTH;
     158c:	8b 81       	ldd	r24, Y+3	; 0x03
     158e:	88 0f       	add	r24, r24
     1590:	88 0f       	add	r24, r24
     1592:	88 0f       	add	r24, r24
     1594:	8b 83       	std	Y+3, r24	; 0x03
-		current_column = column;
     1596:	8b 81       	ldd	r24, Y+3	; 0x03
     1598:	80 93 6e 02 	sts	0x026E, r24
-		char c1 = 0x00 + (column & 0x0F);
     159c:	8b 81       	ldd	r24, Y+3	; 0x03
     159e:	8f 70       	andi	r24, 0x0F	; 15
     15a0:	89 83       	std	Y+1, r24	; 0x01
-		char c2 = 0x10 + ((column & 0xF0)>>4);
     15a2:	8b 81       	ldd	r24, Y+3	; 0x03
     15a4:	82 95       	swap	r24
     15a6:	8f 70       	andi	r24, 0x0F	; 15
     15a8:	80 5f       	subi	r24, 0xF0	; 240
     15aa:	8a 83       	std	Y+2, r24	; 0x02
-		write_c(c1);
     15ac:	89 81       	ldd	r24, Y+1	; 0x01
     15ae:	0e 94 48 0a 	call	0x1490	; 0x1490 <write_c>
-		write_c(c2);
     15b2:	8a 81       	ldd	r24, Y+2	; 0x02
     15b4:	0e 94 48 0a 	call	0x1490	; 0x1490 <write_c>
-	}
-}
     15b8:	0f 90       	pop	r0
     15ba:	0f 90       	pop	r0
     15bc:	0f 90       	pop	r0
@@ -3125,7 +2517,6 @@ void oled_goto_column(uint8_t column){
     15c2:	08 95       	ret
 
 000015c4 <oled_clear_line>:
-void oled_clear_line(uint8_t line){
     15c4:	cf 93       	push	r28
     15c6:	df 93       	push	r29
     15c8:	00 d0       	rcall	.+0      	; 0x15ca <oled_clear_line+0x6>
@@ -3133,23 +2524,13 @@ void oled_clear_line(uint8_t line){
     15cc:	cd b7       	in	r28, 0x3d	; 61
     15ce:	de b7       	in	r29, 0x3e	; 62
     15d0:	8b 83       	std	Y+3, r24	; 0x03
-	oled_goto_line(line);
     15d2:	8b 81       	ldd	r24, Y+3	; 0x03
     15d4:	0e 94 9f 0a 	call	0x153e	; 0x153e <oled_goto_line>
-	for (int i = 0; i<128;i++)
     15d8:	1a 82       	std	Y+2, r1	; 0x02
     15da:	19 82       	std	Y+1, r1	; 0x01
     15dc:	08 c0       	rjmp	.+16     	; 0x15ee <oled_clear_line+0x2a>
-	{
-		write_d(0x00);
     15de:	80 e0       	ldi	r24, 0x00	; 0
     15e0:	0e 94 59 0a 	call	0x14b2	; 0x14b2 <write_d>
-		write_c(c2);
-	}
-}
-void oled_clear_line(uint8_t line){
-	oled_goto_line(line);
-	for (int i = 0; i<128;i++)
     15e4:	89 81       	ldd	r24, Y+1	; 0x01
     15e6:	9a 81       	ldd	r25, Y+2	; 0x02
     15e8:	01 96       	adiw	r24, 0x01	; 1
@@ -3160,10 +2541,6 @@ void oled_clear_line(uint8_t line){
     15f2:	80 38       	cpi	r24, 0x80	; 128
     15f4:	91 05       	cpc	r25, r1
     15f6:	9c f3       	brlt	.-26     	; 0x15de <oled_clear_line+0x1a>
-	{
-		write_d(0x00);
-	}
-}
     15f8:	0f 90       	pop	r0
     15fa:	0f 90       	pop	r0
     15fc:	0f 90       	pop	r0
@@ -3172,7 +2549,6 @@ void oled_clear_line(uint8_t line){
     1602:	08 95       	ret
 
 00001604 <oled_pos>:
-void oled_pos(uint8_t row, uint8_t column){
     1604:	cf 93       	push	r28
     1606:	df 93       	push	r29
     1608:	00 d0       	rcall	.+0      	; 0x160a <oled_pos+0x6>
@@ -3180,13 +2556,10 @@ void oled_pos(uint8_t row, uint8_t column){
     160c:	de b7       	in	r29, 0x3e	; 62
     160e:	89 83       	std	Y+1, r24	; 0x01
     1610:	6a 83       	std	Y+2, r22	; 0x02
-	oled_goto_line(row);
     1612:	89 81       	ldd	r24, Y+1	; 0x01
     1614:	0e 94 9f 0a 	call	0x153e	; 0x153e <oled_goto_line>
-	oled_goto_column(column);
     1618:	8a 81       	ldd	r24, Y+2	; 0x02
     161a:	0e 94 b3 0a 	call	0x1566	; 0x1566 <oled_goto_column>
-}
     161e:	0f 90       	pop	r0
     1620:	0f 90       	pop	r0
     1622:	df 91       	pop	r29
@@ -3194,7 +2567,6 @@ void oled_pos(uint8_t row, uint8_t column){
     1626:	08 95       	ret
 
 00001628 <oled_print_char>:
-void oled_print_char(char character){
     1628:	cf 93       	push	r28
     162a:	df 93       	push	r29
     162c:	00 d0       	rcall	.+0      	; 0x162e <oled_print_char+0x6>
@@ -3203,13 +2575,9 @@ void oled_print_char(char character){
     1632:	cd b7       	in	r28, 0x3d	; 61
     1634:	de b7       	in	r29, 0x3e	; 62
     1636:	8e 83       	std	Y+6, r24	; 0x06
-	
-	for (int i = 0; i<FONTWIDTH;i++)
     1638:	1a 82       	std	Y+2, r1	; 0x02
     163a:	19 82       	std	Y+1, r1	; 0x01
     163c:	20 c0       	rjmp	.+64     	; 0x167e <oled_print_char+0x56>
-	{
-		write_d(pgm_read_byte(&font[character - ' '][i]));
     163e:	8e 81       	ldd	r24, Y+6	; 0x06
     1640:	88 2f       	mov	r24, r24
     1642:	90 e0       	ldi	r25, 0x00	; 0
@@ -3236,12 +2604,6 @@ void oled_print_char(char character){
     166c:	8d 83       	std	Y+5, r24	; 0x05
     166e:	8d 81       	ldd	r24, Y+5	; 0x05
     1670:	0e 94 59 0a 	call	0x14b2	; 0x14b2 <write_d>
-	oled_goto_line(row);
-	oled_goto_column(column);
-}
-void oled_print_char(char character){
-	
-	for (int i = 0; i<FONTWIDTH;i++)
     1674:	89 81       	ldd	r24, Y+1	; 0x01
     1676:	9a 81       	ldd	r25, Y+2	; 0x02
     1678:	01 96       	adiw	r24, 0x01	; 1
@@ -3252,10 +2614,6 @@ void oled_print_char(char character){
     1682:	88 30       	cpi	r24, 0x08	; 8
     1684:	91 05       	cpc	r25, r1
     1686:	dc f2       	brlt	.-74     	; 0x163e <oled_print_char+0x16>
-	{
-		write_d(pgm_read_byte(&font[character - ' '][i]));
-	}
-}
     1688:	26 96       	adiw	r28, 0x06	; 6
     168a:	0f b6       	in	r0, 0x3f	; 63
     168c:	f8 94       	cli
@@ -3267,9 +2625,6 @@ void oled_print_char(char character){
     1698:	08 95       	ret
 
 0000169a <oled_print_string>:
-
-void oled_print_string(char* data)
-{
     169a:	cf 93       	push	r28
     169c:	df 93       	push	r29
     169e:	00 d0       	rcall	.+0      	; 0x16a0 <oled_print_string+0x6>
@@ -3278,12 +2633,9 @@ void oled_print_string(char* data)
     16a4:	de b7       	in	r29, 0x3e	; 62
     16a6:	9c 83       	std	Y+4, r25	; 0x04
     16a8:	8b 83       	std	Y+3, r24	; 0x03
-	int i = 0;
     16aa:	1a 82       	std	Y+2, r1	; 0x02
     16ac:	19 82       	std	Y+1, r1	; 0x01
-	while(data[i] != '\0') {
     16ae:	1e c0       	rjmp	.+60     	; 0x16ec <oled_print_string+0x52>
-		oled_print_char(data[i]);
     16b0:	89 81       	ldd	r24, Y+1	; 0x01
     16b2:	9a 81       	ldd	r25, Y+2	; 0x02
     16b4:	2b 81       	ldd	r18, Y+3	; 0x03
@@ -3293,13 +2645,11 @@ void oled_print_string(char* data)
     16bc:	fc 01       	movw	r30, r24
     16be:	80 81       	ld	r24, Z
     16c0:	0e 94 14 0b 	call	0x1628	; 0x1628 <oled_print_char>
-		i++;
     16c4:	89 81       	ldd	r24, Y+1	; 0x01
     16c6:	9a 81       	ldd	r25, Y+2	; 0x02
     16c8:	01 96       	adiw	r24, 0x01	; 1
     16ca:	9a 83       	std	Y+2, r25	; 0x02
     16cc:	89 83       	std	Y+1, r24	; 0x01
-		if (i==16 || i==32)
     16ce:	89 81       	ldd	r24, Y+1	; 0x01
     16d0:	9a 81       	ldd	r25, Y+2	; 0x02
     16d2:	80 31       	cpi	r24, 0x10	; 16
@@ -3310,17 +2660,9 @@ void oled_print_string(char* data)
     16dc:	80 32       	cpi	r24, 0x20	; 32
     16de:	91 05       	cpc	r25, r1
     16e0:	29 f4       	brne	.+10     	; 0x16ec <oled_print_string+0x52>
-		{
-			oled_goto_line(currentLine+1);
     16e2:	80 91 6d 02 	lds	r24, 0x026D
     16e6:	8f 5f       	subi	r24, 0xFF	; 255
     16e8:	0e 94 9f 0a 	call	0x153e	; 0x153e <oled_goto_line>
-}
-
-void oled_print_string(char* data)
-{
-	int i = 0;
-	while(data[i] != '\0') {
     16ec:	89 81       	ldd	r24, Y+1	; 0x01
     16ee:	9a 81       	ldd	r25, Y+2	; 0x02
     16f0:	2b 81       	ldd	r18, Y+3	; 0x03
@@ -3331,12 +2673,6 @@ void oled_print_string(char* data)
     16fa:	80 81       	ld	r24, Z
     16fc:	88 23       	and	r24, r24
     16fe:	c1 f6       	brne	.-80     	; 0x16b0 <oled_print_string+0x16>
-		if (i==16 || i==32)
-		{
-			oled_goto_line(currentLine+1);
-		}
-	}
-}
     1700:	0f 90       	pop	r0
     1702:	0f 90       	pop	r0
     1704:	0f 90       	pop	r0
@@ -3346,9 +2682,6 @@ void oled_print_string(char* data)
     170c:	08 95       	ret
 
 0000170e <oled_print_arrow>:
-
-void oled_print_arrow(uint8_t row,uint8_t col)
-{
     170e:	cf 93       	push	r28
     1710:	df 93       	push	r29
     1712:	00 d0       	rcall	.+0      	; 0x1714 <oled_print_arrow+0x6>
@@ -3356,26 +2689,19 @@ void oled_print_arrow(uint8_t row,uint8_t col)
     1716:	de b7       	in	r29, 0x3e	; 62
     1718:	89 83       	std	Y+1, r24	; 0x01
     171a:	6a 83       	std	Y+2, r22	; 0x02
-	oled_pos(row, col);
     171c:	6a 81       	ldd	r22, Y+2	; 0x02
     171e:	89 81       	ldd	r24, Y+1	; 0x01
     1720:	0e 94 02 0b 	call	0x1604	; 0x1604 <oled_pos>
-	write_d(0b00011000);
     1724:	88 e1       	ldi	r24, 0x18	; 24
     1726:	0e 94 59 0a 	call	0x14b2	; 0x14b2 <write_d>
-	write_d(0b00011000);
     172a:	88 e1       	ldi	r24, 0x18	; 24
     172c:	0e 94 59 0a 	call	0x14b2	; 0x14b2 <write_d>
-	write_d(0b01111110);
     1730:	8e e7       	ldi	r24, 0x7E	; 126
     1732:	0e 94 59 0a 	call	0x14b2	; 0x14b2 <write_d>
-	write_d(0b00111100);
     1736:	8c e3       	ldi	r24, 0x3C	; 60
     1738:	0e 94 59 0a 	call	0x14b2	; 0x14b2 <write_d>
-	write_d(0b00011000);
     173c:	88 e1       	ldi	r24, 0x18	; 24
     173e:	0e 94 59 0a 	call	0x14b2	; 0x14b2 <write_d>
-}
     1742:	0f 90       	pop	r0
     1744:	0f 90       	pop	r0
     1746:	df 91       	pop	r29
@@ -3383,36 +2709,17 @@ void oled_print_arrow(uint8_t row,uint8_t col)
     174a:	08 95       	ret
 
 0000174c <sram_setup>:
- #include <stdio.h>
- #include "setup.h"
- #include "USART.h"
- #include "sram.h"
-
-int sram_setup(void) {
     174c:	cf 93       	push	r28
     174e:	df 93       	push	r29
     1750:	cd b7       	in	r28, 0x3d	; 61
     1752:	de b7       	in	r29, 0x3e	; 62
-	// Enable external memory
-	//set_bit(MCUCR,SRE);
-	// Mask PC7-PC4
-	//set_bit(SFIOR,XMM2);
-	//SFIOR |= (1 << XMM2);
-	return 0;
     1754:	80 e0       	ldi	r24, 0x00	; 0
     1756:	90 e0       	ldi	r25, 0x00	; 0
-}
     1758:	df 91       	pop	r29
     175a:	cf 91       	pop	r28
     175c:	08 95       	ret
 
 0000175e <SRAM_test>:
-
-uint8_t sram_read_from_address(unsigned int address) {
-	volatile char *sram_address = (char *) 0x1800;
-	return sram_address[address];
-}
-void SRAM_test(void) { 
     175e:	cf 93       	push	r28
     1760:	df 93       	push	r29
     1762:	cd b7       	in	r28, 0x3d	; 61
@@ -3423,48 +2730,32 @@ void SRAM_test(void) {
     176c:	de bf       	out	0x3e, r29	; 62
     176e:	0f be       	out	0x3f, r0	; 63
     1770:	cd bf       	out	0x3d, r28	; 61
-	volatile char *ext_ram = (char *) 0x1800; // Start address for the SRAM 
     1772:	80 e0       	ldi	r24, 0x00	; 0
     1774:	98 e1       	ldi	r25, 0x18	; 24
     1776:	9a 87       	std	Y+10, r25	; 0x0a
     1778:	89 87       	std	Y+9, r24	; 0x09
-	uint16_t ext_ram_size = 0x800; 
     177a:	80 e0       	ldi	r24, 0x00	; 0
     177c:	98 e0       	ldi	r25, 0x08	; 8
     177e:	9c 87       	std	Y+12, r25	; 0x0c
     1780:	8b 87       	std	Y+11, r24	; 0x0b
-	uint16_t write_errors = 0; 
     1782:	1a 82       	std	Y+2, r1	; 0x02
     1784:	19 82       	std	Y+1, r1	; 0x01
-	uint16_t retrieval_errors = 0;
     1786:	1c 82       	std	Y+4, r1	; 0x04
     1788:	1b 82       	std	Y+3, r1	; 0x03
-	printf("Starting SRAM test...\n");
     178a:	8f e7       	ldi	r24, 0x7F	; 127
     178c:	91 e0       	ldi	r25, 0x01	; 1
     178e:	0e 94 9a 15 	call	0x2b34	; 0x2b34 <puts>
-	// rand() stores some internal state, so calling this function in a loop will 
-	// yield different seeds each time (unless srand() is called before this function)
-	// rand() stores some internal state, so calling this function in a loop will 
-	// yield different seeds each time (unless srand() is called before this function)
-	uint16_t seed = rand();
     1792:	0e 94 02 14 	call	0x2804	; 0x2804 <rand>
     1796:	9e 87       	std	Y+14, r25	; 0x0e
     1798:	8d 87       	std	Y+13, r24	; 0x0d
-	// Write phase: Immediately check that the correct value was stored 
-	srand(seed);
     179a:	8d 85       	ldd	r24, Y+13	; 0x0d
     179c:	9e 85       	ldd	r25, Y+14	; 0x0e
     179e:	0e 94 07 14 	call	0x280e	; 0x280e <srand>
-	for (uint16_t i = 0; i < ext_ram_size; i++) 
     17a2:	1e 82       	std	Y+6, r1	; 0x06
     17a4:	1d 82       	std	Y+5, r1	; 0x05
     17a6:	44 c0       	rjmp	.+136    	; 0x1830 <SRAM_test+0xd2>
-	{ 
-		uint8_t some_value = rand(); 
     17a8:	0e 94 02 14 	call	0x2804	; 0x2804 <rand>
     17ac:	8f 87       	std	Y+15, r24	; 0x0f
-		ext_ram[i] = some_value; 
     17ae:	29 85       	ldd	r18, Y+9	; 0x09
     17b0:	3a 85       	ldd	r19, Y+10	; 0x0a
     17b2:	8d 81       	ldd	r24, Y+5	; 0x05
@@ -3474,7 +2765,6 @@ void SRAM_test(void) {
     17ba:	2f 85       	ldd	r18, Y+15	; 0x0f
     17bc:	fc 01       	movw	r30, r24
     17be:	20 83       	st	Z, r18
-		uint8_t retreived_value = ext_ram[i]; 
     17c0:	29 85       	ldd	r18, Y+9	; 0x09
     17c2:	3a 85       	ldd	r19, Y+10	; 0x0a
     17c4:	8d 81       	ldd	r24, Y+5	; 0x05
@@ -3484,13 +2774,10 @@ void SRAM_test(void) {
     17cc:	fc 01       	movw	r30, r24
     17ce:	80 81       	ld	r24, Z
     17d0:	88 8b       	std	Y+16, r24	; 0x10
-		if (retreived_value != some_value) 
     17d2:	98 89       	ldd	r25, Y+16	; 0x10
     17d4:	8f 85       	ldd	r24, Y+15	; 0x0f
     17d6:	98 17       	cp	r25, r24
     17d8:	31 f1       	breq	.+76     	; 0x1826 <SRAM_test+0xc8>
-		{ 
-			printf("Write phase error: ext_ram[%4d] = %02X (should be %02X)\n", i, retreived_value, some_value); 
     17da:	8f 85       	ldd	r24, Y+15	; 0x0f
     17dc:	28 2f       	mov	r18, r24
     17de:	30 e0       	ldi	r19, 0x00	; 0
@@ -3523,18 +2810,11 @@ void SRAM_test(void) {
     1816:	de bf       	out	0x3e, r29	; 62
     1818:	0f be       	out	0x3f, r0	; 63
     181a:	cd bf       	out	0x3d, r28	; 61
-			write_errors++; 
     181c:	89 81       	ldd	r24, Y+1	; 0x01
     181e:	9a 81       	ldd	r25, Y+2	; 0x02
     1820:	01 96       	adiw	r24, 0x01	; 1
     1822:	9a 83       	std	Y+2, r25	; 0x02
     1824:	89 83       	std	Y+1, r24	; 0x01
-	// rand() stores some internal state, so calling this function in a loop will 
-	// yield different seeds each time (unless srand() is called before this function)
-	uint16_t seed = rand();
-	// Write phase: Immediately check that the correct value was stored 
-	srand(seed);
-	for (uint16_t i = 0; i < ext_ram_size; i++) 
     1826:	8d 81       	ldd	r24, Y+5	; 0x05
     1828:	9e 81       	ldd	r25, Y+6	; 0x06
     182a:	01 96       	adiw	r24, 0x01	; 1
@@ -3548,24 +2828,14 @@ void SRAM_test(void) {
     183a:	39 07       	cpc	r19, r25
     183c:	08 f4       	brcc	.+2      	; 0x1840 <SRAM_test+0xe2>
     183e:	b4 cf       	rjmp	.-152    	; 0x17a8 <SRAM_test+0x4a>
-			printf("Write phase error: ext_ram[%4d] = %02X (should be %02X)\n", i, retreived_value, some_value); 
-			write_errors++; 
-		} 
-	}
-	// Retrieval phase: Check that no values were changed during or after the write phase 
-	srand(seed); // reset the PRNG to the state it had before the write phase 
     1840:	8d 85       	ldd	r24, Y+13	; 0x0d
     1842:	9e 85       	ldd	r25, Y+14	; 0x0e
     1844:	0e 94 07 14 	call	0x280e	; 0x280e <srand>
-	for (uint16_t i = 0; i < ext_ram_size; i++) 
     1848:	18 86       	std	Y+8, r1	; 0x08
     184a:	1f 82       	std	Y+7, r1	; 0x07
     184c:	3b c0       	rjmp	.+118    	; 0x18c4 <SRAM_test+0x166>
-		{ 
-			uint8_t some_value = rand(); 
     184e:	0e 94 02 14 	call	0x2804	; 0x2804 <rand>
     1852:	89 8b       	std	Y+17, r24	; 0x11
-			uint8_t retreived_value = ext_ram[i]; 
     1854:	29 85       	ldd	r18, Y+9	; 0x09
     1856:	3a 85       	ldd	r19, Y+10	; 0x0a
     1858:	8f 81       	ldd	r24, Y+7	; 0x07
@@ -3575,13 +2845,10 @@ void SRAM_test(void) {
     1860:	fc 01       	movw	r30, r24
     1862:	80 81       	ld	r24, Z
     1864:	8a 8b       	std	Y+18, r24	; 0x12
-			if (retreived_value != some_value) 
     1866:	9a 89       	ldd	r25, Y+18	; 0x12
     1868:	89 89       	ldd	r24, Y+17	; 0x11
     186a:	98 17       	cp	r25, r24
     186c:	31 f1       	breq	.+76     	; 0x18ba <SRAM_test+0x15c>
-			{ 
-				printf("Retrieval phase error: ext_ram[%4d] = %02X (should be %02X)\n", i, retreived_value, some_value); 
     186e:	89 89       	ldd	r24, Y+17	; 0x11
     1870:	28 2f       	mov	r18, r24
     1872:	30 e0       	ldi	r19, 0x00	; 0
@@ -3614,18 +2881,11 @@ void SRAM_test(void) {
     18aa:	de bf       	out	0x3e, r29	; 62
     18ac:	0f be       	out	0x3f, r0	; 63
     18ae:	cd bf       	out	0x3d, r28	; 61
-				retrieval_errors++; 
     18b0:	8b 81       	ldd	r24, Y+3	; 0x03
     18b2:	9c 81       	ldd	r25, Y+4	; 0x04
     18b4:	01 96       	adiw	r24, 0x01	; 1
     18b6:	9c 83       	std	Y+4, r25	; 0x04
     18b8:	8b 83       	std	Y+3, r24	; 0x03
-			write_errors++; 
-		} 
-	}
-	// Retrieval phase: Check that no values were changed during or after the write phase 
-	srand(seed); // reset the PRNG to the state it had before the write phase 
-	for (uint16_t i = 0; i < ext_ram_size; i++) 
     18ba:	8f 81       	ldd	r24, Y+7	; 0x07
     18bc:	98 85       	ldd	r25, Y+8	; 0x08
     18be:	01 96       	adiw	r24, 0x01	; 1
@@ -3639,12 +2899,6 @@ void SRAM_test(void) {
     18ce:	39 07       	cpc	r19, r25
     18d0:	08 f4       	brcc	.+2      	; 0x18d4 <SRAM_test+0x176>
     18d2:	bd cf       	rjmp	.-134    	; 0x184e <SRAM_test+0xf0>
-			{ 
-				printf("Retrieval phase error: ext_ram[%4d] = %02X (should be %02X)\n", i, retreived_value, some_value); 
-				retrieval_errors++; 
-			} 
-		} 
-		printf("SRAM test completed with \n%4d errors in write phase and \n%4d errors in retrieval phase\n\n", write_errors, retrieval_errors); 
     18d4:	8c 81       	ldd	r24, Y+4	; 0x04
     18d6:	8f 93       	push	r24
     18d8:	8b 81       	ldd	r24, Y+3	; 0x03
@@ -3667,7 +2921,6 @@ void SRAM_test(void) {
     18fc:	0f 90       	pop	r0
     18fe:	0f 90       	pop	r0
     1900:	0f 90       	pop	r0
-	}
     1902:	62 96       	adiw	r28, 0x12	; 18
     1904:	0f b6       	in	r0, 0x3f	; 63
     1906:	f8 94       	cli
@@ -3679,12 +2932,6 @@ void SRAM_test(void) {
     1912:	08 95       	ret
 
 00001914 <USART_Init>:
-
-FILE *uart;
-
-
-void USART_Init(unsigned int ubrr)
-{
     1914:	cf 93       	push	r28
     1916:	df 93       	push	r29
     1918:	00 d0       	rcall	.+0      	; 0x191a <USART_Init+0x6>
@@ -3692,8 +2939,6 @@ void USART_Init(unsigned int ubrr)
     191c:	de b7       	in	r29, 0x3e	; 62
     191e:	9a 83       	std	Y+2, r25	; 0x02
     1920:	89 83       	std	Y+1, r24	; 0x01
-    
-	UBRR0H =(unsigned char) (ubrr>>8); // Flytt ubrr 8 bits til høyre, lagre i register UBRR0H
     1922:	80 e4       	ldi	r24, 0x40	; 64
     1924:	90 e0       	ldi	r25, 0x00	; 0
     1926:	29 81       	ldd	r18, Y+1	; 0x01
@@ -3702,29 +2947,21 @@ void USART_Init(unsigned int ubrr)
     192c:	33 27       	eor	r19, r19
     192e:	fc 01       	movw	r30, r24
     1930:	20 83       	st	Z, r18
-	UBRR0L =(unsigned char) (ubrr); // Lagre første 8 bits i UBRR0L
     1932:	89 e2       	ldi	r24, 0x29	; 41
     1934:	90 e0       	ldi	r25, 0x00	; 0
     1936:	29 81       	ldd	r18, Y+1	; 0x01
     1938:	fc 01       	movw	r30, r24
     193a:	20 83       	st	Z, r18
-	// Enable mottaker og sender (sett bitt RXEN0 og TXEN0 =1)
-	UCSR0B = (1<<RXEN0)|(1<<TXEN0);
     193c:	8a e2       	ldi	r24, 0x2A	; 42
     193e:	90 e0       	ldi	r25, 0x00	; 0
     1940:	28 e1       	ldi	r18, 0x18	; 24
     1942:	fc 01       	movw	r30, r24
     1944:	20 83       	st	Z, r18
-    // 
-	UCSR0C = (1<<URSEL0)|(1<<USBS0)|(3<<UCSZ00);
     1946:	80 e4       	ldi	r24, 0x40	; 64
     1948:	90 e0       	ldi	r25, 0x00	; 0
     194a:	2e e8       	ldi	r18, 0x8E	; 142
     194c:	fc 01       	movw	r30, r24
     194e:	20 83       	st	Z, r18
-    
-	//Breakpoint
-    uart = fdevopen(&USART_Transmit,&USART_Recieve);
     1950:	68 ed       	ldi	r22, 0xD8	; 216
     1952:	7c e0       	ldi	r23, 0x0C	; 12
     1954:	87 eb       	ldi	r24, 0xB7	; 183
@@ -3732,7 +2969,6 @@ void USART_Init(unsigned int ubrr)
     1958:	0e 94 09 15 	call	0x2a12	; 0x2a12 <fdevopen>
     195c:	90 93 70 02 	sts	0x0270, r25
     1960:	80 93 6f 02 	sts	0x026F, r24
-}
     1964:	0f 90       	pop	r0
     1966:	0f 90       	pop	r0
     1968:	df 91       	pop	r29
@@ -3740,9 +2976,6 @@ void USART_Init(unsigned int ubrr)
     196c:	08 95       	ret
 
 0000196e <USART_Transmit>:
-
-int USART_Transmit(char data, struct __file* dummy)
-{
     196e:	cf 93       	push	r28
     1970:	df 93       	push	r29
     1972:	00 d0       	rcall	.+0      	; 0x1974 <USART_Transmit+0x6>
@@ -3752,10 +2985,6 @@ int USART_Transmit(char data, struct __file* dummy)
     197a:	89 83       	std	Y+1, r24	; 0x01
     197c:	7b 83       	std	Y+3, r23	; 0x03
     197e:	6a 83       	std	Y+2, r22	; 0x02
-    //if(data == '\n') USART_Transmit('\r', dummy);
-	// Sjekk om bit UDRE0 i register UCSR0A er satt
-	// UDRE0 = usart data register empty
-	while(!(UCSR0A & (1<<UDRE0)))
     1980:	00 00       	nop
     1982:	8b e2       	ldi	r24, 0x2B	; 43
     1984:	90 e0       	ldi	r25, 0x00	; 0
@@ -3767,17 +2996,13 @@ int USART_Transmit(char data, struct __file* dummy)
     1990:	99 27       	eor	r25, r25
     1992:	00 97       	sbiw	r24, 0x00	; 0
     1994:	b1 f3       	breq	.-20     	; 0x1982 <USART_Transmit+0x14>
-		;
-	UDR0=data;
     1996:	8c e2       	ldi	r24, 0x2C	; 44
     1998:	90 e0       	ldi	r25, 0x00	; 0
     199a:	29 81       	ldd	r18, Y+1	; 0x01
     199c:	fc 01       	movw	r30, r24
     199e:	20 83       	st	Z, r18
-    return 0;
     19a0:	80 e0       	ldi	r24, 0x00	; 0
     19a2:	90 e0       	ldi	r25, 0x00	; 0
-}
     19a4:	0f 90       	pop	r0
     19a6:	0f 90       	pop	r0
     19a8:	0f 90       	pop	r0
@@ -3786,9 +3011,6 @@ int USART_Transmit(char data, struct __file* dummy)
     19ae:	08 95       	ret
 
 000019b0 <USART_Recieve>:
-
-int USART_Recieve(struct __file* dummy)
-{
     19b0:	cf 93       	push	r28
     19b2:	df 93       	push	r29
     19b4:	00 d0       	rcall	.+0      	; 0x19b6 <USART_Recieve+0x6>
@@ -3796,8 +3018,6 @@ int USART_Recieve(struct __file* dummy)
     19b8:	de b7       	in	r29, 0x3e	; 62
     19ba:	9a 83       	std	Y+2, r25	; 0x02
     19bc:	89 83       	std	Y+1, r24	; 0x01
-	// Sjekk om bit RXC0 i register UCSR0A
-	while (!(UCSR0A & (1<<RXC0)))
     19be:	00 00       	nop
     19c0:	8b e2       	ldi	r24, 0x2B	; 43
     19c2:	90 e0       	ldi	r25, 0x00	; 0
@@ -3805,15 +3025,12 @@ int USART_Recieve(struct __file* dummy)
     19c6:	80 81       	ld	r24, Z
     19c8:	88 23       	and	r24, r24
     19ca:	d4 f7       	brge	.-12     	; 0x19c0 <USART_Recieve+0x10>
-		;
-	return UDR0;
     19cc:	8c e2       	ldi	r24, 0x2C	; 44
     19ce:	90 e0       	ldi	r25, 0x00	; 0
     19d0:	fc 01       	movw	r30, r24
     19d2:	80 81       	ld	r24, Z
     19d4:	88 2f       	mov	r24, r24
     19d6:	90 e0       	ldi	r25, 0x00	; 0
-}
     19d8:	0f 90       	pop	r0
     19da:	0f 90       	pop	r0
     19dc:	df 91       	pop	r29
