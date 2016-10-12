@@ -14,7 +14,7 @@ void spi_init()
 {
 	/* Set MOSI and SCK output, all others input */
 	// PB4 = !SS, PB5 = MOSI, PB6 = MISO, PB7 = SCK
-	DDRB = (1<<SPI_SS|1<<MOSI)|0<<MISO|(1<<SCK);
+	DDRB = (1<<MOSI)|(1<<SCK);
 	 
 	/* Enable SPI, Master, set clock rate fck/16 */
 	SPCR = (1<<SPE)|(1<<MSTR)|(1<<SPR0);
