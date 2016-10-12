@@ -4,7 +4,8 @@
  * Created: 05.10.2016 12.58.42
  *  Author: vegard
  */ 
-
+#include <avr/io.h>
+#include <stdio.h>
 
 #ifndef CAN_H_
 #define CAN_H_
@@ -12,7 +13,7 @@
 typedef struct can_message {
 	unsigned int ID;
 	uint8_t length;
-	uint8_t data[8]; 
+	uint8_t data[8];
 	} can_message;
 
 
