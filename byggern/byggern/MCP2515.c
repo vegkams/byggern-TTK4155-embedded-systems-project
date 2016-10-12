@@ -90,13 +90,13 @@ void mcp_2515_request_to_send(uint8_t buffer){
 	// Enable slave
 	spi_enable();
 	
-	// Check three last bits of buffer-byte
-	if(buffer <= 7) {
-		// Set the RTS-command with the register we want to send from
-		buffer = MCP_RTS | buffer;
-	}
-	// Invalid buffer, command will be ignored in MCP2515
-	else buffer = MCP_RTS;
+	//// Check three last bits of buffer-byte
+	//if(buffer <= 7) {
+		//// Set the RTS-command with the register we want to send from
+		//buffer = MCP_RTS | buffer;
+	//}
+	//// Invalid buffer, command will be ignored in MCP2515
+	//else buffer = MCP_RTS;
 	
 	spi_send(buffer);
 	
