@@ -4,10 +4,9 @@
 * Created: 05.10.2016 15:02:26
 *  Author: vegarkam
 */
-<<<<<<< HEAD
+
 #include "can.h"
 #include "MCP2515.h"
-=======
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include "can.h"
@@ -20,13 +19,11 @@
 uint8_t message_received = 0;
 uint8_t transmit_complete = 0;
 
->>>>>>> eeeadb6635b9ea5bf7d3f156642830c79a38efad
 
 uint8_t can_init(){
 	mcp_2515_init();
 	
-<<<<<<< HEAD
-=======
+
 	// Mask/filter off, no rollover in receive buffer
 	mcp_2515_bit_modify(MCP_RXB0CTRL, 0x64, 0x60);
 	
@@ -41,13 +38,13 @@ uint8_t can_init(){
 	
 	// Enable global interrupts
 	sei();
->>>>>>> eeeadb6635b9ea5bf7d3f156642830c79a38efad
+
 }
 /************************************************************************/
 /* BUILD AND SEND CAN MESSAGE                                                                     */
 /************************************************************************/
 uint8_t can_send_message(can_message *can_message){
-<<<<<<< HEAD
+
 	unsigned int buffer = MCP_TXB0D;
 	int id= can_message->ID;
 
@@ -74,7 +71,6 @@ uint8_t can_send_message(can_message *can_message){
 	return 0;
 }
 
-=======
 
 	if (can_transmit_complete()) {
 		int id= can_message->ID;
@@ -119,12 +115,11 @@ can_message* can_receive_message() {
 	
 }
 
->>>>>>> eeeadb6635b9ea5bf7d3f156642830c79a38efad
 
 
 
 uint8_t can_error(){
-<<<<<<< HEAD
+
 	return 0;
 }
 uint8_t can_transmitt_complete(){
@@ -136,7 +131,6 @@ uint8_t can_data_received(){
 uint8_t can_int_vect(){
 	return 0;
 }
-=======
 	uint8_t error_flags = mcp_2515_read(MCP_TXB0CTRL);
 	if(test_bit(error_flags,5)) return 1;
 	if(test_bit(error_flags,4)) return 2;
@@ -166,4 +160,4 @@ ISR(INT1_vect) {
 	}
 	
 }
->>>>>>> eeeadb6635b9ea5bf7d3f156642830c79a38efad
+
