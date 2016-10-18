@@ -24,8 +24,8 @@ int main(void)
 	initializations();
 	main_menu = menu_init();
 	
-	//mcp_2515_init();
-	//mcp_2515_enable_loopback();
+	mcp_2515_init();
+	mcp_2515_enable_loopback();
 	menu_printed = 0;
 	mode = 0;
 	volatile uint8_t c;
@@ -33,18 +33,18 @@ int main(void)
 	{
 		// TEST AV SPI <-> MCP2515 KOMMUNIKASJON
 		// endre status, skriv ut verdi
-		//c = mcp_2515_read(MCP_CANSTAT);
-		//printf("MCP2515 Status1: %d\n", c);
-		//mcp_2515_enable_loopback();
-		//c = mcp_2515_read(MCP_CANSTAT);
-		//printf("MCP2515 Status2: %d\n", c);
-		//mcp_2515_bit_modify(MCP_CANCTRL,MODE_MASK,MODE_CONFIG);
-		//c = mcp_2515_read(MCP_CANSTAT);
-		//printf("MCP2515 Status2: %d\n", c);
-		//mcp_2515_enable_normal_operation();
-		//c = mcp_2515_read(MCP_CANSTAT);
-		//printf("MCP2515 Status2: %d\n", c);
-		//mcp_2515_reset();
+		c = mcp_2515_read(MCP_CANSTAT);
+		printf("MCP2515 Status1: %d\n", c);
+		mcp_2515_enable_loopback();
+		c = mcp_2515_read(MCP_CANSTAT);
+		printf("MCP2515 Status2: %d\n", c);
+		mcp_2515_bit_modify(MCP_CANCTRL,MODE_MASK,MODE_CONFIG);
+		c = mcp_2515_read(MCP_CANSTAT);
+		printf("MCP2515 Status2: %d\n", c);
+		mcp_2515_enable_normal_operation();
+		c = mcp_2515_read(MCP_CANSTAT);
+		printf("MCP2515 Status2: %d\n", c);
+		mcp_2515_reset();
 		switch(mode){
 			case 0:
 			in_menus();
