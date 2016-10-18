@@ -14,10 +14,10 @@
 #include "setup.h"
 #define CAN_SEND_STATUS_MASK 0x78
 #define CAN_LOW_ID_MASK 0xE0
-#define RXB0_INTERRUPT 12
+#define RXB0_INTERRUPT 0x01
 
-uint8_t message_received = 0;
-uint8_t transmit_complete = 0;
+uint8_t message_received = FALSE;
+uint8_t transmit_complete = FALSE;
 
 
 uint8_t can_init(){
@@ -38,40 +38,25 @@ uint8_t can_init(){
 	
 	// Enable global interrupts
 	sei();
+	return 0;
 
+}
+
+
+// Enable loopback mode, for testing without node 2
+uint8_t CAN_enable_loopback() {
+	return mcp_2515_enable_loopback();
+}
+
+// Enable normal operation for transmission between node 1 and node 2
+uint8_t CAN_enable_normal_mode() {
+	return mcp_2515_enable_normal_operation();
 }
 /************************************************************************/
 /* BUILD AND SEND CAN MESSAGE                                                                     */
 /************************************************************************/
 uint8_t can_send_message(can_message *can_message){
-
-	unsigned int buffer = MCP_TXB0D;
-	int id= can_message->ID;
-
-	
-	//Create array to store one byte each from a 16-bit integer
-	uint8_t array[2];
-	//stores the high part
-	array[0]= ID & 0xFF;
-	//stores the low part
-	array[1] = (ID >> 8);
-	
-	//writes the ID to the ID High and ID LOW
-	mcp_2515_write(MCP_TXB0SIDH, array[0]);
-	mcp_2515_write(MCP_RXF0SIDL, array[1]);
-	
-	mcp_2515_write(MCP_TXB0DLC, can_message->length);
-	for(uint8_t i=0; i< can_message->length-1;i++){
-		mcp_2515_write(buffer, can_message->data[i]);
-		buffer++;
-	}
-	
-	mcp_2515_request_to_send(MCP_RTS_TX0);
-	clear_bit(MCP_TXB0D,);
-	return 0;
-}
-
-
+	// Check if previous message was sent
 	if (can_transmit_complete()) {
 		int id= can_message->ID;
 
@@ -104,59 +89,60 @@ uint8_t can_send_message(can_message *can_message){
 
 	return 0;
 }
+/*************************************/
+/* RECEIVE AND CONSTRUCT CAN MESSAGE */
+/*************************************/
 
 can_message* can_receive_message() {
 	can_message *the_message;
 	int id;
+	// Check if received flag was set
 	if(message_received) {
 		id = mcp_2515_read(MCP_RXB0SIDH) << 8 | mcp_2515_read(MCP_RXB0SIDL);
+		// Mask out lowest 5 bits (only used for extended frames)
 		the_message->ID = id & 0xFFC0;
+		the_message->length = mcp_2515_read(MCP_RXB0DLC);
+		for(int i = 0; i < the_message->length; i++) {
+			the_message->data[i] = mcp_2515_read(MCP_RXB0D+i);
+		}
+		
+		message_received = FALSE;
 	}
+	else {
+		// No message in the buffer
+		the_message->length = 0;
+	}
+	return the_message;
 	
 }
 
-
-
-
-uint8_t can_error(){
-
-	return 0;
-}
-uint8_t can_transmitt_complete(){
-	return 0;
-}
+// Check if there is a pending message in the receive buffer
 uint8_t can_data_received(){
-	return 0;
+	return message_received;
 }
-uint8_t can_int_vect(){
-	return 0;
-}
+// Check error flags in the transmit buffer control register TXB0CTRL
+uint8_t can_error(){
 	uint8_t error_flags = mcp_2515_read(MCP_TXB0CTRL);
 	if(test_bit(error_flags,5)) return 1;
 	if(test_bit(error_flags,4)) return 2;
-	return 0;
+	return FALSE;
 }
 
 
 uint8_t can_transmit_complete(){
 	if (test_bit(mcp_2515_read(MCP_TXB0CTRL),3)) {
-		return 0;
+		return FALSE;
 	}
-	else return 1;
+	else return TRUE;
 }
 
-
-uint8_t can_int_vect(){
-	return 0;
-}
 
 ISR(INT1_vect) {
-	volatile uint8_t interrupt_code = mcp_2515_read(MCP_CANSTAT);
-	interrupt_code = interrupt_code & 0x0F;
+	volatile uint8_t interrupt_code = mcp_2515_read(MCP_CANINTF);
 	if(interrupt_code == RXB0_INTERRUPT) {
 		// Reset Receive buffer full interrupt flag
 		mcp_2515_bit_modify(MCP_CANINTF, MCP_RX0IF,0);
-		message_received = 1;
+		message_received = TRUE;
 	}
 	
 }

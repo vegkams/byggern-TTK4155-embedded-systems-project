@@ -16,6 +16,13 @@ typedef struct can_message {
 	uint8_t data[8];
 	} can_message;
 
-
+uint8_t can_transmit_complete();
+uint8_t can_error();
+uint8_t can_data_received();
+can_message* can_receive_message();
+uint8_t can_send_message(can_message *can_message);
+uint8_t CAN_enable_normal_mode();
+uint8_t CAN_enable_loopback();
+uint8_t can_init();
 
 #endif /* CAN_H_ */

@@ -12,6 +12,7 @@
 #include "OLED.h"
 #include "menu.h"
 #include "MCP2515.h"
+#include "can.h"
 #define TRUEMADDAFAKKA 1
 menu_t * main_menu;
 uint8_t arrow_line = 2;
@@ -22,29 +23,24 @@ uint8_t menu_printed;
 int main(void)
 {
 	initializations();
-	main_menu = menu_init();
-	
-	mcp_2515_init();
-	mcp_2515_enable_loopback();
+	CAN_enable_loopback();
 	menu_printed = 0;
 	mode = 0;
 	volatile uint8_t c;
 	while (TRUEMADDAFAKKA)
 	{
-		// TEST AV SPI <-> MCP2515 KOMMUNIKASJON
-		// endre status, skriv ut verdi
-		c = mcp_2515_read(MCP_CANSTAT);
-		printf("MCP2515 Status1: %d\n", c);
-		mcp_2515_enable_loopback();
-		c = mcp_2515_read(MCP_CANSTAT);
-		printf("MCP2515 Status2: %d\n", c);
-		mcp_2515_bit_modify(MCP_CANCTRL,MODE_MASK,MODE_CONFIG);
-		c = mcp_2515_read(MCP_CANSTAT);
-		printf("MCP2515 Status2: %d\n", c);
-		mcp_2515_enable_normal_operation();
-		c = mcp_2515_read(MCP_CANSTAT);
-		printf("MCP2515 Status2: %d\n", c);
-		mcp_2515_reset();
+		can_message *sendmessage;
+		can_message *receivemessage;
+		sendmessage->ID = 0xF0;
+		sendmessage->length=5;
+		for(int i = 0; i<sendmessage->length;i++){
+			sendmessage->data[i] = [10*i];
+		}
+		uint8_t ok = can_send_message(sendmessage);
+		if (ok == 0)
+		{
+			printf("Message was sent!\n");
+		}
 		switch(mode){
 			case 0:
 			in_menus();
@@ -54,6 +50,13 @@ int main(void)
 			playing_the_game();
 			break;
 		}
+		if(can_data_received()) {
+			receivemessage = can_receive_message();
+			printf("Message was received!\n");
+			printf("Message ID: %d, message length: %d\n", receivemessage->ID, receivemessage->length);
+			printf("message data 1: %d, message data 2: %d, message data 3: %d, message data 4: %d, message data 5: %d\n", ,receivemessage->data[0],receivemessage->data[1],receivemessage->data[2],receivemessage->data[3],receivemessage->data[4]);
+		}
+		
 		//joyValues j;
 		//read_joystick(&j);
 		//float slider_left = joystick_get_left_slider_percentage();
@@ -116,4 +119,6 @@ void initializations(){
 	setup_ADC();
 	joystick_init();
 	oled_init();
+	can_init();
+	
 }

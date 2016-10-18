@@ -11,6 +11,8 @@
 #define F_OSC 4915200L // Crystal oscillating frequency
 #define BAUD 9600 // Baud rate for RS 232
 #define MYUBRR ((((long)F_OSC)/(16L * (long)BAUD)) -1L)
+#define TRUE 1
+#define FALSE 0
 
 #define set_bit( reg, bit ) (reg |= (1 << bit))
 #define clear_bit( reg, bit ) (reg &= ~(1 << bit))
