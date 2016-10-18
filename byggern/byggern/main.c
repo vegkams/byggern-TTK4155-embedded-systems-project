@@ -34,7 +34,7 @@ int main(void)
 		sendmessage->ID = 0xF0;
 		sendmessage->length=5;
 		for(int i = 0; i<sendmessage->length;i++){
-			sendmessage->data[i] = [10*i];
+			sendmessage->data[i] = 10*i;
 		}
 		uint8_t ok = can_send_message(sendmessage);
 		if (ok == 0)
@@ -54,7 +54,7 @@ int main(void)
 			receivemessage = can_receive_message();
 			printf("Message was received!\n");
 			printf("Message ID: %d, message length: %d\n", receivemessage->ID, receivemessage->length);
-			printf("message data 1: %d, message data 2: %d, message data 3: %d, message data 4: %d, message data 5: %d\n", ,receivemessage->data[0],receivemessage->data[1],receivemessage->data[2],receivemessage->data[3],receivemessage->data[4]);
+			printf("message data 1: %d, message data 2: %d, message data 3: %d, message data 4: %d, message data 5: %d\n",receivemessage->data[0],receivemessage->data[1],receivemessage->data[2],receivemessage->data[3],receivemessage->data[4]);
 		}
 		
 		//joyValues j;
