@@ -15,6 +15,8 @@
 #define CAN_SEND_STATUS_MASK 0x78
 #define CAN_LOW_ID_MASK 0xE0
 #define RXB0_INTERRUPT 0x01
+#define RXB0_AND_TXB0_INTERRUPT 0x05
+#define MERR_INTERRUPT 0x80
 
 uint8_t message_received = FALSE;
 uint8_t transmit_complete = FALSE;
@@ -58,7 +60,7 @@ uint8_t CAN_enable_normal_mode() {
 uint8_t can_send_message(can_message *can_message){
 	// Check if previous message was sent
 	if (can_transmit_complete()) {
-		int id= can_message->ID;
+		unsigned int id= can_message->ID;
 
 		
 		uint8_t low_ID = id & 0xFF;
@@ -73,11 +75,12 @@ uint8_t can_send_message(can_message *can_message){
 		
 		mcp_2515_write(MCP_TXB0DLC, can_message->length);
 		
-		for(uint8_t i=0; i< can_message->length-1;i++){
+		for(uint8_t i=0; i<can_message->length;i++){
 			mcp_2515_write(MCP_TXB0D+i, can_message->data[i]);
 		}
 		
 		mcp_2515_request_to_send(MCP_RTS_TX0);
+		return 1;
 	}
 	
 	else {
@@ -94,25 +97,25 @@ uint8_t can_send_message(can_message *can_message){
 /*************************************/
 
 can_message* can_receive_message() {
-	can_message *the_message;
-	int id;
+	can_message the_message;
+	unsigned int id;
 	// Check if received flag was set
 	if(message_received) {
 		id = mcp_2515_read(MCP_RXB0SIDH) << 8 | mcp_2515_read(MCP_RXB0SIDL);
 		// Mask out lowest 5 bits (only used for extended frames)
-		the_message->ID = id & 0xFFC0;
-		the_message->length = mcp_2515_read(MCP_RXB0DLC);
-		for(int i = 0; i < the_message->length; i++) {
-			the_message->data[i] = mcp_2515_read(MCP_RXB0D+i);
+		the_message.ID = id & 0xFFE0;
+		the_message.length = mcp_2515_read(MCP_RXB0DLC);
+		for(int i = 0; i < the_message.length; i++) {
+			the_message.data[i] = mcp_2515_read(MCP_RXB0D+i);
 		}
 		
 		message_received = FALSE;
 	}
 	else {
 		// No message in the buffer
-		the_message->length = 0;
+		the_message.length = 0;
 	}
-	return the_message;
+	return &the_message;
 	
 }
 
@@ -143,6 +146,15 @@ ISR(INT1_vect) {
 		// Reset Receive buffer full interrupt flag
 		mcp_2515_bit_modify(MCP_CANINTF, MCP_RX0IF,0);
 		message_received = TRUE;
+	}
+	else if((interrupt_code & RXB0_AND_TXB0_INTERRUPT) == RXB0_AND_TXB0_INTERRUPT) {
+		mcp_2515_bit_modify(MCP_CANINTF, MCP_TX0IF,0);
+		mcp_2515_bit_modify(MCP_CANINTF, MCP_RX0IF,0);
+		message_received = TRUE;
+	}
+	if ((MERR_INTERRUPT & interrupt_code) == MERR_INTERRUPT) {
+		// Clear message error flag
+		mcp_2515_bit_modify(MCP_CANINTF, MCP_MERRF,0);
 	}
 	
 }

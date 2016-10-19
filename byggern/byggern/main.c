@@ -29,15 +29,15 @@ int main(void)
 	volatile uint8_t c;
 	while (TRUEMADDAFAKKA)
 	{
-		can_message *sendmessage;
-		can_message *receivemessage;
-		sendmessage->ID = 0xF0;
-		sendmessage->length=5;
-		for(int i = 0; i<sendmessage->length;i++){
-			sendmessage->data[i] = 10*i;
+		can_message sendmessage;
+		can_message receivemessage;
+		sendmessage.ID = 0xFFFF;
+		sendmessage.length=5;
+		for(int i = 0; i<sendmessage.length;i++){
+			sendmessage.data[i] = 10*i;
 		}
-		uint8_t ok = can_send_message(sendmessage);
-		if (ok == 0)
+		uint8_t ok = can_send_message(&sendmessage);
+		if (ok == 1)
 		{
 			printf("Message was sent!\n");
 		}
@@ -51,11 +51,12 @@ int main(void)
 			break;
 		}
 		if(can_data_received()) {
-			receivemessage = can_receive_message();
+			receivemessage = *can_receive_message();
 			printf("Message was received!\n");
-			printf("Message ID: %d, message length: %d\n", receivemessage->ID, receivemessage->length);
-			printf("message data 1: %d, message data 2: %d, message data 3: %d, message data 4: %d, message data 5: %d\n",receivemessage->data[0],receivemessage->data[1],receivemessage->data[2],receivemessage->data[3],receivemessage->data[4]);
+			printf("Message ID: %u, message length: %d\n", receivemessage.ID, receivemessage.length);
+			printf("message data 1: %d, message data 2: %d, message data 3: %d, message data 4: %d, message data 5: %d\n",receivemessage.data[0],receivemessage.data[1],receivemessage.data[2],receivemessage.data[3],receivemessage.data[4]);
 		}
+
 		
 		//joyValues j;
 		//read_joystick(&j);
