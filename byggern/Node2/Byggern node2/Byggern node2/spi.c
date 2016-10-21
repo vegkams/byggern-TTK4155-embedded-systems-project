@@ -17,6 +17,8 @@ void spi_init()
 	DDRB = (1<<PB2)|(1<<PB1)|(1<<PB0);
 	// MISO as input
 	clear_bit(DDRB,PB3)
+	//supersectret bit that must be set
+	set_bit(DDRB,DDB0);
 	/* Enable SPI, Master, set clock rate fck/16 */
 	SPCR = (1<<SPE)|(1<<MSTR)|(1<<SPR0);
 	// Read SPSR and SPDR to clear interrupt flag
