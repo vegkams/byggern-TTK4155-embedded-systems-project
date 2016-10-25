@@ -13,11 +13,11 @@
 void spi_init()
 {
 	/* Set MOSI and SCK output, all others input */
-	// PB0 = !SS, PB2 = MOSI, PB3 = MISO, PB1 = SCK
-	DDRB = (1<<PB2)|(1<<PB1)|(1<<PB0);
+	// PB7 = !SS, PB2 = MOSI, PB3 = MISO, PB1 = SCK
+	DDRB = (1<<PB2)|(1<<PB1)|(1<<PB7);
 	// MISO as input
 	clear_bit(DDRB,PB3)
-	//supersectret bit that must be set
+	//supersecret bit that must be set
 	set_bit(DDRB,DDB0);
 	/* Enable SPI, Master, set clock rate fck/16 */
 	SPCR = (1<<SPE)|(1<<MSTR)|(1<<SPR0);
