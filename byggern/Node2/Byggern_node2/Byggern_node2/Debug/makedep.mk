@@ -8,7 +8,11 @@ main_node2.c
 
 MCP2515.c
 
+pwm.c
+
 spi.c
+
+timer.c
 
 USART.c
 

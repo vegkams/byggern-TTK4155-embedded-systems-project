@@ -40,7 +40,9 @@ C_SRCS +=  \
 ../CAN.c \
 ../main_node2.c \
 ../MCP2515.c \
+../pwm.c \
 ../spi.c \
+../timer.c \
 ../USART.c
 
 
@@ -54,28 +56,36 @@ OBJS +=  \
 CAN.o \
 main_node2.o \
 MCP2515.o \
+pwm.o \
 spi.o \
+timer.o \
 USART.o
 
 OBJS_AS_ARGS +=  \
 CAN.o \
 main_node2.o \
 MCP2515.o \
+pwm.o \
 spi.o \
+timer.o \
 USART.o
 
 C_DEPS +=  \
 CAN.d \
 main_node2.d \
 MCP2515.d \
+pwm.d \
 spi.d \
+timer.d \
 USART.d
 
 C_DEPS_AS_ARGS +=  \
 CAN.d \
 main_node2.d \
 MCP2515.d \
+pwm.d \
 spi.d \
+timer.d \
 USART.d
 
 OUTPUT_FILE_PATH +=Byggern_node2.elf
@@ -92,6 +102,10 @@ LINKER_SCRIPT_DEP+=
 
 
 # AVR32/GNU C Compiler
+
+
+
+
 
 
 
