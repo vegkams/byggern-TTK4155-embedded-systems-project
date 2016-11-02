@@ -23,8 +23,8 @@ void joystick_init()
 void read_joystick(joyValues *joy)
 {
 	//joyValues joystick;
-	joy->y_percentage = joystick_get_x_percentage();
-	joy->x_percentage = joystick_get_y_percentage();
+	joy->x_percentage = joystick_get_x_percentage();
+	joy->y_percentage = joystick_get_y_percentage();
 	// If PB0 || PB1 =1, button is pressed
 	if (test_bit(PINB,PB0)) joy->left_button = 1;
 	else joy->left_button = 0;

@@ -58,10 +58,10 @@ int main(void)
 			uint8_t sent = can_send_message(&send_message);
 			//_delay_ms(50);
 			if (sent == 1) {
-				printf("Sent! \n");
+				//printf("Sent! \n");
 			}
 			else{
-				printf("failed\n");
+				//printf("failed\n");
 			}
 		}
 	}

@@ -33,12 +33,13 @@ int main(void)
 		can_message receivemessage;		
 //
 		uint8_t ok = send_joystick_data();
+		_delay_ms(20);
 
 		if (ok == 1)
 		{
-			printf("Message was sent!\n");
+			//printf("Message was sent!\n");
 		}
-		_delay_ms(10);
+		
 		switch(mode){
 			case 0:
 			in_menus();
@@ -50,11 +51,11 @@ int main(void)
 		}
 		if(can_data_received() > 0) {
 			receivemessage = *can_receive_message();
-			printf("Message was received!\n");
+			//printf("Message was received!\n");
 			printf("Message ID: %u, message length: %d\n", receivemessage.ID, receivemessage.length);
 			//printf("message data 1: %d, message data 2: %d, message data 3: %d, message data 4: %d, message data 5: %d\n",receivemessage.data[0],receivemessage.data[1],receivemessage.data[2],receivemessage.data[3],receivemessage.data[4]);
 			for(int i = 0; i<receivemessage.length;i++) {
-				printf("Data %d: %d",i, receivemessage.data[i]);
+				printf("Data %d: %d ",i, receivemessage.data[i]);
 			}
 			printf("\n");
 		}
@@ -110,7 +111,7 @@ void playing_the_game(){
 uint8_t send_joystick_data() {
 	joyValues j;
 	read_joystick(&j);
-	uint8_t dir = (uint8_t) joystick_getDirection(j.y_percentage,j.x_percentage);
+	uint8_t dir = (uint8_t) joystick_getDirection(j.x_percentage,j.y_percentage);
 	int x_axis = (int) j.x_percentage;
 	int y_axis = (int) j.y_percentage;
 	can_message sendmessage;

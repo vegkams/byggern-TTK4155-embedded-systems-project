@@ -8,13 +8,14 @@
 #include "MCP2515.h"
 #include "spi.h"
 #include "USART.h"
+#include <util/delay.h>
 
 uint8_t mcp_2515_init(){
 	volatile uint8_t value;
 	
 	spi_init();
 	mcp_2515_reset();
-	
+	_delay_ms(10);
 	//Self-test
 	value = mcp_2515_read(MCP_CANSTAT);
 	if ((value & MODE_MASK) != MODE_CONFIG)

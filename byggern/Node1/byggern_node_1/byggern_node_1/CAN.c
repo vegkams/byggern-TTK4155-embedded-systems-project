@@ -149,20 +149,17 @@ uint8_t can_transmit_complete(){
 
 ISR(INT1_vect) {
 	volatile uint8_t interrupt_code = mcp_2515_read(MCP_CANINTF);
-	if(interrupt_code == RXB0_INTERRUPT) {
-		// Reset Receive buffer full interrupt flag
-		mcp_2515_bit_modify(MCP_CANINTF, MCP_RX0IF,0);
-
-	}
-	else if((interrupt_code & RXB0_AND_TXB0_INTERRUPT) == RXB0_AND_TXB0_INTERRUPT) {
+	
+	if((interrupt_code & RXB0_AND_TXB0_INTERRUPT) == RXB0_AND_TXB0_INTERRUPT) {
 		mcp_2515_bit_modify(MCP_CANINTF, MCP_TX0IF,0);
 		mcp_2515_bit_modify(MCP_CANINTF, MCP_RX0IF,0);
-
 	}
+	
 	if ((MERR_INTERRUPT & interrupt_code) == MERR_INTERRUPT) {
 		// Clear message error flag
 		mcp_2515_bit_modify(MCP_CANINTF, MCP_MERRF,0);
 	}
+	mcp_2515_bit_modify(MCP_CANINTF, MCP_RX0IF,0);
 	message_received ++;
 	
 }
