@@ -24,4 +24,5 @@ typedef union float_to_bytes{
 	uint8_t bytes[4];
 } float_to_bytes;
 void init();
+uint8_t score_keeper();
 #endif /* SETUP_H_ */

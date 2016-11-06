@@ -13,14 +13,14 @@
 #include "MCP2515.h"
 #include "setup.h"
 #define CAN_SEND_STATUS_MASK 0x78
-#define CAN_LOW_ID_MASK 0xE0
 #define RXB0_INTERRUPT 0x01
 #define RXB0_AND_TXB0_INTERRUPT 0x05
 #define MERR_INTERRUPT 0x80
 
 uint8_t message_received = FALSE;
 uint8_t transmit_complete = FALSE;
-
+uint8_t number_of_tries;
+uint8_t allowed_tries = 5;
 
 uint8_t can_init(){
 	mcp_2515_init();
@@ -64,9 +64,8 @@ uint8_t can_send_message(can_message *can_message){
 
 		
 		uint8_t low_ID = id & 0xFF;
-		
+		low_ID = (low_ID << 5); 
 		// Standard frame, mask out lowest five bits of low_ID
-		low_ID = low_ID & CAN_LOW_ID_MASK;
 		uint8_t high_ID = (id >> 8);
 		
 		//writes the ID to the ID High and ID LOW
@@ -102,7 +101,7 @@ can_message* can_receive_message() {
 	if(message_received > 0) {
 		id = mcp_2515_read(MCP_RXB0SIDH) << 8 | mcp_2515_read(MCP_RXB0SIDL);
 		// Mask out lowest 5 bits (only used for extended frames)
-		the_message.ID = id & 0xFFE0;
+		the_message.ID = (id >> 5);
 		the_message.length = mcp_2515_read(MCP_RXB0DLC);
 		for(int i = 0; i < the_message.length; i++) {
 			the_message.data[i] = mcp_2515_read(MCP_RXB0D+i);
@@ -134,6 +133,13 @@ uint8_t can_error(){
 	{
 		printf("Transmission error detected\n");
 	}
+	if(test_bit(error_flags,6))
+	{
+		printf("Receive buffer overflow flag set\n");
+		// reset receivebuffer overflow flag
+		mcp_2515_bit_modify(MCP_EFLG,0x40,0x40);
+		return 3;
+	}
 	return FALSE;
 }
 
@@ -141,8 +147,16 @@ uint8_t can_error(){
 uint8_t can_transmit_complete(){
 	if (test_bit(mcp_2515_read(MCP_TXB0CTRL),3)) {
 		printf("CAN transmit not complete\n");
+		number_of_tries++;
+		if(number_of_tries == allowed_tries) {
+			// Abort transmission
+			mcp_2515_bit_modify(MCP_TXB0CTRL,8,0);
+			printf("Reset transmission request\n");
+			number_of_tries = 0;
+		}
 		return FALSE;
 	}
+	
 	else return TRUE;
 }
 

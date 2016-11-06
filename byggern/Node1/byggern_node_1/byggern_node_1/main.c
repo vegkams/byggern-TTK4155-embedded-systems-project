@@ -115,7 +115,7 @@ uint8_t send_joystick_data() {
 	int x_axis = (int) j.x_percentage;
 	int y_axis = (int) j.y_percentage;
 	can_message sendmessage;
-	sendmessage.ID = 100;
+	sendmessage.ID = 1;
 	sendmessage.length=8;
 
 	sendmessage.data[0] = j.left_button;
