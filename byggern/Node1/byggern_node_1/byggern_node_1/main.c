@@ -33,7 +33,8 @@ int main(void)
 		can_message receivemessage;		
 //
 		uint8_t ok = send_joystick_data();
-		_delay_ms(20);
+		_delay_ms(50);
+
 
 		if (ok == 1)
 		{
@@ -122,9 +123,10 @@ uint8_t send_joystick_data() {
 	uint8_t dir = (uint8_t) joystick_getDirection(j.x_percentage,j.y_percentage);
 	int x_axis = (int) j.x_percentage;
 	int y_axis = (int) j.y_percentage;
+	uint8_t slider = joystick_get_right_slider();
 	can_message sendmessage;
 	sendmessage.ID = 1;
-	sendmessage.length=8;
+	sendmessage.length=7;
 
 	sendmessage.data[0] = j.left_button;
 	sendmessage.data[1] = j.right_button;
@@ -132,11 +134,11 @@ uint8_t send_joystick_data() {
 	sendmessage.data[3] = dir;
 	sendmessage.data[4] = x_axis >> 8;
 	sendmessage.data[5] = x_axis & 0xFF;
-	sendmessage.data[6] = y_axis >> 8;
-	sendmessage.data[7] = y_axis & 0xFF;
+	sendmessage.data[6] = slider;
 	return can_send_message(&sendmessage);
 	
 }
+
 
 void initializations(){
 	//static volatile long temp = F_OSC; //For testing

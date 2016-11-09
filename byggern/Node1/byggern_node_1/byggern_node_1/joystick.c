@@ -119,6 +119,12 @@ float joystick_get_right_slider_percentage()
 	return convert_to_sliderpercentage(data);
 }
 
+uint8_t joystick_get_right_slider()
+{
+	uint8_t data = read_ADC(3);
+	return data;
+}
+
 // Get joystick axis voltage (center = 2,5V)
 float joystick_get_x_voltage()
 {

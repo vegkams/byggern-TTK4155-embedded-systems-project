@@ -5,7 +5,7 @@
  *  Author: vegarkam
  */ 
 
-
+#include <avr/io.h>
 #ifndef SETUP_H_
 #define SETUP_H_
 #define F_OSC 16000000L // Crystal oscillating frequency
@@ -19,10 +19,8 @@
 #define test_bit( reg, bit ) (reg & (1 << bit))
 #define loop_until_bit_is_set( reg, bit ) while( !test_bit( reg, bit ) )
 #define loop_until_bit_is_clear( reg, bit ) while( test_bit( reg, bit ) )
-typedef union float_to_bytes{
-	float data_f;
-	uint8_t bytes[4];
-} float_to_bytes;
+int findEncoderMax();
 void init();
 uint8_t score_keeper();
+void my_delay_ms(unsigned int delay);
 #endif /* SETUP_H_ */

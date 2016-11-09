@@ -6,28 +6,51 @@
 */
 
 
-#include <avr/io.h>
+
 #include "can.h"
 #include "setup.h"
 #include "USART.h"
 #include "joystick.h"
 #include "pwm.h"
 #include "ADC.h"
+#include "DAC_driver.h"
+#include <avr/io.h>
 #include <util/delay.h>
-
+#include <stdio.h>
+#include <stdlib.h>
 
 
 can_message send;
 uint8_t score = 0;
-float joystick_x_percentage;
-float joystick_y_percentage;
+
 uint8_t paused = FALSE;
 uint8_t message_sent = FALSE;
+
+int findEncoderMax()
+{
+	printf("In find encoder max");
+	motor_control_set_velocity(-1.0);
+	printf("Hehe\n");
+	my_delay_ms(1500);
+	motor_control_set_velocity(0.0);
+	my_delay_ms(200);
+	printf("Hehe2\n");
+	encoder_reset();
+	motor_control_set_velocity(1.0);
+	my_delay_ms(1500);
+	printf("Hehe3\n");
+
+	motor_control_set_velocity(0.0);
+	my_delay_ms(100);
+	return read_encoder();
+}
+
 int main(void)
 {
+	
 	init();
-	volatile float_to_bytes x;
-	volatile float_to_bytes y;
+	//int encoderMax = findEncoderMax();
+	//printf("encoder max: %d", encoderMax);
 	can_message send_message;
 	joyValues values;
 	direction dir;
@@ -36,20 +59,26 @@ int main(void)
 	uint8_t counter = 0;
 	uint8_t adc_value = 0;
 	int accumulated_value = 0;
-	int averaged_value=0;
+	int averaged_value = 0;
 	can_message* received;
 	uint8_t previous_button = 0;
+	float joystick_x_percentage;
+	float joystick_y_percentage;
+	uint8_t slider = 50;
+	uint8_t prev_slider;
 
+	
 	while(1)
 	{
 		
+		//_delay_ms(10);
 		if(paused == FALSE) {
 			adc_value = get_ADC_value();
 			accumulated_value += adc_value;
 			counter++;
 			if (counter==5)
 			{	counter = 0;
-				printf("accumulated_value= %d \n",accumulated_value);
+				//printf("accumulated_value= %d \n",accumulated_value);
 				averaged_value = accumulated_value/5;
 				accumulated_value = 0;
 				if (averaged_value < 80) {
@@ -64,7 +93,7 @@ int main(void)
 		received = malloc(sizeof(can_message));
 		received = can_receive_message();
 		if(received->ID == 0) {
-			// Control message, blablabla
+			printf("no message\n");
 		}
 		if (received->ID == 1){
 			// input data from controller
@@ -73,7 +102,7 @@ int main(void)
 			values.joystick_button = received->data[2];
 			dir = (direction) received->data[3];
 			x_axis = received->data[4]<<8 | received->data[5];
-			y_axis = received->data[6]<<8 | received->data[7];
+			slider = received->data[6];
 			if(values.left_button == previous_button){
 				values.left_button = 0;
 			}
@@ -85,9 +114,14 @@ int main(void)
 				paused = FALSE;
 				message_sent = FALSE;
 			}
-			if(abs(x_axis)>5) pwm_set_angle(-x_axis);
-			else pwm_set_angle(0);
+			printf("X: %d\n",x_axis);
+			//motor_control_set_velocity(x_axis/100.0);
+			//_delay_ms(100);
+			if(abs(slider-prev_slider)>6) pwm_set_angle(slider);
+			prev_slider = slider;
 		}
+		
+		
 		
 		if(score < 3 && !message_sent) {
 			// Send number of hits
@@ -144,6 +178,7 @@ void init() {
 	pwm_init();
 	setup_ADC();
 	start_ADC();
+	//motor_control_init();
 }
 uint8_t score_keeper()
 {
@@ -155,4 +190,15 @@ uint8_t score_keeper()
 
 void goal_scored() {
 	paused = TRUE;
+}
+
+void my_delay_ms(unsigned int delay){
+	unsigned int i;
+	for (i=0; i<(delay/16); i++) {
+		printf("In my delay\n");
+		_delay_ms(10);
+	}
+	if (delay % 16) {
+		_delay_ms(delay % 10);
+	}
 }

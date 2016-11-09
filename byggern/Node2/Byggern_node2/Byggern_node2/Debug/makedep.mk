@@ -12,6 +12,8 @@ main_node2.c
 
 MCP2515.c
 
+motor_control.c
+
 pwm.c
 
 spi.c

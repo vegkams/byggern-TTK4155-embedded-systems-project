@@ -26,8 +26,8 @@ uint8_t pwm_init(){
 	set_bit(DDRE,PE3);
 	OCR3A = 375;
 
-	input_start = -100;
-	input_end = 100;
+	input_start = 0;
+	input_end = 255;
 	output_start = 250;
 	output_end = 500;
 	input_range = input_end-input_start;
@@ -37,9 +37,9 @@ uint8_t pwm_init(){
 }
 
 uint8_t pwm_set_angle(int angle){
-	
-	if(angle>=-100 && angle<= 100){
-		OCR3A = (angle-input_start)*output_range / input_range + output_start;
+	int scaled_angle = abs(angle-255);
+	if(angle >= input_start && angle <= input_end){
+		OCR3A = (scaled_angle-input_start)*output_range / input_range + output_start;
 		return 0;
 	}
 	

@@ -35,7 +35,7 @@ uint8_t can_init(){
 	mcp_2515_bit_modify(MCP_CANINTE,0xFF,MCP_RX0IF);
 	
 	// Enable interrupt on INT4
-	set_bit(EIMSK,INT4);
+	//set_bit(EIMSK,INT4);
 	// Interrupt on falling edge INT4
 	//set_bit(EICRB,ISC41);
 	//clear_bit(EICRB,ISC40);
@@ -166,20 +166,20 @@ uint8_t can_transmit_complete(){
 }
 
 
-ISR(INT4_vect) {
-	volatile uint8_t interrupt_code = mcp_2515_read(MCP_CANINTF);
-
-	if((interrupt_code & RXB0_AND_TXB0_INTERRUPT) == RXB0_AND_TXB0_INTERRUPT) {
-		mcp_2515_bit_modify(MCP_CANINTF, MCP_TX0IF,0);
-		mcp_2515_bit_modify(MCP_CANINTF, MCP_RX0IF,0);
-	}
-	if ((MERR_INTERRUPT & interrupt_code) == MERR_INTERRUPT) {
-		// Clear message error flag
-		mcp_2515_bit_modify(MCP_CANINTF, MCP_MERRF,0);
-	}
-	mcp_2515_bit_modify(MCP_CANINTF,MCP_RX0IF,0);
-
-	message_received = 1;
-	
-}
+//ISR(INT4_vect) {
+	//volatile uint8_t interrupt_code = mcp_2515_read(MCP_CANINTF);
+//
+	//if((interrupt_code & RXB0_AND_TXB0_INTERRUPT) == RXB0_AND_TXB0_INTERRUPT) {
+		//mcp_2515_bit_modify(MCP_CANINTF, MCP_TX0IF,0);
+		//mcp_2515_bit_modify(MCP_CANINTF, MCP_RX0IF,0);
+	//}
+	//if ((MERR_INTERRUPT & interrupt_code) == MERR_INTERRUPT) {
+		//// Clear message error flag
+		//mcp_2515_bit_modify(MCP_CANINTF, MCP_MERRF,0);
+	//}
+	//mcp_2515_bit_modify(MCP_CANINTF,MCP_RX0IF,0);
+//
+	//message_received = 1;
+	//
+//}
 
