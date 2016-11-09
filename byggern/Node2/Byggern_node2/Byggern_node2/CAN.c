@@ -37,11 +37,11 @@ uint8_t can_init(){
 	// Enable interrupt on INT4
 	set_bit(EIMSK,INT4);
 	// Interrupt on falling edge INT4
-	set_bit(EICRB,ISC41);
-	clear_bit(EICRB,ISC40);
+	//set_bit(EICRB,ISC41);
+	//clear_bit(EICRB,ISC40);
 	
 	// Enable global interrupts
-	sei();
+	//sei();
 	return 0;
 
 }
@@ -87,7 +87,6 @@ uint8_t can_send_message(can_message *can_message){
 	
 	else {
 		if (can_error() > 0) {
-			printf("CAN MESSAGE SEND FAILED!");
 			return -1;
 		}
 	}
@@ -103,7 +102,7 @@ can_message* can_receive_message() {
 	can_message the_message;
 	unsigned int id;
 	// Check if received flag was set
-	if(message_received > 0) {
+	if(test_bit(mcp_2515_read(MCP_CANINTF), 0)) {
 		id = mcp_2515_read(MCP_RXB0SIDH) << 8 | mcp_2515_read(MCP_RXB0SIDL);
 		// Mask out lowest 5 bits (only used for extended frames)
 		the_message.ID = (id >> 5);
@@ -112,7 +111,7 @@ can_message* can_receive_message() {
 			the_message.data[i] = mcp_2515_read(MCP_RXB0D+i);
 		}
 		mcp_2515_bit_modify(MCP_CANINTF, MCP_RX0IF,0);
-		message_received --;
+		message_received = 0;
 	}
 	else {
 		// No message in the buffer
@@ -180,8 +179,7 @@ ISR(INT4_vect) {
 	}
 	mcp_2515_bit_modify(MCP_CANINTF,MCP_RX0IF,0);
 
-	message_received++;
-	//printf("message received: %d",message_received);
+	message_received = 1;
 	
 }
 

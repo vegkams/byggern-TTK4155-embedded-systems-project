@@ -51,12 +51,20 @@ int main(void)
 		}
 		if(can_data_received() > 0) {
 			receivemessage = *can_receive_message();
-			//printf("Message was received!\n");
-			printf("Message ID: %u, message length: %d\n", receivemessage.ID, receivemessage.length);
-			//printf("message data 1: %d, message data 2: %d, message data 3: %d, message data 4: %d, message data 5: %d\n",receivemessage.data[0],receivemessage.data[1],receivemessage.data[2],receivemessage.data[3],receivemessage.data[4]);
-			for(int i = 0; i<receivemessage.length;i++) {
-				printf("Data %d: %d ",i, receivemessage.data[i]);
+			if(receivemessage.ID == 3) {
+				printf("Number of lives is: %d", (3-receivemessage.data[0]));
 			}
+			
+			if(receivemessage.ID == 2) {
+				printf("GAME LOST, number of lives is %d\n", (3-receivemessage.data[0]));
+				printf("Press button to start again\n");
+			}
+			//printf("Message was received!\n");
+			//printf("Message ID: %u, message length: %d\n", receivemessage.ID, receivemessage.length);
+			//printf("message data 1: %d, message data 2: %d, message data 3: %d, message data 4: %d, message data 5: %d\n",receivemessage.data[0],receivemessage.data[1],receivemessage.data[2],receivemessage.data[3],receivemessage.data[4]);
+			//for(int i = 0; i<receivemessage.length;i++) {
+				//printf("Data %d: %d ",i, receivemessage.data[i]);
+			//}
 			printf("\n");
 		}
 

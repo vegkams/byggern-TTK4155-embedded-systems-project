@@ -23,8 +23,8 @@
 *
 ****************************************************************************/
 
-#include "ioavr.h"              
-#include "inavr.h"
+#include <avr/io.h>             
+#include <avr/interrupt.h>
 #include "TWI_Master.h"
 
 static unsigned char TWI_buf[ TWI_BUFFER_SIZE ];    // Transceiver buffer
@@ -141,8 +141,8 @@ This function is the Interrupt Service Routine (ISR), and called when the TWI in
 that is whenever a TWI event has occurred. This function should not be called directly from the main
 application.
 ****************************************************************************/
-#pragma vector=TWI_vect
-__interrupt void TWI_ISR(void)
+//#pragma vector=TWI_vect
+ISR(TWI_vect)
 {
   static unsigned char TWI_bufPtr;
   

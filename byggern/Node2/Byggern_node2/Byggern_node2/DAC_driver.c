@@ -4,6 +4,7 @@
  * Created: 06.11.2016 18:28:26
  *  Author: vegarkam
  */ 
+#include <avr/io.h>
 #include "TWI_Master.h"
 #include "DAC_driver.h"
 #define SLAVE_ADDRESS 0b01010000
@@ -20,7 +21,7 @@ void send_DAC_data(unsigned char value) {
 	data[0] = SLAVE_ADDRESS;
 	// Command byte: address dac 0, normal operational state
 	data[1] = 0x00;
-	data[2] = value:
+	data[2] = value;
 	TWI_Start_Transceiver_With_Data(data,size);
 	free(data);
 }

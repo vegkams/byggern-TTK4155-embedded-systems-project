@@ -39,10 +39,12 @@ SUBDIRS :=
 C_SRCS +=  \
 ../ADC.c \
 ../CAN.c \
+../DAC_driver.c \
 ../main_node2.c \
 ../MCP2515.c \
 ../pwm.c \
 ../spi.c \
+../TWI_Master.c \
 ../USART.c
 
 
@@ -55,37 +57,45 @@ ASM_SRCS +=
 OBJS +=  \
 ADC.o \
 CAN.o \
+DAC_driver.o \
 main_node2.o \
 MCP2515.o \
 pwm.o \
 spi.o \
+TWI_Master.o \
 USART.o
 
 OBJS_AS_ARGS +=  \
 ADC.o \
 CAN.o \
+DAC_driver.o \
 main_node2.o \
 MCP2515.o \
 pwm.o \
 spi.o \
+TWI_Master.o \
 USART.o
 
 C_DEPS +=  \
 ADC.d \
 CAN.d \
+DAC_driver.d \
 main_node2.d \
 MCP2515.d \
 pwm.d \
 spi.d \
+TWI_Master.d \
 USART.d
 
 C_DEPS_AS_ARGS +=  \
 ADC.d \
 CAN.d \
+DAC_driver.d \
 main_node2.d \
 MCP2515.d \
 pwm.d \
 spi.d \
+TWI_Master.d \
 USART.d
 
 OUTPUT_FILE_PATH +=Byggern_node2.elf
@@ -102,6 +112,10 @@ LINKER_SCRIPT_DEP+=
 
 
 # AVR32/GNU C Compiler
+
+
+
+
 
 
 
