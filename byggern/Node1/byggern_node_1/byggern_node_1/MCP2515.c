@@ -8,6 +8,8 @@
 #include "MCP2515.h"
 #include "spi.h"
 #include "USART.h"
+#include "setup.h"
+#include <stdlib.h>
 #include <util/delay.h>
 
 uint8_t mcp_2515_init(){

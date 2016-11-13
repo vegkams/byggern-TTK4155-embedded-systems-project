@@ -94,26 +94,25 @@ uint8_t can_send_message(can_message *can_message){
 /* RECEIVE AND CONSTRUCT CAN MESSAGE */
 /*************************************/
 
-can_message* can_receive_message() {
-	can_message the_message;
+can_message* can_receive_message(can_message *the_message) {
 	unsigned int id;
 	// Check if received flag was set
 	if(message_received > 0) {
 		id = mcp_2515_read(MCP_RXB0SIDH) << 8 | mcp_2515_read(MCP_RXB0SIDL);
 		// Mask out lowest 5 bits (only used for extended frames)
-		the_message.ID = (id >> 5);
-		the_message.length = mcp_2515_read(MCP_RXB0DLC);
-		for(int i = 0; i < the_message.length; i++) {
-			the_message.data[i] = mcp_2515_read(MCP_RXB0D+i);
+		the_message->ID = (id >> 5);
+		the_message->length = mcp_2515_read(MCP_RXB0DLC);
+		for(int i = 0; i < the_message->length; i++) {
+			the_message->data[i] = mcp_2515_read(MCP_RXB0D+i);
 		}
 		
 		message_received --;
 	}
 	else {
 		// No message in the buffer
-		the_message.length = 0;
+		the_message->length = 0;
 	}
-	return &the_message;
+	return the_message;
 	
 }
 

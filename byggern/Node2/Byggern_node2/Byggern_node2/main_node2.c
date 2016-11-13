@@ -14,10 +14,12 @@
 #include "pwm.h"
 #include "ADC.h"
 #include "DAC_driver.h"
+#include "motor_control.h"
 #include <avr/io.h>
 #include <util/delay.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <avr/interrupt.h>
 
 
 can_message send;
@@ -26,35 +28,16 @@ uint8_t score = 0;
 uint8_t paused = FALSE;
 uint8_t message_sent = FALSE;
 
-int findEncoderMax()
-{
-	printf("In find encoder max");
-	motor_control_set_velocity(-1.0);
-	printf("Hehe\n");
-	my_delay_ms(1500);
-	motor_control_set_velocity(0.0);
-	my_delay_ms(200);
-	printf("Hehe2\n");
-	encoder_reset();
-	motor_control_set_velocity(1.0);
-	my_delay_ms(1500);
-	printf("Hehe3\n");
 
-	motor_control_set_velocity(0.0);
-	my_delay_ms(100);
-	return read_encoder();
-}
 
 int main(void)
 {
 	
 	init();
-	//int encoderMax = findEncoderMax();
-	//printf("encoder max: %d", encoderMax);
 	can_message send_message;
 	joyValues values;
 	direction dir;
-	int x_axis;
+	axis_int_bytes x_axis;
 	int y_axis;
 	uint8_t counter = 0;
 	uint8_t adc_value = 0;
@@ -71,7 +54,6 @@ int main(void)
 	while(1)
 	{
 		
-		//_delay_ms(10);
 		if(paused == FALSE) {
 			adc_value = get_ADC_value();
 			accumulated_value += adc_value;
@@ -90,10 +72,10 @@ int main(void)
 		}
 		
 
-		received = malloc(sizeof(can_message));
-		received = can_receive_message();
+		can_message* received = malloc(sizeof(can_message));
+		can_receive_message(received);
 		if(received->ID == 0) {
-			printf("no message\n");
+			//printf("no message\n");
 		}
 		if (received->ID == 1){
 			// input data from controller
@@ -101,7 +83,8 @@ int main(void)
 			values.right_button = received->data[1];
 			values.joystick_button = received->data[2];
 			dir = (direction) received->data[3];
-			x_axis = received->data[4]<<8 | received->data[5];
+			x_axis.bytes_axis[0] = received->data[4];
+			x_axis.bytes_axis[1] = received->data[5];
 			slider = received->data[6];
 			if(values.left_button == previous_button){
 				values.left_button = 0;
@@ -114,9 +97,10 @@ int main(void)
 				paused = FALSE;
 				message_sent = FALSE;
 			}
-			printf("X: %d\n",x_axis);
-			//motor_control_set_velocity(x_axis/100.0);
+			motor_control_set_velocity(x_axis.int_axis);
+			//printf("Motor control vel: %i\n", x_axis.int_axis);
 			//_delay_ms(100);
+			//printf("slider value: %d\n",slider);
 			if(abs(slider-prev_slider)>6) pwm_set_angle(slider);
 			prev_slider = slider;
 		}
@@ -163,7 +147,9 @@ int main(void)
 			score = 0;
 			paused = TRUE;
 		}
-		
+		_delay_ms(50);
+
+
 	}
 }
 
@@ -172,13 +158,19 @@ void init() {
 	
 	int baud = (int) MYUBRR;
 	USART_Init(baud);
+	_delay_ms(20);
 	printf("Init called \n");
 	can_init();
 	CAN_enable_normal_mode();
 	pwm_init();
 	setup_ADC();
 	start_ADC();
-	//motor_control_init();
+	motor_control_init();
+	motor_control_init_clock();
+
+	motor_control_set_playing_flag(TRUE);
+	motor_control_set_pid_gains(0.5,0.1,0.0);
+	
 }
 uint8_t score_keeper()
 {
@@ -192,13 +184,3 @@ void goal_scored() {
 	paused = TRUE;
 }
 
-void my_delay_ms(unsigned int delay){
-	unsigned int i;
-	for (i=0; i<(delay/16); i++) {
-		printf("In my delay\n");
-		_delay_ms(10);
-	}
-	if (delay % 16) {
-		_delay_ms(delay % 10);
-	}
-}

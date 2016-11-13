@@ -1,19 +1,23 @@
 /*
- * DAC_driver.c
- *
- * Created: 06.11.2016 18:28:26
- *  Author: vegarkam
- */ 
+* DAC_driver.c
+*
+* Created: 06.11.2016 18:28:26
+*  Author: vegarkam
+*/
+#include "setup.h"
 #include <avr/io.h>
 #include <util/delay.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <avr/interrupt.h>
+
 #include "TWI_Master.h"
 #include "DAC_driver.h"
 #define SLAVE_ADDRESS 0x5E
 
 void setup_DAC() {
 	TWI_Master_Initialise();
-	//PD= scl, PD1 SDA
+	//PD0 = scl, PD1 SDA
 	DDRD |= (1<<PD0) | (1<<PD1);
 	// TWI uses interrupt
 	sei();

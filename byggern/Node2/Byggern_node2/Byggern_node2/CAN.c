@@ -10,6 +10,7 @@
 #include "MCP2515.h"
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <stdio.h>
 #include "can.h"
 #include "MCP2515.h"
 #include "setup.h"
@@ -98,27 +99,26 @@ uint8_t can_send_message(can_message *can_message){
 /* RECEIVE AND CONSTRUCT CAN MESSAGE */
 /*************************************/
 
-can_message* can_receive_message() {
-	can_message the_message;
+can_message* can_receive_message(can_message* the_message) {
 	unsigned int id;
 	// Check if received flag was set
 	if(test_bit(mcp_2515_read(MCP_CANINTF), 0)) {
 		id = mcp_2515_read(MCP_RXB0SIDH) << 8 | mcp_2515_read(MCP_RXB0SIDL);
 		// Mask out lowest 5 bits (only used for extended frames)
-		the_message.ID = (id >> 5);
-		the_message.length = mcp_2515_read(MCP_RXB0DLC);
-		for(int i = 0; i < the_message.length; i++) {
-			the_message.data[i] = mcp_2515_read(MCP_RXB0D+i);
+		the_message->ID = (id >> 5);
+		the_message->length = mcp_2515_read(MCP_RXB0DLC);
+		for(int i = 0; i < the_message->length; i++) {
+			the_message->data[i] = mcp_2515_read(MCP_RXB0D+i);
 		}
 		mcp_2515_bit_modify(MCP_CANINTF, MCP_RX0IF,0);
 		message_received = 0;
 	}
 	else {
 		// No message in the buffer
-		the_message.ID = 0;
-		the_message.length = 0;
+		the_message->ID = 0;
+		the_message->length = 0;
 	}
-	return &the_message;
+	return the_message;
 	
 }
 

@@ -14,24 +14,29 @@
 #define EN PH4
 #define DIR PH1
 #define SEL PH3
-#define MJ2 PINC
+#define MJ2 PINK
 #define MJ1 PORTH
 
-
-typedef enum MotorDir MotorDir;
-enum MotorDir {RIGHT,LEFT}; 
 uint8_t motor_control_init();
-int read_encoder();
-void set_motor_direction(MotorDir dir);
+void motor_control_init_clock();
+unsigned int read_encoder();
+void set_motor_direction(uint8_t dir);
 void motor_control_set_speed(uint8_t speed);
 void enable_motor(uint8_t enable);
 void enable_encoder(uint8_t enable);
 void encoder_reset();
-void motor_control_set_velocity(float velocity);
+void motor_control_set_velocity(int velocity);
 uint8_t reverse_bits(char x);
-float saturate(vel, min, max);
+int saturate(int vel);
+unsigned int find_encoder_max();
+void motor_control_reset_timer();
+int motor_control_get_played_time();
+void motor_control_set_playing_flag(uint8_t flag);
+void motor_control_set_timer_flag(uint8_t flag);
+void motor_control_set_reference_pos(int pos);
+void motor_control_set_pid_gains(float p, float i, float d);
 
-	
+
 
 
 #endif /* MOTOR_CONTROL_H_ */

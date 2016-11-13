@@ -9,6 +9,7 @@
 #ifndef SETUP_H_
 #define SETUP_H_
 #define F_OSC 4915200L // Crystal oscillating frequency
+#define F_CPU 4915200L
 #define BAUD 9600 // Baud rate for RS 232
 #define MYUBRR ((((long)F_OSC)/(16L * (long)BAUD)) -1L)
 #define TRUE 1
@@ -25,6 +26,10 @@ typedef union float_to_bytes{
 	uint8_t bytes[4];
 	} float_to_bytes;
 
+typedef union axis_int_bytes{
+	int int_axis;
+	unsigned char bytes_axis[2];
+	}axis_int_bytes;
 void playing_the_game();
 void in_menus();
 void initializations();
