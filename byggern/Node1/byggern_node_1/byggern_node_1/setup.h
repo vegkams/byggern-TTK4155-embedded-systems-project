@@ -30,6 +30,9 @@ typedef union axis_int_bytes{
 	int int_axis;
 	unsigned char bytes_axis[2];
 	}axis_int_bytes;
+
+typedef enum {MENU, PLAYING} mode;
+		
 void playing_the_game();
 void in_menus();
 void initializations();

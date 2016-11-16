@@ -48,18 +48,24 @@ uint8_t pwm_set_angle(int angle, uint8_t mode){
 	switch(mode)
 	{
 		case 1:
-		if(angle >= input_joystick_start && angle <= input_joystick_end){
-			OCR3A = (angle-input_joystick_start)*output_range / input_joystick_range + output_start;
-			return 0;
+		{
+			if(angle >= input_joystick_start && angle <= input_joystick_end){
+				OCR3A = (angle-input_joystick_start)*output_range / input_joystick_range + output_start;
+				return 0;
+			}
+			break;
 		}
-		break;
+		
 		
 		case 2:
-		if(angle >= input_slider_start && angle <= input_slider_end){
-			OCR3A = (angle-input_slider_start)*output_range / input_slider_range + output_start;
-			return 0;
+		{
+			if(angle >= input_slider_start && angle <= input_slider_end){
+				OCR3A = (angle-input_slider_start)*output_range / input_slider_range + output_start;
+				return 0;
+			}
+			break;
 		}
-		break;
+		
 	}
 	
 	

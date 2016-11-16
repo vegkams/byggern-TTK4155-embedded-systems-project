@@ -26,7 +26,7 @@ menu_t * menu_init (){
 	main_menu -> child1 = malloc(sizeof(menu_t));
 	main_menu -> child1 -> name = "NEW GAME";
 	main_menu -> child1 -> parent = main_menu;
-	main_menu -> child1 -> number_of_children = 0;
+	main_menu -> child1 -> number_of_children = 1;
 	
 	main_menu -> child2 = malloc(sizeof(menu_t));
 	main_menu -> child2->name = "HIGH SCORE";
@@ -39,6 +39,13 @@ menu_t * menu_init (){
 	main_menu ->child4 = NULL;
 
 	main_menu -> number_of_children = 3;
+	
+	//New Game menu
+	main_menu->child1->child1 = malloc(sizeof(menu_t));
+	main_menu->child1->child1->name = "PLAYING";
+	main_menu->child1->child1->number_of_children=0;
+	main_menu->child1->child1->parent = main_menu->child1;
+	main_menu ->child1->child2 =main_menu ->child1->child3=main_menu ->child1->child4 = NULL;
 	
 	//High score menu
 	main_menu ->child2->child1 = malloc(sizeof(menu_t));
@@ -175,13 +182,22 @@ uint8_t button_action (uint8_t current_line) {
 	{
 		if(current_line == 2)
 		{
-			game_started == 1;
+			game_started = 1;
+			navigateMenu(current_line);
 		}
 		else if (current_line == 3) {
 			print_highscore();
 			navigateMenu(current_line);
 		}
 		else navigateMenu(current_line);
+	}
+	else if(strcmp(current_menu->name, "NEW GAME") == 0){
+		if(current_line==2){
+			current_menu=current_menu->parent;
+			oled_pos(current_line, 0);
+			oled_print_string("  ");
+			print_menu(current_menu);
+		}
 	}
 	else if (strcmp(current_menu->name, "SETTINGS") == 0)
 	{
@@ -269,6 +285,15 @@ void print_highscore() {
 	
 }
 
+int get_game_mode(){
+	return game_started;
+}
+void restart_game_mode(){
+	game_started=0;
+}
+//menu get_current_menu(){
+	//return current_menu;
+//}
 
 
 

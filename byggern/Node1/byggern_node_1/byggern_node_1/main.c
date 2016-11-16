@@ -20,38 +20,43 @@ menu_t * main_menu;
 uint8_t arrow_line = 2;
 uint8_t previous_joystick_button;
 uint8_t game_on = 0;
-uint8_t mode;
+mode mode_t = MENU;
+//uint8_t mode;
 uint8_t menu_printed;
+
 int main(void)
 {
 	initializations();
 	CAN_enable_normal_mode();
 	menu_printed = 0;
-	mode = 0;
+	
 	volatile uint8_t c;
 	while (TRUE)
 	{
 		_delay_ms(50);
-			
-//
-		uint8_t ok = send_joystick_data();
-		
-
-
-		if (ok == 1)
-		{
-			printf("Message was sent!\n");
+		if(get_game_mode() ==0){
+			mode_t = MENU;
 		}
+		else if(get_game_mode()==1){
+			mode_t=PLAYING;
+		}
+		//uint8_t ok = send_joystick_data();
 		
-		switch(mode){
-			case 0:
+		//if (ok == 1)
+		//{
+		//printf("Message was sent!\n");
+		//}
+		
+		switch(mode_t){
+			case MENU:
 			in_menus();
 			break;
 			
-			case 1:
+			case PLAYING:
 			playing_the_game();
 			break;
 		}
+		
 		if(can_data_received() > 0) {
 			can_message* receivemessage = malloc(sizeof(can_message));
 			can_receive_message(receivemessage);
@@ -63,26 +68,11 @@ int main(void)
 				printf("GAME LOST, number of lives is %d\n", (3-receivemessage->data[0]));
 				printf("Press button to start again\n");
 			}
-			//printf("Message was received!\n");
-			//printf("Message ID: %u, message length: %d\n", receivemessage.ID, receivemessage.length);
-			//printf("message data 1: %d, message data 2: %d, message data 3: %d, message data 4: %d, message data 5: %d\n",receivemessage.data[0],receivemessage.data[1],receivemessage.data[2],receivemessage.data[3],receivemessage.data[4]);
-			//for(int i = 0; i<receivemessage.length;i++) {
-				//printf("Data %d: %d ",i, receivemessage.data[i]);
-			//}
+
 			printf("\n");
 			free(receivemessage);
 		}
 
-		//
-		//joyValues j;
-		//read_joystick(&j);
-		//float slider_left = joystick_get_left_slider_percentage();
-		//float slider_right = joystick_get_right_slider_percentage();
-		//direction d = joystick_getDirection(j.x_percentage,j.y_percentage);
-		//int d1 = (int)d;
-		//
-		//printf("X prosent: %3.2f, Y prosent: %3.2f, Slider venstre: %3.2f, Slider høyre: %3.2f, Retning: %d ",j.x_percentage,j.y_percentage,slider_left,slider_right, d1);
-		//printf("Knapp 1: %d,Knapp 2: %d, Joystick knapp: %d\n",j.left_button,j.right_button,j.joystick_button);
 	}
 	
 	return 0;
@@ -109,14 +99,26 @@ void in_menus(){
 		previous_joystick_button = 0;
 	}
 	if (j.joystick_button == 1) {
-		mode = button_action(arrow_line);
+		mode_t = button_action(arrow_line);
 		previous_joystick_button = j.joystick_button;
 		arrow_line = 2;
 	}
+	
+	
 }
 
 
 void playing_the_game(){
+	uint8_t ok = send_joystick_data();
+	joyValues j;
+	read_joystick(&j);
+	printf("button: %d\n", j.right_button);
+	if(j.right_button == 1){
+		restart_game_mode();
+		mode_t = MENU;
+		arrow_line=2;
+		button_action(arrow_line);
+	}
 	
 }
 
@@ -140,7 +142,7 @@ uint8_t send_joystick_data() {
 	sendmessage.data[3] = dir;
 	sendmessage.data[4] = x_axis.bytes_axis[0];
 	sendmessage.data[5] = x_axis.bytes_axis[1];
-	printf("X axis data 1: %d data 2: %d", (x_axis.bytes_axis[0]), (x_axis.bytes_axis[1]));
+	//printf("X axis data 1: %d data 2: %d\n", (x_axis.bytes_axis[0]), (x_axis.bytes_axis[1]));
 	sendmessage.data[6] = slider;
 	return can_send_message(&sendmessage);
 	

@@ -45,13 +45,7 @@ uint8_t motor_control_init(){
 	set_bit(DDRH, SEL);
 	// Port K Digital input
 	DDRK = 0x00;
-	
-	//input_start_motor = 0;
-	//input_end_motor = 100;
-	//output_start_motor = 0;
-	//output_end_motor = 255;
-	//input_range_motor = input_end_motor-input_start_motor;
-	//output_range_motor = output_end_motor-output_start_motor;
+
 	setup_DAC();
 
 	enable_encoder(1);
@@ -175,6 +169,9 @@ void motor_control_set_velocity(int velocity)
 {
 	encoder_value = read_encoder();
 	//printf("Encoder %d\n",encoder_value);
+	
+
+	
 	int vel = saturate(velocity);
 	motor_control_set_speed((uint8_t) abs(vel));
 	if (vel > 0)
@@ -185,9 +182,9 @@ void motor_control_set_velocity(int velocity)
 	{
 		set_motor_direction(1);
 	}
-
 	//else motor_control_set_speed(0);
 	
+
 	
 }
 
@@ -257,7 +254,12 @@ ISR(TIMER1_COMPA_vect)
 	}
 	
 	long encoder_value = read_encoder();
-	//printf("Encoder: %d\n", encoder_value);
+	
+	if((int)encoder_value < 0){
+		encoder_value = 0L;
+	}
+	
+	printf("\tEncoder: %d\n", encoder_value);
 	float error;
 	int16_t output;
 	//printf("\t\tEncoder max: %d encoder value %d\n", encoder_max,encoder_value);
@@ -290,7 +292,7 @@ unsigned int find_encoder_max()
 {
 	printf("In find encoder max");
 	motor_control_set_velocity(60);
-	_delay_ms(1500);
+	_delay_ms(1900);
 	motor_control_set_velocity(0);
 	_delay_ms(200);
 	printf("Encoder value: %d\n",read_encoder());

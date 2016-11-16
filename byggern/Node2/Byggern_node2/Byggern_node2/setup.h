@@ -21,9 +21,13 @@
 #define loop_until_bit_is_set( reg, bit ) while( !test_bit( reg, bit ) )
 #define loop_until_bit_is_clear( reg, bit ) while( test_bit( reg, bit ) )
 
+typedef enum Control_mode {PS4, MFB} Control_mode;
+
 void init();
 uint8_t score_keeper();
 void goal_scored();
+uint8_t read_ps4_controller();
+int mapped_ps4_pos(float value);
 typedef union axis_int_bytes{
 	int int_axis;
 	unsigned char bytes_axis[2];

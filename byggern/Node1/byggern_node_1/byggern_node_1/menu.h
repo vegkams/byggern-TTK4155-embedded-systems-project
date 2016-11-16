@@ -27,7 +27,9 @@ static inline char *stringFromDifficulty(difficulty d)
 	static const char *strings[] = { "EASY", "MEDIUM", "HARD"};
 	return strings[d];
 }
-
+void restart_game_mode();
+int get_game_mode();
+//menu_t get_current_menu();
 menu_t * menu_init();
 void print_menu (menu_t *menu);
 uint8_t move_arrow(direction dir, uint8_t current_row);

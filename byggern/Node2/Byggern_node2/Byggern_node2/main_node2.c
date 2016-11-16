@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <avr/interrupt.h>
 #include "solenoid.h"
+#include <string.h>
 
 
 can_message send;
@@ -29,7 +30,7 @@ uint8_t score = 0;
 uint8_t paused = FALSE;
 uint8_t message_sent = FALSE;
 
-
+float ps4_values[5];
 
 
 int main(void)
@@ -54,6 +55,13 @@ int main(void)
 	int8_t prev_x_axis;
 	uint8_t prev_slider;
 	uint8_t closed_loop = TRUE;
+	
+	// Default multifunction board
+	Control_mode  control_mode = MFB;
+	uint8_t message_id;
+	uint8_t ps4_trigger;
+	uint8_t previous_ps4_trigger;
+	uint8_t uart_data_received;
 
 	
 	while(1)
@@ -79,63 +87,119 @@ int main(void)
 
 		can_message* received = malloc(sizeof(can_message));
 		can_receive_message(received);
-		if(received->ID == 0) {
-			//printf("no message\n");
-		}
-		if (received->ID == 1){
-			// input data from controller
-			values.left_button = received->data[0];
-			values.right_button = received->data[1];
-			values.joystick_button = received->data[2];
-			dir = (direction) received->data[3];
-			x_axis.bytes_axis[0] = received->data[4];
-			x_axis.bytes_axis[1] = received->data[5];
-			slider = received->data[6];
-			if(values.left_button == previous_button){
-				values.left_button = 0;
-			}
-			else{
-				previous_button = 0;
-			}
-			if (values.left_button == 1) {
-				previous_button = values.left_button;
-				paused = FALSE;
-				message_sent = FALSE;
-			}
-			if(values.joystick_button == previous_joystick_button){
-				values.joystick_button = 0;
-			}
-			else{
-				previous_joystick_button = 0;
-			}
-			if (values.joystick_button == 1) {
-				previous_joystick_button = values.joystick_button;
-				solenoid_shoot();
-			}
-			//printf("Slider is :%d\n",slider);
-			if (closed_loop) {
-				//printf("Slider is %d \n",slider);
-				motor_control_set_reference_pos(slider);
-				//int encoder_value = read_encoder();
-				//printf("Encoder %d\n",encoder_value);
-				//printf("Motor control vel: %i\n", x_axis.int_axis);
-				//_delay_ms(100);
-				//printf("slider value: %d\n",slider);
-				if(abs(x_axis.int_axis - prev_x_axis)>3) pwm_set_angle(-x_axis.int_axis,1);
-				prev_x_axis = x_axis.int_axis;
-			}
-			else
+		message_id = received->ID;
+		switch(message_id)
+		{
+			case 0:
 			{
-				motor_control_set_velocity(x_axis.int_axis);
-				if (abs(slider - prev_slider)>3)
-				{
-					pwm_set_angle(slider,2);
+				// no message
+				break;
+			}
+			
+			
+			case 1:
+			{
+				// input data from node 1
+				values.left_button = received->data[0];
+				values.right_button = received->data[1];
+				values.joystick_button = received->data[2];
+				dir = (direction) received->data[3];
+				x_axis.bytes_axis[0] = received->data[4];
+				x_axis.bytes_axis[1] = received->data[5];
+				slider = received->data[6];
+				if(values.left_button == previous_button){
+					values.left_button = 0;
 				}
+				else{
+					previous_button = 0;
+				}
+				if (values.left_button == 1) {
+					previous_button = values.left_button;
+					paused = FALSE;
+					message_sent = FALSE;
+				}
+				if(values.joystick_button == previous_joystick_button){
+					values.joystick_button = 0;
+				}
+				else{
+					previous_joystick_button = 0;
+				}
+				if (values.joystick_button == 1) {
+					previous_joystick_button = values.joystick_button;
+					solenoid_shoot();
+				}
+				//printf("Slider is :%d\n",slider);
 				
+				break;
+			}
+			
+			
+			case 2:
+			{
+				// Control message: data[0] = control mode, data[1] = paused/playing, data[2] =
+				// 0 = ps4, 1 = multifunction board
+				if(received->data[0])
+				{
+					control_mode = MFB;
+				}
+				else 
+				{
+					control_mode = PS4;
+				}
+				break;
 			}
 			
 		}
 		
+		switch(control_mode)
+		{
+			case PS4:
+			{
+				uart_data_received = read_ps4_controller();
+				if(uart_data_received)
+				{
+					// Data received over uart
+					int angle = (int) ps4_values[0]*100;
+					int pos_ref = mapped_ps4_pos(ps4_values[2]);
+					ps4_trigger = (uint8_t) ps4_values[4];
+					if(ps4_trigger == previous_ps4_trigger){
+						ps4_trigger = 0;
+					}
+					else{
+						previous_ps4_trigger = 0;
+					}
+					if (ps4_trigger == 1) {
+						previous_ps4_trigger = ps4_trigger;
+						solenoid_shoot();
+					}
+					motor_control_set_reference_pos(pos_ref);
+					pwm_set_angle(-angle,1);
+				}
+				break;
+			}
+			
+			
+			case MFB:
+			{
+				if (closed_loop) {
+					motor_control_set_reference_pos(slider);
+					if(abs(x_axis.int_axis - prev_x_axis)>3) pwm_set_angle(-x_axis.int_axis,1);
+					prev_x_axis = x_axis.int_axis;
+				}
+				else
+				{
+					motor_control_set_velocity(x_axis.int_axis);
+					if (abs(slider - prev_slider)>3)
+					{
+						pwm_set_angle(slider,2);
+					}
+					
+				}
+				break;
+			}
+			
+			
+		}		
 		
 		
 		if(score < 3 && !message_sent) {
@@ -145,7 +209,6 @@ int main(void)
 			send_message.data[0]=score;
 			//printf("ADC value: %d \n", get_ADC_value());
 			uint8_t sent = can_send_message(&send_message);
-			_delay_ms(10);
 			if (sent == 1) {
 				message_sent = TRUE;
 			}
@@ -156,17 +219,14 @@ int main(void)
 		}
 		
 		
-		//printf("Received data: id: %d len: %d\n",received->ID,received->length);
-		//printf("left button: %d , right button: %d , joystick button: %d, direction: %s, x axis: %d, y axis: %d \n", values.right_button, values.right_button, values.joystick_button, stringFromDirection(dir), x_axis,y_axis);
+		
 		free(received);
 		//Construct return data:
 		if(score>=3 && !message_sent) {
 			// Game lost, send message
-			send_message.ID = 2;
+			send_message.ID = 4;
 			send_message.length = 1;
 			send_message.data[0]=score;
-			//printf("ADC value: %d \n", get_ADC_value());
-			//printf("HEre\n");
 			uint8_t sent = can_send_message(&send_message);
 			_delay_ms(10);
 			if (sent == 1) {
@@ -178,9 +238,6 @@ int main(void)
 			score = 0;
 			paused = TRUE;
 		}
-		_delay_ms(50);
-
-
 	}
 }
 
@@ -214,5 +271,32 @@ uint8_t score_keeper()
 
 void goal_scored() {
 	paused = TRUE;
+}
+
+// Parse string from UART
+uint8_t read_ps4_controller()
+{
+	
+	if (!(UCSR0A & (1<<RXC0)))
+	{
+		// No data in UART receive register
+		return 0;
+	}
+	unsigned char string[100];
+	scanf("%s",string);
+	char *token;
+	uint8_t i = 0;
+	while ((token = strsep(&string, ":")) && i < 5)
+	{
+		ps4_values[i] = atof(token);
+		i++;
+	}
+	return 1;
+}
+
+int mapped_ps4_pos(float value)
+{
+	int integer_value = (int) value * 100;
+	return (integer_value + 100) * 255/ 200;
 }
 
