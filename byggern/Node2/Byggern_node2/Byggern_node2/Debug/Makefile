@@ -44,6 +44,7 @@ C_SRCS +=  \
 ../MCP2515.c \
 ../motor_control.c \
 ../pwm.c \
+../solenoid.c \
 ../spi.c \
 ../TWI_Master.c \
 ../USART.c
@@ -63,6 +64,7 @@ main_node2.o \
 MCP2515.o \
 motor_control.o \
 pwm.o \
+solenoid.o \
 spi.o \
 TWI_Master.o \
 USART.o
@@ -75,6 +77,7 @@ main_node2.o \
 MCP2515.o \
 motor_control.o \
 pwm.o \
+solenoid.o \
 spi.o \
 TWI_Master.o \
 USART.o
@@ -87,6 +90,7 @@ main_node2.d \
 MCP2515.d \
 motor_control.d \
 pwm.d \
+solenoid.d \
 spi.d \
 TWI_Master.d \
 USART.d
@@ -99,6 +103,7 @@ main_node2.d \
 MCP2515.d \
 motor_control.d \
 pwm.d \
+solenoid.d \
 spi.d \
 TWI_Master.d \
 USART.d
@@ -117,6 +122,8 @@ LINKER_SCRIPT_DEP+=
 
 
 # AVR32/GNU C Compiler
+
+
 
 
 

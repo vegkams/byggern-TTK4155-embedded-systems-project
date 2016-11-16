@@ -5,15 +5,13 @@
 *  Author: vegarkam
 * ||NODE 2||
 */
-
+#include "setup.h"
 #include "can.h"
-#include "MCP2515.h"
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <stdio.h>
-#include "can.h"
 #include "MCP2515.h"
-#include "setup.h"
+
 #define CAN_SEND_STATUS_MASK 0x78
 #define RXB0_INTERRUPT 0x01
 #define RXB0_AND_TXB0_INTERRUPT 0x05

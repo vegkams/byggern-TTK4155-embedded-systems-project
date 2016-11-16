@@ -9,10 +9,14 @@
 #include "setup.h"
 unsigned int input_range;
 unsigned int output_range;
-unsigned int input_start;
-unsigned int input_end;
-unsigned int output_start;
-unsigned int output_end;
+int input_joystick_start;
+int input_joystick_end;
+uint8_t input_slider_start;
+uint8_t input_slider_end;
+uint8_t input_joystick_range;
+uint8_t input_slider_range;
+int output_start;
+int output_end;
 uint8_t pwm_init(){
 	//Mode 14
 	TCCR3A |= (1 << WGM31)|(1 << COM3A1);
@@ -26,22 +30,38 @@ uint8_t pwm_init(){
 	set_bit(DDRE,PE3);
 	OCR3A = 375;
 
-	input_start = 0;
-	input_end = 255;
+	input_joystick_start = -100;
+	input_joystick_end = 100;
+	input_slider_start = 0;
+	input_slider_end = 255;
 	output_start = 250;
 	output_end = 500;
-	input_range = input_end-input_start;
+	input_joystick_range = input_joystick_end-input_joystick_start;
+	input_slider_range = input_slider_end - input_slider_start;
 	output_range = output_end-output_start;
 	return 0;
 
 }
 
-uint8_t pwm_set_angle(int angle){
-	int scaled_angle = abs(angle-255);
-	if(angle >= input_start && angle <= input_end){
-		OCR3A = (scaled_angle-input_start)*output_range / input_range + output_start;
-		return 0;
+uint8_t pwm_set_angle(int angle, uint8_t mode){
+	//int scaled_angle = abs(angle-255);
+	switch(mode)
+	{
+		case 1:
+		if(angle >= input_joystick_start && angle <= input_joystick_end){
+			OCR3A = (angle-input_joystick_start)*output_range / input_joystick_range + output_start;
+			return 0;
+		}
+		break;
+		
+		case 2:
+		if(angle >= input_slider_start && angle <= input_slider_end){
+			OCR3A = (angle-input_slider_start)*output_range / input_slider_range + output_start;
+			return 0;
+		}
+		break;
 	}
+	
 	
 	return 1;
 }

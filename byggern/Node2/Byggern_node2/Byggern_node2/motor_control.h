@@ -8,7 +8,7 @@
 
 #ifndef MOTOR_CONTROL_H_
 #define MOTOR_CONTROL_H_
-#include <stdint.h>
+#include <avr/io.h>
 #define RST PH6
 #define OE PH5
 #define EN PH4
@@ -35,6 +35,7 @@ void motor_control_set_playing_flag(uint8_t flag);
 void motor_control_set_timer_flag(uint8_t flag);
 void motor_control_set_reference_pos(int pos);
 void motor_control_set_pid_gains(float p, float i, float d);
+void motor_control_reset_integrator();
 
 
 

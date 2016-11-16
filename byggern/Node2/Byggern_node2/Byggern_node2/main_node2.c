@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <avr/interrupt.h>
+#include "solenoid.h"
 
 
 can_message send;
@@ -27,6 +28,7 @@ uint8_t score = 0;
 
 uint8_t paused = FALSE;
 uint8_t message_sent = FALSE;
+
 
 
 
@@ -45,10 +47,13 @@ int main(void)
 	int averaged_value = 0;
 	can_message* received;
 	uint8_t previous_button = 0;
+	uint8_t previous_joystick_button = 0;
 	float joystick_x_percentage;
 	float joystick_y_percentage;
 	uint8_t slider = 50;
+	int8_t prev_x_axis;
 	uint8_t prev_slider;
+	uint8_t closed_loop = TRUE;
 
 	
 	while(1)
@@ -97,12 +102,38 @@ int main(void)
 				paused = FALSE;
 				message_sent = FALSE;
 			}
-			motor_control_set_velocity(x_axis.int_axis);
-			//printf("Motor control vel: %i\n", x_axis.int_axis);
-			//_delay_ms(100);
-			//printf("slider value: %d\n",slider);
-			if(abs(slider-prev_slider)>6) pwm_set_angle(slider);
-			prev_slider = slider;
+			if(values.joystick_button == previous_joystick_button){
+				values.joystick_button = 0;
+			}
+			else{
+				previous_joystick_button = 0;
+			}
+			if (values.joystick_button == 1) {
+				previous_joystick_button = values.joystick_button;
+				solenoid_shoot();
+			}
+			//printf("Slider is :%d\n",slider);
+			if (closed_loop) {
+				//printf("Slider is %d \n",slider);
+				motor_control_set_reference_pos(slider);
+				//int encoder_value = read_encoder();
+				//printf("Encoder %d\n",encoder_value);
+				//printf("Motor control vel: %i\n", x_axis.int_axis);
+				//_delay_ms(100);
+				//printf("slider value: %d\n",slider);
+				if(abs(x_axis.int_axis - prev_x_axis)>3) pwm_set_angle(-x_axis.int_axis,1);
+				prev_x_axis = x_axis.int_axis;
+			}
+			else
+			{
+				motor_control_set_velocity(x_axis.int_axis);
+				if (abs(slider - prev_slider)>3)
+				{
+					pwm_set_angle(slider,2);
+				}
+				
+			}
+			
 		}
 		
 		
@@ -163,13 +194,14 @@ void init() {
 	can_init();
 	CAN_enable_normal_mode();
 	pwm_init();
+	motor_control_init();
 	setup_ADC();
 	start_ADC();
-	motor_control_init();
+	setup_solenoid();
 	motor_control_init_clock();
 
 	motor_control_set_playing_flag(TRUE);
-	motor_control_set_pid_gains(0.5,0.1,0.0);
+	motor_control_set_pid_gains(1.0,0.3,0.0);
 	
 }
 uint8_t score_keeper()

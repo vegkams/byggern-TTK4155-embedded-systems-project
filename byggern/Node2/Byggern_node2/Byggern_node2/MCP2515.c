@@ -4,7 +4,8 @@
  * Created: 05.10.2016 12:07:27
  *  Author: vegarkam
  */ 
-
+#include "setup.h"
+#include <avr/interrupt.h>
 #include "MCP2515.h"
 #include "spi.h"
 #include "USART.h"

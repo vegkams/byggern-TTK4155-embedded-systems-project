@@ -13,6 +13,6 @@
 
 
 uint8_t pwm_init();
-uint8_t pwm_set_angle(int angle);
+uint8_t pwm_set_angle(int angle,uint8_t mode);
 
 #endif /* PWM_H_ */

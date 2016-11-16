@@ -16,6 +16,8 @@ motor_control.c
 
 pwm.c
 
+solenoid.c
+
 spi.c
 
 TWI_Master.c

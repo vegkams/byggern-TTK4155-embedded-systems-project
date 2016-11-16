@@ -9,7 +9,7 @@
 #ifndef SETUP_H_
 #define SETUP_H_
 #define F_OSC 16000000L // Crystal oscillating frequency
-#define F_CPU 16000000L
+#define F_CPU 16000000L // For use in _delay_ms
 #define BAUD 9600 // Baud rate for RS 232
 #define MYUBRR ((((long)F_OSC)/(16L * (long)BAUD)) -1L)
 #define TRUE 1

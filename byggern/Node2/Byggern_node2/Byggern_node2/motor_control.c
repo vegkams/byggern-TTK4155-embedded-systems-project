@@ -6,17 +6,21 @@
 */
 #include "motor_control.h"
 #include "setup.h"
-#include "DAC_driver.h"
-#include "USART.h"
+#include <stdint.h>
 #include <avr/io.h>
 #include <util/delay.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <avr/interrupt.h>
+#include "DAC_driver.h"
+#include "USART.h"
 
-#define vel_max 125
-#define vel_min -125
-#define dt 0.01
+
+
+#define vel_max 100
+#define vel_min -100
+#define dt 0.02
 
 unsigned int encoder_value;
 unsigned char MSB;
@@ -27,10 +31,11 @@ unsigned int encoder_max;
 int clock_seconds;
 uint8_t counter;
 int16_t reference_value;
-int16_t error_sum;
+float error_sum;
 float kp;
 float kd;
 float ki;
+int integrator_max = 300;
 
 uint8_t motor_control_init(){
 	set_bit(DDRH, RST);
@@ -63,19 +68,20 @@ uint8_t motor_control_init(){
 }
 
 void motor_control_init_clock(){
-	//Trigger interrupt with interval of 100hz FQ
-	OCR1A = 2500;
+	//Trigger interrupt with interval of 25hz
+	OCR1A = 5000;
 
 	//Enable CTC mode
 	TCCR1A |= (1 << COM1A0);
 
 	//Prescale 64
-	TCCR1B = (1 << CS22) | (1 << WGM22);
+	TCCR1B |= (1 << CS11) | (1 << CS10) | (1 << WGM12);
 	
 	//Enable compare match A interrupt
 	TIMSK1 |= (1 << OCIE1A);
 }
 
+// read and return the encoder value
 unsigned int read_encoder()
 {
 	enable_encoder(1);
@@ -96,23 +102,24 @@ unsigned int read_encoder()
 
 void set_motor_direction(uint8_t dir)
 {
-	if(dir == 2) 
+	if(dir == 2)
 	{
 		//printf("Direction: LEFT\n");
 		set_bit(MJ1,DIR);
 	}
-	else if(dir == 1) 
+	else if(dir == 1)
 	{
 		//printf("Direction: RIGHT\n");
 		clear_bit(MJ1,DIR);
 	}
 }
-//
+// Send the output to the motor
 void motor_control_set_speed(uint8_t value){
 	//printf("sending dac data: %d\n",value);
 	send_DAC_data(value);
 }
 
+// Enable the motor
 void enable_motor(uint8_t enable)
 {
 	if (enable)
@@ -127,11 +134,14 @@ void enable_motor(uint8_t enable)
 	}
 }
 
+// Set the reference position
 void motor_control_set_reference_pos(int pos)
 {
-	reference_value = -pos + 100;
+	reference_value = -pos + 255;
+	//printf("\tReference: %d\n", reference_value);
 }
 
+// Enable motor encoder
 void enable_encoder(uint8_t enable)
 {
 	if(enable)
@@ -144,6 +154,7 @@ void enable_encoder(uint8_t enable)
 	}
 }
 
+// Reset the motor encoder
 void encoder_reset()
 {
 	clear_bit(MJ1,RST);
@@ -159,57 +170,64 @@ uint8_t reverse_bits(char x){
 	return x;
 }
 
+// Set motor velocity, check for acceptable values and limit the output
 void motor_control_set_velocity(int velocity)
 {
 	encoder_value = read_encoder();
-	//printf("Encoder value: %d\n", encoder_value);
-	if ((encoder_value <= encoder_max && velocity > 0) || (encoder_value >= 0 && velocity < 0))
+	//printf("Encoder %d\n",encoder_value);
+	int vel = saturate(velocity);
+	motor_control_set_speed((uint8_t) abs(vel));
+	if (vel > 0)
 	{
-		int vel = saturate(velocity);
-		motor_control_set_speed((uint8_t) abs(vel)*2);
-		if (vel > 0)
-		{
-			set_motor_direction(2);
-		}
-		else
-		{
-			set_motor_direction(1);
-		}
+		set_motor_direction(2);
 	}
-	else motor_control_set_speed(0);
+	else
+	{
+		set_motor_direction(1);
+	}
+
+	//else motor_control_set_speed(0);
 	
 	
 }
 
-void motor_control_set_timer_flag(uint8_t flag) 
+// Toggles the timer flag
+// Used for scoring the game
+void motor_control_set_timer_flag(uint8_t flag)
 {
 	if (flag) timer_flag = TRUE;
 	else timer_flag = FALSE;
 }
 
+// Toggle playing
 void motor_control_set_playing_flag(uint8_t flag)
 {
+	printf("Set playing flag: %d\n", flag);
 	if (flag) playing_flag = TRUE;
 	else playing_flag = FALSE;
 }
 
+// Limit the motor velocity
 int saturate(int vel) {
 	if (vel > vel_max) return vel_max;
 	else if (vel < vel_min) return vel_min;
 	return vel;
 }
 
+// Resets and returns the score
 int motor_control_get_played_time()
 {
 	clock_seconds = 0;
 	return clock_seconds;
 }
 
+// Reset the score timer
 void motor_control_reset_timer()
 {
 	clock_seconds = 0;
 }
 
+// Set the gains of the PID
 void motor_control_set_pid_gains(float p, float i, float d)
 {
 	kp = p;
@@ -218,54 +236,79 @@ void motor_control_set_pid_gains(float p, float i, float d)
 }
 
 // ISR for the PID controller
-ISR(TIMER2_COMPA_vect)
+ISR(TIMER1_COMPA_vect)
 {
-	printf("Timer triggered interrupt \n");
+	// If the timer is on, count the score
 	if (timer_flag)
 	{
 		counter++;
+		// Running on 50Hz
 		if (counter >= 100)
 		{
 			counter = 0;
-			clock_seconds ++; 
+			clock_seconds ++;
 		}
 	}
 	
+	// Use PID when playing
 	if(!playing_flag)
 	{
 		return;
 	}
 	
-	encoder_value = read_encoder();
-	int16_t error, output;
-	
-	error = reference_value - (encoder_value/encoder_max)*200;
-	if (error < 3)
+	long encoder_value = read_encoder();
+	//printf("Encoder: %d\n", encoder_value);
+	float error;
+	int16_t output;
+	//printf("\t\tEncoder max: %d encoder value %d\n", encoder_max,encoder_value);
+	error = reference_value - ((encoder_value*255)/encoder_max);
+	//printf("Error: %d\n", error);
+	//printf("Encoder blabla %d\n", (int16_t) ((encoder_value*255)/encoder_max));
+	if (abs(error) < 3)
 	{
+		//printf("Lal\n");
 		motor_control_set_speed(0);
 		return;
 	}
+	if ((int) error_sum < integrator_max)
+	{
+		error_sum += dt*error;
+	}
+	int prop = -kp*error;
+	int integral = - ki*error_sum;
+	//printf("Prop: %d", prop);
 	
-	error_sum += dt*error;
-	
-	output = kp*error + ki*error_sum;
+	output = prop + integral;
+	//printf("Output PI: %d\n", output);
+
 	motor_control_set_velocity(output);
-		
+	
 }
 
+// Function for finding the encoder range
 unsigned int find_encoder_max()
 {
 	printf("In find encoder max");
-	motor_control_set_velocity(50);
+	motor_control_set_velocity(60);
 	_delay_ms(1500);
 	motor_control_set_velocity(0);
 	_delay_ms(200);
 	printf("Encoder value: %d\n",read_encoder());
 	encoder_reset();
-	motor_control_set_velocity(-50);
-	_delay_ms(1500);
+	motor_control_set_velocity(-60);
+	_delay_ms(1200);
 	motor_control_set_velocity(0);
 	_delay_ms(100);
 	printf("\tEncoder value2: %d\n",read_encoder());
-	return read_encoder();
+	uint16_t encoder = read_encoder();
+	motor_control_set_velocity(20);
+	_delay_ms(200);
+	motor_control_set_velocity(0);
+	return encoder;
+}
+
+// Reset the integrator accumulated error
+void motor_control_reset_integrator()
+{
+	error_sum = 0;
 }
