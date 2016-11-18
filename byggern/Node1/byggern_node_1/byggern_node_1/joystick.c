@@ -44,15 +44,13 @@ void calibrate_joystick()
 	printf("Calibrate: x: %d, y:%d\n",offset_x,offset_y);	
 }
 
-direction joystick_getDirection(float x_f, float y_f)
+direction joystick_getDirection(float x, float y)
 {
-	int x = (int) x_f;
-	int y = (int) y_f;
-	//printf("x: %d, y: %d\n",x,y);
+	//printf("Joystick: x: %d y: %d\n",(int) x,(int) y);
 	direction d = NEUTRAL;
-	if (!(abs(x)<50 && abs(y)<50)) 
+	if (!(fabsf(x)<50 && fabsf(y)<50)) 
 	{
-		if (abs(x)>50 && abs(y)<50)
+		if (fabsf(x)>50 && fabsf(y)<50)
 		{
 			if (x<0)
 			{
@@ -63,7 +61,7 @@ direction joystick_getDirection(float x_f, float y_f)
 				d = RIGHT;
 			}
 		}
-		else if(abs(x)<50 && abs(y)>50)
+		else if(fabsf(x)<50 && fabsf(y)>50)
 		{
 			if (y<0)
 			{
@@ -76,7 +74,7 @@ direction joystick_getDirection(float x_f, float y_f)
 		}
 		else
 		{
-			if (abs(y/x)>1)
+			if (fabsf(y/x)>1)
 			{
 				if (y<0)
 				{

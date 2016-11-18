@@ -39,22 +39,18 @@ int main(void)
 	init();
 	can_message send_message;
 	joyValues values;
-	direction dir;
+
 	int_bytes x_axis;
-	int y_axis;
 	uint8_t counter = 0;
 	uint8_t adc_value = 0;
 	int accumulated_value = 0;
 	int averaged_value = 0;
-	can_message* received;
-	uint8_t previous_button = 0;
 	uint8_t previous_joystick_button = 0;
-	float joystick_x_percentage;
-	float joystick_y_percentage;
 	uint8_t slider = 50;
 	int8_t prev_x_axis;
 	uint8_t prev_slider;
 	uint8_t closed_loop = TRUE;
+	direction dir;
 	
 	// Default multifunction board
 	Control_mode  control_mode = MFB;
@@ -74,10 +70,10 @@ int main(void)
 			if (counter==5)
 			{	
 				counter = 0;
-				printf("accumulated_value= %d \n",accumulated_value);
+				printf("accumulated_value= %d\n",accumulated_value);
 				averaged_value = accumulated_value/5;
 				accumulated_value = 0;
-				if (averaged_value < 80) {
+				if (averaged_value < 20) {
 					averaged_value=0;
 					goal_scored();
 				}
@@ -88,7 +84,7 @@ int main(void)
 		can_message* received = malloc(sizeof(can_message));
 		can_receive_message(received);
 		message_id = received->ID;
-		printf("Message id: %d\n",message_id);
+		//printf("Message id: %d\n",message_id);
 		switch(message_id)
 		{
 			case 0:
@@ -126,21 +122,22 @@ int main(void)
 			{
 				printf("Received case 2\n");
 				// Control message: data[0] = playing/!playing
-				if(received->data[0])
-				{
-					printf("Pause is on\n");
-					paused = TRUE;
-					motor_control_set_playing_flag(FALSE);
-					motor_control_set_timer_flag(FALSE);
-					motor_control_reset_timer();
-				}
-				else 
+				if(received->data[0] == 1)
 				{
 					printf("Pause is off\n");
 					paused = FALSE;
 					motor_control_set_playing_flag(TRUE);
 					motor_control_reset_timer();
 					motor_control_set_timer_flag(TRUE);
+					
+				}
+				else if (received->data[0]==0)
+				{
+					printf("Pause is on\n");
+					paused = TRUE;
+					motor_control_set_playing_flag(FALSE);
+					motor_control_set_timer_flag(FALSE);
+					motor_control_reset_timer();
 				}
 
 				break;
@@ -179,6 +176,7 @@ int main(void)
 			case MFB:
 			{
 				if (closed_loop) {
+					//printf("Slider_ %d \n",slider);
 					motor_control_set_reference_pos(slider);
 					if(abs(x_axis.int_value - prev_x_axis)>3) pwm_set_angle(-x_axis.int_value,1);
 					prev_x_axis = x_axis.int_value;
@@ -203,6 +201,7 @@ int main(void)
 			// Send score
 			int_bytes score;
 			score.int_value = motor_control_get_played_time();
+			printf("Played time = %d\n", score.int_value);
 			motor_control_reset_timer();			
 			send_message.ID = 3;
 			send_message.length = 2;

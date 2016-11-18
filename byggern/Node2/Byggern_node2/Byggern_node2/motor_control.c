@@ -84,13 +84,11 @@ unsigned int read_encoder()
 	_delay_us(20);
 
 	uint8_t MSB = MJ2;
-	printf("MSB: %d\n", MSB);
 	// select lsb
 	set_bit(MJ1,SEL);
 	_delay_us(20);
 
 	uint8_t LSB = MJ2;
-	printf("\tLSB: %d\n",LSB);
 	enable_encoder(0);
 	return (unsigned int) ((MSB << 8) | LSB);
 	//printf("Encoder value %d\n", encoder_value);
@@ -216,7 +214,6 @@ int saturate(int vel) {
 // Resets and returns the score
 int motor_control_get_played_time()
 {
-	clock_seconds = 0;
 	return clock_seconds;
 }
 
@@ -278,7 +275,7 @@ ISR(TIMER1_COMPA_vect)
 	
 	output = prop + integral;
 	
-
+	//printf("Sending ref\n");
 	motor_control_set_velocity(output);
 	
 }

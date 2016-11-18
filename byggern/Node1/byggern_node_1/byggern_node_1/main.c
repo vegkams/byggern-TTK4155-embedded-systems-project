@@ -13,6 +13,7 @@
 #include "menu.h"
 #include "MCP2515.h"
 #include "can.h"
+#include <avr/interrupt.h>
 #include <util/delay.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -28,6 +29,9 @@ uint8_t         pause = TRUE;
 int_union_bytes score;
 uint8_t game_initialized = 0;
 can_message * sendmessage;
+uint8_t can_flag;
+uint8_t counter;
+int time_seconds;
 
 int main(void)
 {
@@ -45,6 +49,7 @@ int main(void)
 			mode_t = PLAYING;
 			if (!game_initialized)
 			{
+				enable_can_timer();
 				sendmessage->ID = 2;
 				sendmessage->length = 1;
 				sendmessage->data[0] = 1;
@@ -52,8 +57,8 @@ int main(void)
 				printf("Starting game %d\n",can_send_message(sendmessage));
 				_delay_ms(20);
 				game_initialized = TRUE;
-				pause = FALSE;			
-			}			
+				pause = FALSE;
+			}
 		}
 		
 		switch(mode_t){
@@ -71,7 +76,7 @@ int main(void)
 	return 0;
 }
 
-void in_menus(){	
+void in_menus(){
 	if (menu_printed == 0)
 	{
 		print_menu(main_menu);
@@ -102,12 +107,13 @@ void playing_the_game(){
 	send_joystick_data();
 	joyValues j;
 	read_joystick(&j);
-	
+	menu_print_played_time(time_seconds);
 	//Mottar melding om liv
 	if(can_data_received() > 0) {
 		can_message* receivemessage = malloc(sizeof(can_message));
 		can_receive_message(receivemessage);
 		if(receivemessage->ID == 3) {
+			
 			lives--;
 			menu_playing(lives);
 			score.byte_value[0] = receivemessage -> data[0];
@@ -119,6 +125,7 @@ void playing_the_game(){
 			sendmessage->data[0] = 0;
 			can_send_message(sendmessage);
 			pause = TRUE;
+			disable_can_timer();
 		}
 
 		printf("\n");
@@ -127,6 +134,8 @@ void playing_the_game(){
 	
 	// Avslutter spill om man er tom for liv eller trykker på høyre knapp
 	if(j.right_button == 1){
+		disable_can_timer();
+		menu_reset_played_time();
 		sendmessage->ID = 2;
 		sendmessage->length = 1;
 		sendmessage->data[0] = 0;
@@ -135,11 +144,15 @@ void playing_the_game(){
 		game_initialized = FALSE;
 		mode_t = MENU;
 		arrow_line=2;
+		lives = 3;
 		button_action(arrow_line);
 	}
 	// Start again with left button
-	if(j.left_button == 1) 
+	if(j.left_button == 1 && pause)
 	{
+		enable_can_timer();
+		menu_reset_played_time();
+		time_seconds = 0;
 		sendmessage->ID = 2;
 		sendmessage->length = 1;
 		sendmessage->data[0] = 1;
@@ -149,6 +162,7 @@ void playing_the_game(){
 	}
 	else if (lives == 0)
 	{
+		disable_can_timer();
 		sendmessage->ID = 2;
 		sendmessage->length = 1;
 		sendmessage->data[0] = 0;
@@ -156,6 +170,9 @@ void playing_the_game(){
 		game_initialized = FALSE;
 		restart_game_mode();
 		mode_t = MENU;
+		lives = 3;
+		time_seconds = 0;
+		menu_reset_played_time();
 		button_action(2); //Går til main menu
 		navigateMenu(3); //Går til highscore
 	}
@@ -164,26 +181,31 @@ void playing_the_game(){
 
 
 uint8_t send_joystick_data() {
-	joyValues j;
-	read_joystick(&j);
-	int_union_bytes x_axis;
-	int_union_bytes y_axis;
-	uint8_t dir = (uint8_t) joystick_getDirection(j.x_percentage,j.y_percentage);
-	x_axis.int_value = (int) j.x_percentage;
-	y_axis.int_value = (int) j.y_percentage;
-	uint8_t slider = joystick_get_right_slider();
-	sendmessage->ID = 1;
-	sendmessage->length=7;
+	if (can_flag)
+	{
+		joyValues j;
+		read_joystick(&j);
+		int_union_bytes x_axis;
+		int_union_bytes y_axis;
+		uint8_t dir = (uint8_t) joystick_getDirection(j.x_percentage,j.y_percentage);
+		x_axis.int_value = (int) j.x_percentage;
+		y_axis.int_value = (int) j.y_percentage;
+		uint8_t slider = joystick_get_right_slider();
+		sendmessage->ID = 1;
+		sendmessage->length=7;
 
-	sendmessage->data[0] = j.left_button;
-	sendmessage->data[1] = j.right_button;
-	sendmessage->data[2] = j.joystick_button;
-	sendmessage->data[3] = dir;
-	sendmessage->data[4] = x_axis.byte_value[0];
-	sendmessage->data[5] = x_axis.byte_value[1];
-	//printf("X axis data 1: %d data 2: %d\n", (x_axis.bytes_axis[0]), (x_axis.bytes_axis[1]));
-	sendmessage->data[6] = slider;
-	return can_send_message(sendmessage);
+		sendmessage->data[0] = j.left_button;
+		sendmessage->data[1] = j.right_button;
+		sendmessage->data[2] = j.joystick_button;
+		sendmessage->data[3] = dir;
+		sendmessage->data[4] = x_axis.byte_value[0];
+		sendmessage->data[5] = x_axis.byte_value[1];
+		//printf("X axis data 1: %d data 2: %d\n", (x_axis.bytes_axis[0]), (x_axis.bytes_axis[1]));
+		sendmessage->data[6] = slider;
+		return can_send_message(sendmessage);
+		can_flag = FALSE;
+	}
+
 	
 }
 
@@ -205,5 +227,42 @@ void initializations(){
 	main_menu = menu_init();
 	can_init();
 	printf("enable normal mode: %d\n",CAN_enable_normal_mode());
+	// Run timer on 50Hz
+	//Trigger interrupt with interval of 50hz
+	OCR1A = 1536;
 
+	//Enable CTC mode
+	TCCR1A |= (1 << COM1A0);
+
+	//Prescale 64
+	TCCR1B |= (1 << CS11) | (1 << CS10) | (1 << WGM12);
+	
+	//Enable compare match A interrupt
+	
+	sei();
+
+}
+
+void enable_can_timer()
+{
+	printf("Enable timer\n");
+	TIMSK |= (1 << OCIE1A);
+}
+void disable_can_timer()
+{
+	printf("Disable timer\n");
+	TIMSK &= ~(1<<OCIE1A);
+}
+ISR(TIMER1_COMPA_vect )
+{
+	can_flag = TRUE;
+	counter++;
+	if (counter == 50)
+	{
+		counter = 0;
+		time_seconds ++;
+		menu_reset_played_time();
+		menu_print_played_time(time_seconds);
+	}
+	
 }

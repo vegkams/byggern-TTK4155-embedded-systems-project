@@ -38,8 +38,6 @@ uint8_t can_init(){
 	set_bit(MCUCR,ISC11);
 	clear_bit(MCUCR,ISC10);
 	
-	// Enable global interrupts
-	sei();
 	return 0;
 
 }

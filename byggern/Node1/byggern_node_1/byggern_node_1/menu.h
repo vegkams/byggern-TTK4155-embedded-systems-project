@@ -40,4 +40,6 @@ void navigateMenu(uint8_t current_line);
 void sort_list(int * list[], int size);
 void set_high_score_list(int score);
 void menu_playing(uint8_t lives);
+void menu_print_played_time(int time);
+void menu_reset_played_time();
 #endif /* MENU_H_ */

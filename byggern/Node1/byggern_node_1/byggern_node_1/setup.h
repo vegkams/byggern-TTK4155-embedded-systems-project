@@ -37,4 +37,7 @@ void playing_the_game();
 void in_menus();
 void initializations();
 uint8_t send_joystick_data();
+void enable_can_timer();
+void disable_can_timer();
+ISR(TIMER1_COMPA_vect );
 #endif /* SETUP_H_ */

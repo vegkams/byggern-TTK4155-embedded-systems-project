@@ -23,6 +23,7 @@ char         first_place[8];
 char         second_place[8];
 char         third_place[8];
 char         lives_int[8];
+char         time_played[8];
 int          high_score[3];
 const char   playing[] = "GAME PLAYING";
 const char   number_of_lives[] = "LIVES LEFT:";
@@ -358,5 +359,16 @@ void menu_playing(uint8_t lives)
 	oled_print_string(itoa(lives,lives_int,10));
 }
 
+void menu_print_played_time(int time)
+{
+	oled_pos(6,2);
+	oled_print_string("TIME:");
+	oled_pos(6,8);
+	oled_print_string(itoa(time,time_played,10));
+}
 
-
+void menu_reset_played_time()
+{
+	oled_pos(6,8);
+	oled_print_string("     ");
+}
