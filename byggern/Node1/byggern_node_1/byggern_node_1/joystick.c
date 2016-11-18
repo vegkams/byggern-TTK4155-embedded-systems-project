@@ -40,13 +40,15 @@ void read_joystick(joyValues *joy)
 void calibrate_joystick()
 {
 	offset_x = convert_to_percentage(read_ADC(1));
-	offset_y = convert_to_percentage(read_ADC(2));	
+	offset_y = convert_to_percentage(read_ADC(0));
+	printf("Calibrate: x: %d, y:%d\n",offset_x,offset_y);	
 }
 
 direction joystick_getDirection(float x_f, float y_f)
 {
 	int x = (int) x_f;
 	int y = (int) y_f;
+	//printf("x: %d, y: %d\n",x,y);
 	direction d = NEUTRAL;
 	if (!(abs(x)<50 && abs(y)<50)) 
 	{

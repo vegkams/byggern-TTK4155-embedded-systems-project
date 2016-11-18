@@ -12,7 +12,7 @@
 #include "menu.h"
 #include <string.h>
 #include "joystick.h"
-#define OLED_OFFSET 3
+#define OLED_OFFSET 0
 
 direction    previousDIR = NEUTRAL;
 menu_t *     current_menu;
@@ -62,10 +62,12 @@ menu_t * menu_init (){
 	itoa(high_score[2],third_place,10);
 	return &Mainmenu;
 }
+
 uint8_t move_arrow(direction dir ,uint8_t current_row){
 	uint8_t row = current_row;
-	printf("current row: %d\n",row);
+	//printf("current row: %d\n",row);
 	uint8_t number_of_rows = current_menu -> number_of_children + OLED_OFFSET;
+	//printf(stringFromDirection(dir));
 	if(dir == previousDIR){
 		dir = NEUTRAL;
 	}
@@ -79,10 +81,9 @@ uint8_t move_arrow(direction dir ,uint8_t current_row){
 			break;
 		}
 		
-		
 		case UP  :
 		{
-			if (row >= 6)
+			if (row >= 3)
 			{
 				oled_pos(row, 0);
 				oled_print_string("  ");
@@ -90,16 +91,13 @@ uint8_t move_arrow(direction dir ,uint8_t current_row){
 				oled_print_arrow(row,0);
 				previousDIR=UP;
 			}
-
 			break;
 		}
-		
 		
 		case DOWN  :
 		{
 			if (row <= number_of_rows)
-			{
-								
+			{		
 				oled_pos(row, 0);
 				oled_print_string("  ");
 				if (row == 7)
@@ -109,11 +107,9 @@ uint8_t move_arrow(direction dir ,uint8_t current_row){
 				row++;
 				oled_print_arrow(row,0);
 				previousDIR = DOWN;
-				
 			}
 			break;
 		}		
-		
 	}
 	return row;
 }
@@ -122,35 +118,38 @@ void print_menu (menu_t *menu){
 	menu_t * current = menu;
 	oled_reset();
 	oled_home();
-	oled_pos(3,2);
+	oled_pos(0,2);
 	oled_print_string(menu->name); //Skriver ut overskrift
 	
 	if (menu->child1 != NULL)
 	{
-		oled_pos(5,2);
+		oled_pos(2,2);
 		oled_print_string(menu->child1->name);
 	}
 	
 	if (menu->child2 != NULL)
 	{
-		oled_pos(6,2);
+		oled_pos(3,2);
 		oled_print_string(menu->child2->name);
 	}
 
 	if (menu->child3 != NULL)
 	{
-		oled_pos(7,2);
+		oled_pos(4,2);
 		oled_print_string(menu->child3->name);
 	}
+	
 	if (menu->child4 != NULL)
 	{
-		oled_pos(1,2);
+		oled_pos(5,2);
 		oled_print_string(menu->child4->name);
 	}
+	
 	if (strcmp(menu->name, "HIGH SCORE") == 0)
 	{
 		print_highscore();
 	}
+	
 	if (strcmp(menu->name, "SETTINGS") == 0)
 	{
 		print_settings();
@@ -166,35 +165,38 @@ uint8_t button_action (uint8_t current_line) {
 	// Should be independent of the actual linked list
 	// Change the struct to an array of children, and use current_line as index?
 	// Think that should work
+	
 	if (strcmp(current_menu->name, "MAIN MENU") == 0)
 	{
-		if(current_line == 5)
+		if(current_line == 2)
 		{
 			game_started = 1;
 			navigateMenu(current_line);
 			menu_playing(3);
 		}
-		else if (current_line == 6) {
+		else if (current_line == 3) {
 			navigateMenu(current_line);
 		}
 		else navigateMenu(current_line);
 	}
+	
 	else if(strcmp(current_menu->name, "NEW GAME") == 0){
-		if(current_line==5){
+		if(current_line==2){
 			current_menu=current_menu->parent;
 			oled_pos(current_line, 0);
 			oled_print_string("  ");
 			print_menu(current_menu);
 		}
 	}
+	
 	else if (strcmp(current_menu->name, "SETTINGS") == 0)
 	{
-		if (current_line == 5) {
+		if (current_line == 2) {
 			oled_pos(current_line, 0);
 			oled_print_string("  ");
 		} // TODO Debugging
 		
-		else if (current_line == 6) {
+		else if (current_line == 3) {
 			oled_pos(current_line, 0);
 			oled_print_string("  ");
 			calibrate_joystick();
@@ -202,7 +204,7 @@ uint8_t button_action (uint8_t current_line) {
 			
 		} // TODO Calibrate joystick
 		
-		else if (current_line == 7) {
+		else if (current_line == 4) {
 			current_menu = current_menu -> parent;
 			oled_pos(current_line, 0);
 			oled_print_string("  ");
@@ -212,7 +214,7 @@ uint8_t button_action (uint8_t current_line) {
 	}
 	
 	else if (strcmp(current_menu->name, "HIGH SCORE") == 0) {
-		if (current_line == 1)
+		if (current_line == 5)
 		{
 			current_menu = current_menu -> parent;
 		}
@@ -227,7 +229,7 @@ uint8_t button_action (uint8_t current_line) {
 // Traverses the linked list into submenus
 void navigateMenu(uint8_t current_line) {
 	switch(current_line) {
-		case 5:
+		case 2:
 		if (current_menu->child1 != NULL) {
 			current_menu = current_menu -> child1;
 			oled_pos(current_line, 0);
@@ -237,7 +239,7 @@ void navigateMenu(uint8_t current_line) {
 		}
 		break;
 		
-		case 6:
+		case 3:
 		if (current_menu->child2 != NULL) {
 			current_menu = current_menu -> child2;
 			oled_pos(current_line, 0);
@@ -247,7 +249,7 @@ void navigateMenu(uint8_t current_line) {
 		}
 		break;
 		
-		case 7:
+		case 4:
 		if (current_menu->child3 != NULL) {
 			current_menu = current_menu -> child3;
 			oled_pos(current_line, 0);
@@ -259,31 +261,31 @@ void navigateMenu(uint8_t current_line) {
 }
 
 // TODO save highscore in EEPROM??
-// Ja ass
-void print_highscore() {
-	oled_pos(5,2);
+void print_highscore() 
+{
+	oled_pos(2,2);
 	oled_print_string("1: ");
-	oled_pos(5,6);
+	oled_pos(2,6);
 	oled_print_string(first_place);
-	oled_pos(6,2);
+	oled_pos(3,2);
 	oled_print_string("2: ");
-	oled_pos(6,6);
+	oled_pos(3,6);
 	oled_print_string(second_place);
-	oled_pos(7,2);
+	oled_pos(4,2);
 	oled_print_string("3: ");
-	oled_pos(7,6);
+	oled_pos(4,6);
 	oled_print_string(third_place);
-	oled_pos(1,2);
+	oled_pos(5,2);
 	oled_print_string("RETURN");
 }
 
-print_settings()
+void print_settings()
 {
-	oled_pos(5,2);
-	oled_print_string("CAL. JOYST.");
-	oled_pos(6,2);
+	oled_pos(2,2);
 	oled_print_string("DEBUGGING");
-	oled_pos(7,2);
+	oled_pos(3,2);
+	oled_print_string("CAL. JOYSTCK.");
+	oled_pos(4,2);
 	oled_print_string("RETURN");
 }
 
@@ -323,11 +325,7 @@ void set_high_score_list(int score)
 	itoa(high_score[0], first_place,10);
 	itoa(high_score[1], second_place,10);
 	itoa(high_score[2], third_place,10);
-	
-	
 }
-
-
 
 // Insertion sort in descending order
 void sort_list(int * list[], int size)

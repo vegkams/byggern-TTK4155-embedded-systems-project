@@ -17,7 +17,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 menu_t *        main_menu;
-uint8_t         arrow_line = 5;
+uint8_t         arrow_line = 2;
 uint8_t         previous_joystick_button;
 uint8_t         game_on = 0;
 mode            mode_t = MENU;
@@ -93,7 +93,7 @@ void in_menus(){
 	if (j.joystick_button == 1) {
 		mode_t = button_action(arrow_line);
 		previous_joystick_button = j.joystick_button;
-		arrow_line = 5;
+		arrow_line = 2;
 	}
 }
 
@@ -134,7 +134,7 @@ void playing_the_game(){
 		restart_game_mode();
 		game_initialized = FALSE;
 		mode_t = MENU;
-		arrow_line=5;
+		arrow_line=2;
 		button_action(arrow_line);
 	}
 	// Start again with left button
@@ -156,8 +156,8 @@ void playing_the_game(){
 		game_initialized = FALSE;
 		restart_game_mode();
 		mode_t = MENU;
-		button_action(5); //Går til main menu
-		navigateMenu(6); //Går til highscore
+		button_action(2); //Går til main menu
+		navigateMenu(3); //Går til highscore
 	}
 	
 }
@@ -204,5 +204,6 @@ void initializations(){
 	oled_init();
 	main_menu = menu_init();
 	can_init();
+	printf("enable normal mode: %d\n",CAN_enable_normal_mode());
 
 }

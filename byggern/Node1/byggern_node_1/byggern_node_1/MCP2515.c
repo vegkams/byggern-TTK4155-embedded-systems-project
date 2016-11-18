@@ -49,6 +49,7 @@ uint8_t mcp_2515_enable_normal_operation()
 	// Enable normal operation in the CANCTRL-register
 	mcp_2515_bit_modify(MCP_CANCTRL,MODE_MASK,MODE_NORMAL);
 	// Check if normal mode is enabled
+	_delay_ms(10);
 	volatile uint8_t value = mcp_2515_read(MCP_CANSTAT);
 	if ((value & MODE_MASK) != MODE_NORMAL)
 	{
