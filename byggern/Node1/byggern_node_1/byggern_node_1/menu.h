@@ -36,5 +36,8 @@ uint8_t move_arrow(direction dir, uint8_t current_row);
 difficulty get_difficulty();
 uint8_t button_action(uint8_t current_line);
 void print_highscore();
-
+void navigateMenu(uint8_t current_line);
+void sort_list(int * list[], int size);
+void set_high_score_list(int score);
+void menu_playing(uint8_t lives);
 #endif /* MENU_H_ */

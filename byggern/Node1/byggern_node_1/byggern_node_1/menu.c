@@ -11,165 +11,153 @@
 #include "OLED.h"
 #include "menu.h"
 #include <string.h>
+#include "joystick.h"
+#define OLED_OFFSET 3
 
-direction previousDIR = NEUTRAL;
-// Variabel for å holde på nåværende meny, kan være nyttig i main f. eks.
-menu_t * current_menu;
-difficulty GitGud = EASY;
-uint8_t game_started = 0;
+direction    previousDIR = NEUTRAL;
+menu_t *     current_menu;
+menu_t       Mainmenu,Highscore, Newgame, Settings, Return;
+difficulty   GitGud = EASY;
+uint8_t      game_started = 0;
+char         first_place[8];
+char         second_place[8];
+char         third_place[8];
+char         lives_int[8];
+int          high_score[3];
+const char   playing[] = "GAME PLAYING";
+const char   number_of_lives[] = "LIVES LEFT:";
 
 menu_t * menu_init (){
+	//initialize empty score list
+	for (int i = 0; i < 3; i++)
+	{
+		high_score[i] = 0;
+	}
+	sort_list(high_score,3);
 	//Main menu
-	menu_t * main_menu = malloc(sizeof(menu_t));
-	main_menu ->name = "MAIN MENU";
+	Mainmenu.name = "MAIN MENU";
+	Mainmenu.child1 = &Newgame;
+	Mainmenu.child2 = &Highscore;
+	Mainmenu.child3 = &Settings;
+	Mainmenu.number_of_children = 3;
 	
-	main_menu -> child1 = malloc(sizeof(menu_t));
-	main_menu -> child1 -> name = "NEW GAME";
-	main_menu -> child1 -> parent = main_menu;
-	main_menu -> child1 -> number_of_children = 1;
+	Newgame.name = "NEW GAME";
+	Newgame.parent = &Mainmenu;
+	Newgame.number_of_children = 1;
 	
-	main_menu -> child2 = malloc(sizeof(menu_t));
-	main_menu -> child2->name = "HIGH SCORE";
-	main_menu -> child2->parent = main_menu;
-	main_menu -> child2 -> number_of_children = 1;
-	
-	main_menu -> child3 = malloc(sizeof(menu_t));
-	main_menu -> child3->name = "SETTINGS";
-	main_menu -> child3->parent = main_menu;
-	main_menu ->child4 = NULL;
-
-	main_menu -> number_of_children = 3;
-	
-	//New Game menu
-	main_menu->child1->child1 = malloc(sizeof(menu_t));
-	main_menu->child1->child1->name = "PLAYING";
-	main_menu->child1->child1->number_of_children=0;
-	main_menu->child1->child1->parent = main_menu->child1;
-	main_menu ->child1->child2 =main_menu ->child1->child3=main_menu ->child1->child4 = NULL;
-	
-	//High score menu
-	main_menu ->child2->child1 = malloc(sizeof(menu_t));
-	main_menu ->child2->child1->name = "RETURN";
-	main_menu ->child2->child1->parent = main_menu ->child2;
-	main_menu ->child2->child1->number_of_children = 0;
-	main_menu ->child2->child2 =main_menu ->child2->child3=main_menu ->child2->child4 = NULL;
-	
-	//Settings menu
-	main_menu ->child3->child1 = malloc(sizeof(menu_t));
-	main_menu ->child3->child1->name = "SET DIFFICULTY";
-	main_menu ->child3->child1->parent = main_menu->child3;
-	
-	// Difficulty settings
-	main_menu -> child3 -> child1 -> child1 = malloc(sizeof(menu_t));
-	main_menu -> child3 -> child1 -> child1 -> name = "EASY";
-	main_menu -> child3 -> child1 -> child1 ->parent = main_menu ->child3 ->child1;
-	main_menu -> child3 -> child1 -> child2 = malloc(sizeof(menu_t));
-	main_menu -> child3 -> child1 -> child2 -> name = "MEDIUM";
-	main_menu -> child3 -> child1 -> child2 ->parent = main_menu ->child3 ->child1;
-	main_menu -> child3 -> child1 -> child3 = malloc(sizeof(menu_t));
-	main_menu -> child3 -> child1 -> child3 -> name = "HARD";
-	main_menu -> child3 -> child1 -> child3 ->parent = main_menu ->child3 ->child1;
-	main_menu -> child3 -> child1 -> child4 = malloc(sizeof(menu_t));
-	main_menu -> child3 -> child1 -> child4 -> name = "RETURN";
-	main_menu -> child3 -> child1 -> child4 ->parent = main_menu ->child3 ->child1;
-	main_menu -> child3 -> child1 -> number_of_children = 4;
-	
-	// Debugging (use?)
-	main_menu -> child3 -> child2 = malloc(sizeof(menu_t));
-	main_menu -> child3 -> child2 -> name = "DEBUGGING";
-	main_menu -> child3 -> child2 -> parent = main_menu->child3;
-	// Calibrate joystick
-	main_menu -> child3 -> child3 = malloc(sizeof(menu_t));
-	main_menu -> child3 -> child3->name = "CAL. JOYSTICK";
-	main_menu -> child3 -> child3->parent = main_menu->child3;
-	// Return to main menu
-	main_menu -> child3 -> child4 = malloc(sizeof(menu_t));
-	main_menu -> child3 -> child4 -> name = "RETURN";
-	main_menu -> child3 -> child4 -> parent = main_menu->child3;
-	
-	main_menu -> child3 -> number_of_children = 4;
-	current_menu = main_menu;
-	return main_menu;
+	Highscore.name = "HIGH SCORE";
+	Highscore.parent = &Mainmenu;
+	Highscore.number_of_children = 4;
+	Highscore.child4 = &Return;
+	Settings.name = "SETTINGS";
+	Settings.parent = &Mainmenu;
+	Settings.number_of_children = 3;
+	Settings.child3 = &Return;
+	Return.name = "RETURN";
+	Return.parent = &Mainmenu;
+	current_menu = &Mainmenu;
+	// Get integer as string
+	itoa(high_score[0],first_place,10);
+	itoa(high_score[1],second_place,10);
+	itoa(high_score[2],third_place,10);
+	return &Mainmenu;
 }
 uint8_t move_arrow(direction dir ,uint8_t current_row){
-	uint8_t number_of_rows = current_menu -> number_of_children;
+	uint8_t row = current_row;
+	printf("current row: %d\n",row);
+	uint8_t number_of_rows = current_menu -> number_of_children + OLED_OFFSET;
 	if(dir == previousDIR){
 		dir = NEUTRAL;
 	}
 	else{
-		previousDIR=NEUTRAL;
+		previousDIR = NEUTRAL;
 	}
 	switch(dir) {
 		case NEUTRAL :
-		oled_print_arrow(current_row,0);
-		break;
+		{
+			oled_print_arrow(row,0);
+			break;
+		}
+		
 		
 		case UP  :
-		if (current_row >= 3)
 		{
-			oled_pos(current_row, 0);
-			oled_print_string("  ");
-			current_row--;
-			oled_print_arrow(current_row,0);
-			previousDIR=UP;
-		}
+			if (row >= 6)
+			{
+				oled_pos(row, 0);
+				oled_print_string("  ");
+				row--;
+				oled_print_arrow(row,0);
+				previousDIR=UP;
+			}
 
-		break;
+			break;
+		}
+		
 		
 		case DOWN  :
-		
-		if (current_row <= number_of_rows)
 		{
-			oled_pos(current_row, 0);
-			oled_print_string("  ");
-			current_row++;
-			oled_print_arrow(current_row,0);
-			previousDIR=DOWN;
-		}	
-		break;
+			if (row <= number_of_rows)
+			{
+								
+				oled_pos(row, 0);
+				oled_print_string("  ");
+				if (row == 7)
+				{
+					row = 0;
+				}
+				row++;
+				oled_print_arrow(row,0);
+				previousDIR = DOWN;
+				
+			}
+			break;
+		}		
+		
 	}
-	return current_row;
+	return row;
 }
 
 void print_menu (menu_t *menu){
 	menu_t * current = menu;
 	oled_reset();
 	oled_home();
-	oled_pos(0,2);
+	oled_pos(3,2);
 	oled_print_string(menu->name); //Skriver ut overskrift
 	
 	if (menu->child1 != NULL)
 	{
-		oled_pos(2,2);
+		oled_pos(5,2);
 		oled_print_string(menu->child1->name);
 	}
 	
 	if (menu->child2 != NULL)
 	{
-		oled_pos(3,2);
+		oled_pos(6,2);
 		oled_print_string(menu->child2->name);
 	}
 
 	if (menu->child3 != NULL)
 	{
-		oled_pos(4,2);
+		oled_pos(7,2);
 		oled_print_string(menu->child3->name);
 	}
 	if (menu->child4 != NULL)
 	{
-		oled_pos(5,2);
+		oled_pos(1,2);
 		oled_print_string(menu->child4->name);
 	}
-	
-	// Print the current difficulty setting.
-	oled_pos(7,2);
-	oled_print_string(("DFFCLTY: %s", stringFromDifficulty(GitGud)));
+	if (strcmp(menu->name, "HIGH SCORE") == 0)
+	{
+		print_highscore();
+	}
+	if (strcmp(menu->name, "SETTINGS") == 0)
+	{
+		print_settings();
+	}
+		
 }
 
-difficulty get_difficulty()
-{
-	return GitGud;
-}
 
 // Implements action based on joystick button presses
 // Possibility for cleaner code, written in a hurry :-)
@@ -180,19 +168,19 @@ uint8_t button_action (uint8_t current_line) {
 	// Think that should work
 	if (strcmp(current_menu->name, "MAIN MENU") == 0)
 	{
-		if(current_line == 2)
+		if(current_line == 5)
 		{
 			game_started = 1;
 			navigateMenu(current_line);
+			menu_playing(3);
 		}
-		else if (current_line == 3) {
-			print_highscore();
+		else if (current_line == 6) {
 			navigateMenu(current_line);
 		}
 		else navigateMenu(current_line);
 	}
 	else if(strcmp(current_menu->name, "NEW GAME") == 0){
-		if(current_line==2){
+		if(current_line==5){
 			current_menu=current_menu->parent;
 			oled_pos(current_line, 0);
 			oled_print_string("  ");
@@ -201,21 +189,20 @@ uint8_t button_action (uint8_t current_line) {
 	}
 	else if (strcmp(current_menu->name, "SETTINGS") == 0)
 	{
-		if (current_line == 2)
-		{
-			navigateMenu(current_line);
-		}
-		else if (current_line == 3) {
+		if (current_line == 5) {
 			oled_pos(current_line, 0);
 			oled_print_string("  ");
 		} // TODO Debugging
 		
-		else if (current_line == 4) {
+		else if (current_line == 6) {
 			oled_pos(current_line, 0);
 			oled_print_string("  ");
+			calibrate_joystick();
+			current_menu = current_menu->parent;
+			
 		} // TODO Calibrate joystick
 		
-		else if (current_line == 5) {
+		else if (current_line == 7) {
 			current_menu = current_menu -> parent;
 			oled_pos(current_line, 0);
 			oled_print_string("  ");
@@ -223,32 +210,24 @@ uint8_t button_action (uint8_t current_line) {
 		}
 		
 	}
-	else if (strcmp(current_menu->name, "SET DIFFICULTY") == 0) {
-		if (current_line == 2) GitGud = EASY;
-		else if (current_line == 3) GitGud = MEDIUM;
-		else if (current_line == 4) GitGud = HARD;
-		else {
-			current_menu = current_menu->parent;
-			oled_pos(current_line, 0);
-			oled_print_string("  ");
-		}
-		print_menu(current_menu);
-	}
 	
 	else if (strcmp(current_menu->name, "HIGH SCORE") == 0) {
-		current_menu = current_menu -> parent;
+		if (current_line == 1)
+		{
+			current_menu = current_menu -> parent;
+		}
 		oled_pos(current_line, 0);
 		oled_print_string("  ");
 		print_menu(current_menu);
 	}
 	return game_started;
 }
-	
+
 
 // Traverses the linked list into submenus
 void navigateMenu(uint8_t current_line) {
 	switch(current_line) {
-		case 2:
+		case 5:
 		if (current_menu->child1 != NULL) {
 			current_menu = current_menu -> child1;
 			oled_pos(current_line, 0);
@@ -258,7 +237,7 @@ void navigateMenu(uint8_t current_line) {
 		}
 		break;
 		
-		case 3:
+		case 6:
 		if (current_menu->child2 != NULL) {
 			current_menu = current_menu -> child2;
 			oled_pos(current_line, 0);
@@ -268,7 +247,7 @@ void navigateMenu(uint8_t current_line) {
 		}
 		break;
 		
-		case 4:
+		case 7:
 		if (current_menu->child3 != NULL) {
 			current_menu = current_menu -> child3;
 			oled_pos(current_line, 0);
@@ -277,23 +256,109 @@ void navigateMenu(uint8_t current_line) {
 			print_menu(current_menu);
 		}
 	}
-	
 }
 
 // TODO save highscore in EEPROM??
+// Ja ass
 void print_highscore() {
-	
+	oled_pos(5,2);
+	oled_print_string("1: ");
+	oled_pos(5,6);
+	oled_print_string(first_place);
+	oled_pos(6,2);
+	oled_print_string("2: ");
+	oled_pos(6,6);
+	oled_print_string(second_place);
+	oled_pos(7,2);
+	oled_print_string("3: ");
+	oled_pos(7,6);
+	oled_print_string(third_place);
+	oled_pos(1,2);
+	oled_print_string("RETURN");
+}
+
+print_settings()
+{
+	oled_pos(5,2);
+	oled_print_string("CAL. JOYST.");
+	oled_pos(6,2);
+	oled_print_string("DEBUGGING");
+	oled_pos(7,2);
+	oled_print_string("RETURN");
 }
 
 int get_game_mode(){
 	return game_started;
 }
 void restart_game_mode(){
-	game_started=0;
+	game_started = 0;
 }
-//menu get_current_menu(){
-	//return current_menu;
-//}
+
+void set_high_score_list(int score)
+{
+	for (uint8_t i=0; i < 3; i++)
+	{
+		if (score > high_score[i])
+		{
+			if (i == 2)
+			{
+				high_score[i] = score;
+			}
+			else{
+				int k = 2;
+				while(k > i)
+				{
+					high_score[k] = high_score[k-1];
+					k--;
+				}
+				high_score[i] = score;
+			}
+			break;
+		}
+		
+	}
+	// Sort list just in case
+	sort_list(high_score,3);
+
+	itoa(high_score[0], first_place,10);
+	itoa(high_score[1], second_place,10);
+	itoa(high_score[2], third_place,10);
+	
+	
+}
+
+
+
+// Insertion sort in descending order
+void sort_list(int * list[], int size)
+{
+	int length = size;
+	uint8_t d;
+	int t;
+	for (uint8_t c = 1 ; c <= length - 1; c++) {
+		d = c;
+		
+		while ( d > 0 && list[d] > list[d-1]) {
+			t          = list[d];
+			list[d]    = list[d-1];
+			list[d-1]  = t;
+			
+			d--;
+		}
+	}
+}
+
+void menu_playing(uint8_t lives)
+{
+	oled_reset();
+	oled_home();
+	oled_pos(3,2);
+	oled_print_string(playing);
+	oled_pos(5,2);
+	oled_print_string(number_of_lives);
+	oled_pos(5,sizeof(number_of_lives)+1);
+	oled_print_string(itoa(lives,lives_int,10));
+}
 
 
 

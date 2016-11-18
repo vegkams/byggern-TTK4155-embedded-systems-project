@@ -24,12 +24,11 @@
 typedef enum Control_mode {PS4, MFB} Control_mode;
 
 void init();
-uint8_t score_keeper();
 void goal_scored();
 uint8_t read_ps4_controller();
 int mapped_ps4_pos(float value);
-typedef union axis_int_bytes{
-	int int_axis;
-	unsigned char bytes_axis[2];
-}axis_int_bytes;
+typedef union int_bytes{
+	int int_value;
+	unsigned char bytes_value[2];
+}int_bytes;
 #endif /* SETUP_H_ */

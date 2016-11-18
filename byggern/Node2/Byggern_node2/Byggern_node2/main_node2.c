@@ -27,8 +27,8 @@
 can_message send;
 uint8_t score = 0;
 
-uint8_t paused = FALSE;
-uint8_t message_sent = FALSE;
+uint8_t paused = TRUE;
+uint8_t message_sent = TRUE;
 
 float ps4_values[5];
 
@@ -40,7 +40,7 @@ int main(void)
 	can_message send_message;
 	joyValues values;
 	direction dir;
-	axis_int_bytes x_axis;
+	int_bytes x_axis;
 	int y_axis;
 	uint8_t counter = 0;
 	uint8_t adc_value = 0;
@@ -72,13 +72,13 @@ int main(void)
 			accumulated_value += adc_value;
 			counter++;
 			if (counter==5)
-			{	counter = 0;
-				//printf("accumulated_value= %d \n",accumulated_value);
+			{	
+				counter = 0;
+				printf("accumulated_value= %d \n",accumulated_value);
 				averaged_value = accumulated_value/5;
 				accumulated_value = 0;
 				if (averaged_value < 80) {
 					averaged_value=0;
-					score = score_keeper();
 					goal_scored();
 				}
 			}
@@ -88,6 +88,7 @@ int main(void)
 		can_message* received = malloc(sizeof(can_message));
 		can_receive_message(received);
 		message_id = received->ID;
+		printf("Message id: %d\n",message_id);
 		switch(message_id)
 		{
 			case 0:
@@ -104,20 +105,9 @@ int main(void)
 				values.right_button = received->data[1];
 				values.joystick_button = received->data[2];
 				dir = (direction) received->data[3];
-				x_axis.bytes_axis[0] = received->data[4];
-				x_axis.bytes_axis[1] = received->data[5];
+				x_axis.bytes_value[0] = received->data[4];
+				x_axis.bytes_value[1] = received->data[5];
 				slider = received->data[6];
-				if(values.left_button == previous_button){
-					values.left_button = 0;
-				}
-				else{
-					previous_button = 0;
-				}
-				if (values.left_button == 1) {
-					previous_button = values.left_button;
-					paused = FALSE;
-					message_sent = FALSE;
-				}
 				if(values.joystick_button == previous_joystick_button){
 					values.joystick_button = 0;
 				}
@@ -128,24 +118,31 @@ int main(void)
 					previous_joystick_button = values.joystick_button;
 					solenoid_shoot();
 				}
-				//printf("Slider is :%d\n",slider);
-				
 				break;
 			}
 			
 			
 			case 2:
 			{
-				// Control message: data[0] = control mode, data[1] = paused/playing, data[2] =
-				// 0 = ps4, 1 = multifunction board
+				printf("Received case 2\n");
+				// Control message: data[0] = playing/!playing
 				if(received->data[0])
 				{
-					control_mode = MFB;
+					printf("Pause is on\n");
+					paused = TRUE;
+					motor_control_set_playing_flag(FALSE);
+					motor_control_set_timer_flag(FALSE);
+					motor_control_reset_timer();
 				}
 				else 
 				{
-					control_mode = PS4;
+					printf("Pause is off\n");
+					paused = FALSE;
+					motor_control_set_playing_flag(TRUE);
+					motor_control_reset_timer();
+					motor_control_set_timer_flag(TRUE);
 				}
+
 				break;
 			}
 			
@@ -183,12 +180,12 @@ int main(void)
 			{
 				if (closed_loop) {
 					motor_control_set_reference_pos(slider);
-					if(abs(x_axis.int_axis - prev_x_axis)>3) pwm_set_angle(-x_axis.int_axis,1);
-					prev_x_axis = x_axis.int_axis;
+					if(abs(x_axis.int_value - prev_x_axis)>3) pwm_set_angle(-x_axis.int_value,1);
+					prev_x_axis = x_axis.int_value;
 				}
 				else
 				{
-					motor_control_set_velocity(x_axis.int_axis);
+					motor_control_set_velocity(x_axis.int_value);
 					if (abs(slider - prev_slider)>3)
 					{
 						pwm_set_angle(slider,2);
@@ -202,11 +199,15 @@ int main(void)
 		}		
 		
 		
-		if(score < 3 && !message_sent) {
-			// Send number of hits
+		if(!message_sent) {
+			// Send score
+			int_bytes score;
+			score.int_value = motor_control_get_played_time();
+			motor_control_reset_timer();			
 			send_message.ID = 3;
-			send_message.length = 1;
-			send_message.data[0]=score;
+			send_message.length = 2;
+			send_message.data[0] = score.bytes_value[0];
+			send_message.data[1] = score.bytes_value[1];
 			//printf("ADC value: %d \n", get_ADC_value());
 			uint8_t sent = can_send_message(&send_message);
 			if (sent == 1) {
@@ -216,28 +217,9 @@ int main(void)
 				message_sent = FALSE;
 			}
 			
-		}
-		
-		
+		}		
 		
 		free(received);
-		//Construct return data:
-		if(score>=3 && !message_sent) {
-			// Game lost, send message
-			send_message.ID = 4;
-			send_message.length = 1;
-			send_message.data[0]=score;
-			uint8_t sent = can_send_message(&send_message);
-			_delay_ms(10);
-			if (sent == 1) {
-				message_sent = TRUE;
-			}
-			else{
-				message_sent = FALSE;
-			}
-			score = 0;
-			paused = TRUE;
-		}
 	}
 }
 
@@ -257,20 +239,16 @@ void init() {
 	setup_solenoid();
 	motor_control_init_clock();
 
-	motor_control_set_playing_flag(TRUE);
+	motor_control_set_playing_flag(FALSE);
 	motor_control_set_pid_gains(1.0,0.3,0.0);
 	
 }
-uint8_t score_keeper()
-{
-	score++;
-	message_sent = FALSE;
-	printf("Score is: %d\n",score);
-	return score;
-}
 
 void goal_scored() {
+	message_sent = FALSE;
 	paused = TRUE;
+	motor_control_set_playing_flag(FALSE);
+	motor_control_set_timer_flag(FALSE);
 }
 
 // Parse string from UART

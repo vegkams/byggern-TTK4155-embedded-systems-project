@@ -23,9 +23,9 @@ void oled_print_char(char character);
 void oled_print_arrow(uint8_t row,uint8_t col);
 void oled_print_string(char* data);
 uint8_t getCurrentLine();
-
-
-
+void set_high_score_list(int score);
+void int_to_string(int value, char* string);
+void sort_list(int * list[], int size);
 
 
 #endif /* OLED_H_ */

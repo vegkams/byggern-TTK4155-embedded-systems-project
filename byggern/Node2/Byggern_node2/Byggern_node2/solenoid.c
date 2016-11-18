@@ -28,7 +28,7 @@ void solenoid_shoot()
 	uint8_t counter= 0;
 	while(counter<30)
 	{
-		if (TCNT0 == 100)
+		if (TCNT0 >= 100)
 		{
 			counter++;
 			TCNT0 = 0;

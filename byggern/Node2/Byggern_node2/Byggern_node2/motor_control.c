@@ -56,13 +56,13 @@ uint8_t motor_control_init(){
 	printf("Encoder max is : %d",encoder_max);
 	clock_seconds = 0;
 	counter = 0;
-	motor_control_set_reference_pos(0);
+	motor_control_set_reference_pos(125);
 	error_sum = 0;
 	return 0;
 }
 
 void motor_control_init_clock(){
-	//Trigger interrupt with interval of 25hz
+	//Trigger interrupt with interval of 50hz
 	OCR1A = 5000;
 
 	//Enable CTC mode
@@ -84,11 +84,13 @@ unsigned int read_encoder()
 	_delay_us(20);
 
 	uint8_t MSB = MJ2;
+	printf("MSB: %d\n", MSB);
 	// select lsb
 	set_bit(MJ1,SEL);
 	_delay_us(20);
 
 	uint8_t LSB = MJ2;
+	printf("\tLSB: %d\n",LSB);
 	enable_encoder(0);
 	return (unsigned int) ((MSB << 8) | LSB);
 	//printf("Encoder value %d\n", encoder_value);
@@ -240,7 +242,7 @@ ISR(TIMER1_COMPA_vect)
 	{
 		counter++;
 		// Running on 50Hz
-		if (counter >= 100)
+		if (counter >= 50)
 		{
 			counter = 0;
 			clock_seconds ++;
@@ -259,16 +261,11 @@ ISR(TIMER1_COMPA_vect)
 		encoder_value = 0L;
 	}
 	
-	printf("\tEncoder: %d\n", encoder_value);
 	float error;
 	int16_t output;
-	//printf("\t\tEncoder max: %d encoder value %d\n", encoder_max,encoder_value);
 	error = reference_value - ((encoder_value*255)/encoder_max);
-	//printf("Error: %d\n", error);
-	//printf("Encoder blabla %d\n", (int16_t) ((encoder_value*255)/encoder_max));
 	if (abs(error) < 3)
 	{
-		//printf("Lal\n");
 		motor_control_set_speed(0);
 		return;
 	}
@@ -278,10 +275,9 @@ ISR(TIMER1_COMPA_vect)
 	}
 	int prop = -kp*error;
 	int integral = - ki*error_sum;
-	//printf("Prop: %d", prop);
 	
 	output = prop + integral;
-	//printf("Output PI: %d\n", output);
+	
 
 	motor_control_set_velocity(output);
 	
@@ -291,13 +287,13 @@ ISR(TIMER1_COMPA_vect)
 unsigned int find_encoder_max()
 {
 	printf("In find encoder max");
-	motor_control_set_velocity(60);
+	motor_control_set_velocity(80);
 	_delay_ms(1900);
 	motor_control_set_velocity(0);
 	_delay_ms(200);
 	printf("Encoder value: %d\n",read_encoder());
 	encoder_reset();
-	motor_control_set_velocity(-60);
+	motor_control_set_velocity(-80);
 	_delay_ms(1200);
 	motor_control_set_velocity(0);
 	_delay_ms(100);

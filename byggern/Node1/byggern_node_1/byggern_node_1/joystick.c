@@ -8,7 +8,8 @@
 #include "setup.h"
 #include "ADC.h"
 #include "joystick.h"
-
+float offset_x;
+float offset_y;
 void joystick_init()
 {
 	// Set PB0-1 as input
@@ -18,6 +19,7 @@ void joystick_init()
 	set_bit(PORTB,PB2);
 	//Set PB2 as input
 	clear_bit(DDRB,PB2);
+	offset_x = offset_y = 0.0;
 }
 
 void read_joystick(joyValues *joy)
@@ -35,13 +37,20 @@ void read_joystick(joyValues *joy)
 	if (test_bit(PINB,PB2)) joy->joystick_button = 0;
 	else joy->joystick_button = 1;
 }
-
-direction joystick_getDirection(float x, float y)
+void calibrate_joystick()
 {
+	offset_x = convert_to_percentage(read_ADC(1));
+	offset_y = convert_to_percentage(read_ADC(2));	
+}
+
+direction joystick_getDirection(float x_f, float y_f)
+{
+	int x = (int) x_f;
+	int y = (int) y_f;
 	direction d = NEUTRAL;
-	if (!(fabsf(x)<50 && fabsf(y)<50)) 
+	if (!(abs(x)<50 && abs(y)<50)) 
 	{
-		if (fabsf(x)>50 && fabsf(y)<50)
+		if (abs(x)>50 && abs(y)<50)
 		{
 			if (x<0)
 			{
@@ -52,7 +61,7 @@ direction joystick_getDirection(float x, float y)
 				d = RIGHT;
 			}
 		}
-		else if(fabsf(x)<50 && fabsf(y)>50)
+		else if(abs(x)<50 && abs(y)>50)
 		{
 			if (y<0)
 			{
@@ -65,7 +74,7 @@ direction joystick_getDirection(float x, float y)
 		}
 		else
 		{
-			if (fabsf(y/x)>1)
+			if (abs(y/x)>1)
 			{
 				if (y<0)
 				{
@@ -88,7 +97,6 @@ direction joystick_getDirection(float x, float y)
 				}
 			}
 		}
-		
 	}
 	return d;
 }
@@ -97,14 +105,14 @@ direction joystick_getDirection(float x, float y)
 float joystick_get_x_percentage()
 {
 	uint8_t data = read_ADC(1);
-	return convert_to_percentage(data);
+	return convert_to_percentage(data) - offset_x;
 } 
 
 // Get Joystick position in percentage (center = 50%)
 float joystick_get_y_percentage()
 {
 	uint8_t data = read_ADC(0);
-	return convert_to_percentage(data);
+	return convert_to_percentage(data) - offset_y;
 }
 
 float joystick_get_left_slider_percentage()

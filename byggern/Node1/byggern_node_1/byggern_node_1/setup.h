@@ -26,10 +26,10 @@ typedef union float_to_bytes{
 	uint8_t bytes[4];
 	} float_to_bytes;
 
-typedef union axis_int_bytes{
-	int int_axis;
-	unsigned char bytes_axis[2];
-	}axis_int_bytes;
+typedef union int_union_bytes{
+	int int_value;
+	unsigned char byte_value[2];
+	}int_union_bytes;
 
 typedef enum {MENU, PLAYING} mode;
 		

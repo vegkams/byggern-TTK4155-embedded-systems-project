@@ -19,6 +19,7 @@ typedef struct joyValues{
 	int joystick_button;
 }joyValues;
 
+void calibrate_joystick();
 void joystick_init();
 void read_joystick(joyValues *joy);
 float joystick_get_x_percentage();

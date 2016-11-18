@@ -30,15 +30,15 @@ uint8_t pwm_init(){
 	set_bit(DDRE,PE3);
 	OCR3A = 375;
 
-	input_joystick_start = -100;
-	input_joystick_end = 100;
-	input_slider_start = 0;
-	input_slider_end = 255;
-	output_start = 250;
-	output_end = 500;
-	input_joystick_range = input_joystick_end-input_joystick_start;
-	input_slider_range = input_slider_end - input_slider_start;
-	output_range = output_end-output_start;
+	input_joystick_start  = -100;
+	input_joystick_end    = 100;
+	input_slider_start    = 0;
+	input_slider_end      = 255;
+	output_start          = 250;
+	output_end            = 500;
+	input_joystick_range  = input_joystick_end-input_joystick_start;
+	input_slider_range    = input_slider_end - input_slider_start;
+	output_range          = output_end-output_start;
 	return 0;
 
 }
