@@ -24,8 +24,7 @@ uint8_t mcp_2515_init(){
 		printf("MCP2515 is NOT in configuration mode after reset!\n");
 		return 1;
 	}
-	printf("MCP2515 mode after init: %d\n", value);
-	
+	printf("MCP2515 mode after init: %d\n", value);	
 	
 	return 0;
 }
@@ -35,12 +34,14 @@ uint8_t mcp_2515_enable_loopback()
 	// Enable loopback mode in the CANCTRL-register
 	mcp_2515_bit_modify(MCP_CANCTRL,MODE_MASK,MODE_LOOPBACK);
 	volatile uint8_t value = mcp_2515_read(MCP_CANSTAT);
+	
 	// Check if loopback mode is enabled
 	if ((value & MODE_MASK) != MODE_LOOPBACK)
 	{
 		printf("NOT in LOOPBACK mode\n");
 		return 1;
 	}
+	
 	printf("Loopback enabled\n");
 	return 0;
 }
@@ -49,6 +50,7 @@ uint8_t mcp_2515_enable_normal_operation()
 {
 	// Enable normal operation in the CANCTRL-register
 	mcp_2515_bit_modify(MCP_CANCTRL,MODE_MASK,MODE_NORMAL);
+	
 	// Check if normal mode is enabled
 	volatile uint8_t value = mcp_2515_read(MCP_CANSTAT);
 	if ((value & MODE_MASK) != MODE_NORMAL)
@@ -62,12 +64,14 @@ uint8_t mcp_2515_enable_normal_operation()
 
 uint8_t mcp_2515_read(uint8_t address){
 	uint8_t result;
+	
 	// Enable slave
 	spi_enable();
 	
 	// Send read-command and address to be read
 	spi_send(MCP_READ); 
 	spi_send(address);
+	
 	// Read back result
 	result = spi_read();
 	
@@ -93,14 +97,6 @@ void mcp_2515_request_to_send(uint8_t buffer){
 	// Enable slave
 	spi_enable();
 	
-	//// Check three last bits of buffer-byte
-	//if(buffer <= 7) {
-		//// Set the RTS-command with the register we want to send from
-		//buffer = MCP_RTS | buffer;
-	//}
-	//// Invalid buffer, command will be ignored in MCP2515
-	//else buffer = MCP_RTS;
-	
 	spi_send(buffer);
 	
 	// Disable slave
@@ -113,10 +109,13 @@ void mcp_2515_bit_modify(uint8_t address, uint8_t mask, uint8_t data){
 	
 	// Send bitmodification command
 	spi_send(MCP_BITMOD);
+	
 	// Send the address of the register we want to change
 	spi_send(address);
+	
 	// Send the mask which decides what bits in the register can be modified
 	spi_send(mask);
+	
 	// Send the new bit values
 	// Only the bits enabled by the mask will be modified
 	spi_send(data);
@@ -142,10 +141,12 @@ uint8_t mcp_2515_read_status(){
 	
 	// Send read status command
 	spi_send(MCP_READ_STATUS);
+	
 	// Read back the status from SPI
 	char status = spi_read();
 	
 	// Disable the slave and return the result
 	spi_disable();
+	
 	return status;
 }

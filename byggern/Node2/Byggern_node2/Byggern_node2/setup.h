@@ -31,4 +31,5 @@ typedef union int_bytes{
 	int int_value;
 	unsigned char bytes_value[2];
 }int_bytes;
+
 #endif /* SETUP_H_ */

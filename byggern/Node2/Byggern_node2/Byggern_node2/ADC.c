@@ -22,6 +22,7 @@ void start_ADC() {
 	ADCSRA |= (1<<ADEN) | (1<<ADATE);
 	ADCSRA |= (1<<ADSC);
 }
+
 void stop_ADC() {
 	ADCSRA &= ~(1<<ADEN);
 }

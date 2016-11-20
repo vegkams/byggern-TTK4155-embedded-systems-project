@@ -15,11 +15,14 @@ void spi_init()
 	/* Set MOSI and SCK output, all others input */
 	// PB7 = !SS, PB2 = MOSI, PB3 = MISO, PB1 = SCK
 	DDRB = (1<<PB7)|(1<<PB2)|(1<<PB1)|(1<<PB0);
+	
 	// MISO as input
 	clear_bit(DDRB,PB3);
 	set_bit(PORTB,PB3);
+	
 	/* Enable SPI, Master, set clock rate fck/16 */
 	SPCR = (1<<SPE)|(1<<MSTR)|(1<<SPR0);
+	
 	// Read SPSR and SPDR to clear interrupt flag
 	char c1 = SPSR;
 	char c2 = SPDR;
@@ -34,7 +37,6 @@ void spi_send(char cData)
 
 char spi_read() 
 {
-
 	SPDR = 0x00; // send dummy data
 	while(!(SPSR & (1<<SPIF))); // Wait until data is shifted into SPDR
 	return SPDR;

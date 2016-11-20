@@ -19,7 +19,4 @@ char spi_read();
 void spi_enable();
 void spi_disable();
 
-
-
-
 #endif /* SPI_H_ */

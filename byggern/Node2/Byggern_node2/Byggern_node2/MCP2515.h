@@ -14,6 +14,7 @@ void mcp_2515_request_to_send(uint8_t buffer);
 void mcp_2515_bit_modify(uint8_t address, uint8_t mask, uint8_t data);
 void mcp_2515_reset();
 uint8_t mcp_2515_read_status();
+
 /*
 mcp2515.h
 
@@ -90,7 +91,6 @@ Copyright 2003 Kimberly Otten Software Consulting
 #define MCP_RXB0D       0x66
 #define MCP_RXB1CTRL	0x70
 #define MCP_RXB1SIDH	0x71
-
 
 #define MCP_TX_INT		0x1C		// Enable all transmit interrupts
 #define MCP_TX01_INT	0x0C		// Enable TXB0 and TXB1 interrupts

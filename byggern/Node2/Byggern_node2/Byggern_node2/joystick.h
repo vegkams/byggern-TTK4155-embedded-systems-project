@@ -31,13 +31,11 @@ float convert_to_voltage(uint8_t digital_value);
 float convert_to_percentage(uint8_t digital_value);
 direction joystick_getDirection(float x, float y);
 float convert_to_sliderpercentage(uint8_t digital_value);
+
 static inline char *stringFromDirection(direction d)
 {
 	static const char *strings[] = { "UP", "DOWN", "LEFT", "RIGHT", "NEUTRAL"};
 	return strings[d];
 }
-	
-
-
 
 #endif /* JOYSTICK_H_ */

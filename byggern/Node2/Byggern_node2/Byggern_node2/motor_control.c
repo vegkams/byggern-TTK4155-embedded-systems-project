@@ -16,8 +16,6 @@
 #include "DAC_driver.h"
 #include "USART.h"
 
-
-
 #define vel_max 100
 #define vel_min -100
 #define dt 0.02
@@ -43,6 +41,7 @@ uint8_t motor_control_init(){
 	set_bit(DDRH, EN);
 	set_bit(DDRH, DIR);
 	set_bit(DDRH, SEL);
+	
 	// Port K Digital input
 	DDRK = 0x00;
 
@@ -58,6 +57,7 @@ uint8_t motor_control_init(){
 	counter = 0;
 	motor_control_set_reference_pos(125);
 	error_sum = 0;
+	
 	return 0;
 }
 
@@ -79,37 +79,36 @@ void motor_control_init_clock(){
 unsigned int read_encoder()
 {
 	enable_encoder(1);
-	// Select msb
+	
+	// Select MSB
 	clear_bit(MJ1,SEL);
 	_delay_us(20);
 
 	uint8_t MSB = MJ2;
-	// select lsb
+	// select LSB
 	set_bit(MJ1,SEL);
 	_delay_us(20);
 
 	uint8_t LSB = MJ2;
 	enable_encoder(0);
+	
 	return (unsigned int) ((MSB << 8) | LSB);
-	//printf("Encoder value %d\n", encoder_value);
 }
 
 void set_motor_direction(uint8_t dir)
 {
 	if(dir == 2)
 	{
-		//printf("Direction: LEFT\n");
 		set_bit(MJ1,DIR);
 	}
 	else if(dir == 1)
 	{
-		//printf("Direction: RIGHT\n");
 		clear_bit(MJ1,DIR);
 	}
 }
+
 // Send the output to the motor
 void motor_control_set_speed(uint8_t value){
-	//printf("sending dac data: %d\n",value);
 	send_DAC_data(value);
 }
 
@@ -132,7 +131,6 @@ void enable_motor(uint8_t enable)
 void motor_control_set_reference_pos(int pos)
 {
 	reference_value = -pos + 255;
-	//printf("\tReference: %d\n", reference_value);
 }
 
 // Enable motor encoder
@@ -157,7 +155,8 @@ void encoder_reset()
 }
 
 
-uint8_t reverse_bits(char x){
+uint8_t reverse_bits(char x)
+{
 	x = ((x & 0x55) << 1) | ((x & 0xaa) >> 1);
 	x = ((x & 0x33) << 2) | ((x & 0xcc) >> 2);
 	x = ((x & 0x0f) << 4) | ((x & 0xf0) >> 4);
@@ -168,9 +167,6 @@ uint8_t reverse_bits(char x){
 void motor_control_set_velocity(int velocity)
 {
 	encoder_value = read_encoder();
-	//printf("Encoder %d\n",encoder_value);
-	
-
 	
 	int vel = saturate(velocity);
 	motor_control_set_speed((uint8_t) abs(vel));
@@ -181,11 +177,7 @@ void motor_control_set_velocity(int velocity)
 	else
 	{
 		set_motor_direction(1);
-	}
-	//else motor_control_set_speed(0);
-	
-
-	
+	}	
 }
 
 // Toggles the timer flag
@@ -275,30 +267,32 @@ ISR(TIMER1_COMPA_vect)
 	
 	output = prop + integral;
 	
-	//printf("Sending ref\n");
-	motor_control_set_velocity(output);
-	
+	motor_control_set_velocity(output);	
 }
 
 // Function for finding the encoder range
 unsigned int find_encoder_max()
 {
 	printf("In find encoder max");
+	
 	motor_control_set_velocity(80);
-	_delay_ms(1900);
+	_delay_ms(1900);	
 	motor_control_set_velocity(0);
-	_delay_ms(200);
+	_delay_ms(200);	
 	printf("Encoder value: %d\n",read_encoder());
 	encoder_reset();
+	
 	motor_control_set_velocity(-80);
 	_delay_ms(1200);
 	motor_control_set_velocity(0);
 	_delay_ms(100);
 	printf("\tEncoder value2: %d\n",read_encoder());
+	
 	uint16_t encoder = read_encoder();
 	motor_control_set_velocity(20);
 	_delay_ms(200);
 	motor_control_set_velocity(0);
+	
 	return encoder;
 }
 

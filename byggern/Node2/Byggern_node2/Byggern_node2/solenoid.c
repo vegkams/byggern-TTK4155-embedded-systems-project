@@ -9,7 +9,6 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
-
 #define SOLENOID PA1
 
 void setup_solenoid()

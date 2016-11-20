@@ -37,7 +37,4 @@ void motor_control_set_reference_pos(int pos);
 void motor_control_set_pid_gains(float p, float i, float d);
 void motor_control_reset_integrator();
 
-
-
-
 #endif /* MOTOR_CONTROL_H_ */

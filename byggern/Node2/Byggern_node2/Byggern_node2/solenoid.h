@@ -9,7 +9,6 @@
 #ifndef SOLENOID_H_
 #define SOLENOID_H_
 
-
 void setup_solenoid();
 void solenoid_shoot();
 

@@ -5,6 +5,7 @@
 *  Author: vegarkam
 * ||NODE 2||
 */
+
 #include "setup.h"
 #include "can.h"
 #include <avr/io.h>
@@ -24,8 +25,7 @@ uint8_t allowed_tries = 5;
 
 
 uint8_t can_init(){
-	mcp_2515_init();
-	
+	mcp_2515_init();	
 
 	// Mask/filter off, no rollover in receive buffer
 	mcp_2515_bit_modify(MCP_RXB0CTRL, 0x64, 0x60);
@@ -33,18 +33,8 @@ uint8_t can_init(){
 	// Interrupt enable when receive buffer 0 is full
 	mcp_2515_bit_modify(MCP_CANINTE,0xFF,MCP_RX0IF);
 	
-	// Enable interrupt on INT4
-	//set_bit(EIMSK,INT4);
-	// Interrupt on falling edge INT4
-	//set_bit(EICRB,ISC41);
-	//clear_bit(EICRB,ISC40);
-	
-	// Enable global interrupts
-	//sei();
 	return 0;
-
 }
-
 
 // Enable loopback mode, for testing without node 2
 uint8_t CAN_enable_loopback() {
@@ -55,15 +45,14 @@ uint8_t CAN_enable_loopback() {
 uint8_t CAN_enable_normal_mode() {
 	return mcp_2515_enable_normal_operation();
 }
+
 /************************************************************************/
 /* BUILD AND SEND CAN MESSAGE                                                                     */
 /************************************************************************/
 uint8_t can_send_message(can_message *can_message){
 	// Check if previous message was sent
 	if (can_transmit_complete()) {
-		unsigned int id= can_message->ID;
-
-		
+		unsigned int id= can_message->ID;		
 		uint8_t low_ID = id & 0xFF;
 		
 		// Standard frame, mask out lowest five bits of low_ID
@@ -81,6 +70,7 @@ uint8_t can_send_message(can_message *can_message){
 		}
 		
 		mcp_2515_request_to_send(MCP_RTS_TX0);
+		
 		return 1;
 	}
 	
@@ -96,18 +86,21 @@ uint8_t can_send_message(can_message *can_message){
 /*************************************/
 /* RECEIVE AND CONSTRUCT CAN MESSAGE */
 /*************************************/
-
 can_message* can_receive_message(can_message* the_message) {
 	unsigned int id;
+	
 	// Check if received flag was set
 	if(test_bit(mcp_2515_read(MCP_CANINTF), 0)) {
 		id = mcp_2515_read(MCP_RXB0SIDH) << 8 | mcp_2515_read(MCP_RXB0SIDL);
+		
 		// Mask out lowest 5 bits (only used for extended frames)
 		the_message->ID = (id >> 5);
 		the_message->length = mcp_2515_read(MCP_RXB0DLC);
+		
 		for(int i = 0; i < the_message->length; i++) {
 			the_message->data[i] = mcp_2515_read(MCP_RXB0D+i);
 		}
+		
 		mcp_2515_bit_modify(MCP_CANINTF, MCP_RX0IF,0);
 		message_received = 0;
 	}
@@ -116,17 +109,18 @@ can_message* can_receive_message(can_message* the_message) {
 		the_message->ID = 0;
 		the_message->length = 0;
 	}
-	return the_message;
-	
+	return the_message;	
 }
 
 // Check if there is a pending message in the receive buffer
 uint8_t can_data_received(){
 	return message_received;
 }
+
 // Check error flags in the transmit buffer control register TXB0CTRL
 uint8_t can_error(){
 	uint8_t error_flags = mcp_2515_read(MCP_TXB0CTRL);
+	
 	if(test_bit(error_flags,5))
 	{
 		printf("Message lost arbitration\n");
@@ -148,11 +142,11 @@ uint8_t can_error(){
 	return FALSE;
 }
 
-
 uint8_t can_transmit_complete(){
 	if (test_bit(mcp_2515_read(MCP_TXB0CTRL),3)) {
 		printf("Transmit not complete\n");
 		number_of_tries++;
+		
 		if(number_of_tries == allowed_tries) {
 			// Abort transmission
 			mcp_2515_bit_modify(MCP_TXB0CTRL,8,0);
@@ -162,22 +156,3 @@ uint8_t can_transmit_complete(){
 	}
 	else return TRUE;
 }
-
-
-//ISR(INT4_vect) {
-	//volatile uint8_t interrupt_code = mcp_2515_read(MCP_CANINTF);
-//
-	//if((interrupt_code & RXB0_AND_TXB0_INTERRUPT) == RXB0_AND_TXB0_INTERRUPT) {
-		//mcp_2515_bit_modify(MCP_CANINTF, MCP_TX0IF,0);
-		//mcp_2515_bit_modify(MCP_CANINTF, MCP_RX0IF,0);
-	//}
-	//if ((MERR_INTERRUPT & interrupt_code) == MERR_INTERRUPT) {
-		//// Clear message error flag
-		//mcp_2515_bit_modify(MCP_CANINTF, MCP_MERRF,0);
-	//}
-	//mcp_2515_bit_modify(MCP_CANINTF,MCP_RX0IF,0);
-//
-	//message_received = 1;
-	//
-//}
-
