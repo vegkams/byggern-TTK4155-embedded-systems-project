@@ -9,7 +9,7 @@
 #ifndef SETUP_H_
 #define SETUP_H_
 #define F_OSC 4915200L // Crystal oscillating frequency
-#define F_CPU 4915200L
+#define F_CPU 4915200L // Used in _delay_ms
 #define BAUD 9600 // Baud rate for RS 232
 #define MYUBRR ((((long)F_OSC)/(16L * (long)BAUD)) -1L)
 #define TRUE 1
@@ -21,10 +21,10 @@
 #define loop_until_bit_is_set( reg, bit ) while( !test_bit( reg, bit ) )
 #define loop_until_bit_is_clear( reg, bit ) while( test_bit( reg, bit ) )
 
-typedef union float_to_bytes{
+typedef union float_union_bytes{
 	float data_f;
 	uint8_t bytes[4];
-	} float_to_bytes;
+	} float_union_bytes;
 
 typedef union int_union_bytes{
 	int int_value;

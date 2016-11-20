@@ -10,7 +10,9 @@
 #include "setup.h"
 #include "OLED.h"
 
+// Command adress space 0x1000 - 0x1200
 volatile char *command_address = (char *) 0x1000;
+// Data adress space 0x1200 - 0x1400
 volatile char *data_address = (char *) 0x1200;
 uint8_t currentLine;
 uint8_t current_column;
@@ -18,9 +20,10 @@ uint8_t current_column;
 uint8_t getCurrentLine(){
 	return currentLine;
 }
+
+// Init functions copied from datasheet
 void oled_init(){
 	
-	//SFIOR |= (1 << XMM2);
 	
 	write_c(0xae);        //  display  off
 	write_c(0xa1);        //segment  remap
@@ -49,14 +52,17 @@ void oled_init(){
 	
 }
 
+// Write single command byte
 void write_c(unsigned char char_command){
 	*command_address= char_command;
 }
 
+// Write single data byte
 void write_d(unsigned char char_data){
 	*data_address = char_data;
 }
 
+// Clear entire display
 void oled_reset(){
 	for (int i = 0; i<8;i++){
 		oled_clear_line(i);
@@ -73,15 +79,15 @@ void oled_home(){
 	write_c(0x07);//end of page address
 	currentLine=0;
 }
+
 void oled_goto_line(uint8_t line){
 	if (line < 8){
 		currentLine=line;
 		write_c(0xb0 + line);
 	}
 }
-void oled_goto_column(uint8_t column){
-	//oled_goto_line(currentLine);
-	
+
+void oled_goto_column(uint8_t column){	
 	if(column*FONTWIDTH <= 127)
 	{
 		column = column*FONTWIDTH;
@@ -124,6 +130,7 @@ void oled_print_string(char* data)
 	}
 }
 
+// Prints an arrow pointing left on the given row and column
 void oled_print_arrow(uint8_t row,uint8_t col)
 {
 	oled_pos(row, col);

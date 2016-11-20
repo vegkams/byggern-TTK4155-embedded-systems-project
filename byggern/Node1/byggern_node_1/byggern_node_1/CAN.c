@@ -3,6 +3,8 @@
 *
 * Created: 05.10.2016 15:02:26
 *  Author: vegarkam
+*  High-level can driver for sending and receiving
+*  CAN-messages between node 1 and node 2
 */
 
 #include "can.h"
@@ -17,12 +19,13 @@
 #define RXB0_AND_TXB0_INTERRUPT 0x05
 #define MERR_INTERRUPT 0x80
 
-uint8_t message_received = FALSE;
-uint8_t transmit_complete = FALSE;
+uint8_t message_received = 0;
+uint8_t transmit_complete = 0;
 uint8_t number_of_tries;
 uint8_t allowed_tries = 5;
 
 uint8_t can_init(){
+	// Init can-controller
 	mcp_2515_init();
 	
 
@@ -62,8 +65,7 @@ uint8_t can_send_message(can_message *can_message){
 
 		
 		uint8_t low_ID = id & 0xFF;
-		low_ID = (low_ID << 5); 
-		// Standard frame, mask out lowest five bits of low_ID
+		low_ID = (low_ID << 5); // Lowest 5 bits not used in standard frame
 		uint8_t high_ID = (id >> 8);
 		
 		//writes the ID to the ID High and ID LOW
@@ -77,7 +79,7 @@ uint8_t can_send_message(can_message *can_message){
 		}
 		
 		mcp_2515_request_to_send(MCP_RTS_TX0);
-		return 1;
+		return 1; 
 	}
 	
 	else {
@@ -129,6 +131,7 @@ uint8_t can_error(){
 	if(test_bit(error_flags,4))
 	{
 		printf("Transmission error detected\n");
+		return 2;
 	}
 	if(test_bit(error_flags,6))
 	{
@@ -137,14 +140,15 @@ uint8_t can_error(){
 		mcp_2515_bit_modify(MCP_EFLG,0x40,0x40);
 		return 3;
 	}
-	return FALSE;
+	return 0;
 }
 
-
+// Check if last message was transmitted
 uint8_t can_transmit_complete(){
 	if (test_bit(mcp_2515_read(MCP_TXB0CTRL),3)) {
 		printf("CAN transmit not complete\n");
 		number_of_tries++;
+		// Abort transmission after 5 tries
 		if(number_of_tries == allowed_tries) {
 			// Abort transmission
 			mcp_2515_bit_modify(MCP_TXB0CTRL,8,0);

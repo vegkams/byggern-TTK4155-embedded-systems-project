@@ -34,6 +34,8 @@ direction joystick_getDirection(float x, float y);
 float convert_to_sliderpercentage(uint8_t digital_value);
 uint8_t joystick_get_right_slider();
 
+// Convert a direction to string literal
+// Useful when debugging
 static inline char *stringFromDirection(direction d)
 {
 	static const char *strings[] = { "UP", "DOWN", "LEFT", "RIGHT", "NEUTRAL"};

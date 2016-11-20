@@ -3,6 +3,9 @@
  *
  * Created: 21.09.2016 08:47:04
  *  Author: vegarkam
+ *  Driver for the joystick
+ *
+ *  Reads and translates the joystick inputs from the ADC
  */
 #include <avr/io.h>
 #include "setup.h"
@@ -10,6 +13,8 @@
 #include "joystick.h"
 float offset_x;
 float offset_y;
+
+
 void joystick_init()
 {
 	// Set PB0-1 as input
@@ -37,16 +42,18 @@ void read_joystick(joyValues *joy)
 	if (test_bit(PINB,PB2)) joy->joystick_button = 0;
 	else joy->joystick_button = 1;
 }
+
+// Read the joystick values when joystick is idle, use as offset
 void calibrate_joystick()
 {
 	offset_x = convert_to_percentage(read_ADC(1));
 	offset_y = convert_to_percentage(read_ADC(0));
-	printf("Calibrate: x: %d, y:%d\n",offset_x,offset_y);	
 }
 
+// Get the direction of the joystick
+// Needs to be moved 50% to be registered as a direction, else neutral
 direction joystick_getDirection(float x, float y)
 {
-	//printf("Joystick: x: %d y: %d\n",(int) x,(int) y);
 	direction d = NEUTRAL;
 	if (!(fabsf(x)<50 && fabsf(y)<50)) 
 	{
@@ -101,14 +108,14 @@ direction joystick_getDirection(float x, float y)
 	return d;
 }
 
-// Get Joystick position in percentage (center = 50%)
+// Get Joystick x position in percentage (center = 0%)
 float joystick_get_x_percentage()
 {
 	uint8_t data = read_ADC(1);
 	return convert_to_percentage(data) - offset_x;
 } 
 
-// Get Joystick position in percentage (center = 50%)
+// Get Joystick y position in percentage (center = 0%)
 float joystick_get_y_percentage()
 {
 	uint8_t data = read_ADC(0);
@@ -154,7 +161,7 @@ float convert_to_voltage(uint8_t digital_value)
 	return (value/255)*5;
 }
 
-// Convert digital value to percentage (0-255 -> 0-100%)
+// Convert digital value to percentage (0-255 -> -100% - 100%)
 float convert_to_percentage(uint8_t digital_value)
 {
 	float value = digital_value;

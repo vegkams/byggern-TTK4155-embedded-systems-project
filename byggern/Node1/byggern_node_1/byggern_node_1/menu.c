@@ -17,7 +17,6 @@
 direction    previousDIR = NEUTRAL;
 menu_t *     current_menu;
 menu_t       Mainmenu,Highscore, Newgame, Settings, Return;
-difficulty   GitGud = EASY;
 uint8_t      game_started = 0;
 char         first_place[8];
 char         second_place[8];
@@ -64,11 +63,11 @@ menu_t * menu_init (){
 	return &Mainmenu;
 }
 
+
+// Move the arrow on the OLED-screen
 uint8_t move_arrow(direction dir ,uint8_t current_row){
 	uint8_t row = current_row;
-	//printf("current row: %d\n",row);
 	uint8_t number_of_rows = current_menu -> number_of_children + OLED_OFFSET;
-	//printf(stringFromDirection(dir));
 	if(dir == previousDIR){
 		dir = NEUTRAL;
 	}
@@ -98,7 +97,7 @@ uint8_t move_arrow(direction dir ,uint8_t current_row){
 		case DOWN  :
 		{
 			if (row <= number_of_rows)
-			{		
+			{
 				oled_pos(row, 0);
 				oled_print_string("  ");
 				if (row == 7)
@@ -110,17 +109,18 @@ uint8_t move_arrow(direction dir ,uint8_t current_row){
 				previousDIR = DOWN;
 			}
 			break;
-		}		
+		}
 	}
 	return row;
 }
 
+// Print the current menu on the OLED
 void print_menu (menu_t *menu){
 	menu_t * current = menu;
 	oled_reset();
 	oled_home();
 	oled_pos(0,2);
-	oled_print_string(menu->name); //Skriver ut overskrift
+	oled_print_string(menu->name);
 	
 	if (menu->child1 != NULL)
 	{
@@ -155,7 +155,7 @@ void print_menu (menu_t *menu){
 	{
 		print_settings();
 	}
-		
+	
 }
 
 
@@ -164,8 +164,6 @@ void print_menu (menu_t *menu){
 uint8_t button_action (uint8_t current_line) {
 	// Fix "magic numbers", current_line = some menu etc.
 	// Should be independent of the actual linked list
-	// Change the struct to an array of children, and use current_line as index?
-	// Think that should work
 	
 	if (strcmp(current_menu->name, "MAIN MENU") == 0)
 	{
@@ -192,19 +190,22 @@ uint8_t button_action (uint8_t current_line) {
 	
 	else if (strcmp(current_menu->name, "SETTINGS") == 0)
 	{
+		// On debugging line
 		if (current_line == 2) {
 			oled_pos(current_line, 0);
 			oled_print_string("  ");
 		} // TODO Debugging
 		
+		
+		// On calibrate joystick line
 		else if (current_line == 3) {
 			oled_pos(current_line, 0);
 			oled_print_string("  ");
 			calibrate_joystick();
 			current_menu = current_menu->parent;
 			
-		} // TODO Calibrate joystick
-		
+		}
+		// Return on line 4
 		else if (current_line == 4) {
 			current_menu = current_menu -> parent;
 			oled_pos(current_line, 0);
@@ -215,6 +216,7 @@ uint8_t button_action (uint8_t current_line) {
 	}
 	
 	else if (strcmp(current_menu->name, "HIGH SCORE") == 0) {
+		// Return on line 5
 		if (current_line == 5)
 		{
 			current_menu = current_menu -> parent;
@@ -261,8 +263,8 @@ void navigateMenu(uint8_t current_line) {
 	}
 }
 
-// TODO save highscore in EEPROM??
-void print_highscore() 
+// Print the highscore list
+void print_highscore()
 {
 	oled_pos(2,2);
 	oled_print_string("1: ");
@@ -280,6 +282,7 @@ void print_highscore()
 	oled_print_string("RETURN");
 }
 
+// Print settings menu
 void print_settings()
 {
 	oled_pos(2,2);
@@ -297,17 +300,19 @@ void restart_game_mode(){
 	game_started = 0;
 }
 
+// Insert new score into the highscore list (if new score is high score)
 void set_high_score_list(int score)
 {
 	for (uint8_t i=0; i < 3; i++)
 	{
-		if (score > high_score[i])
+		if (score > high_score[i]) // insert new highscore in correct position in list
 		{
-			if (i == 2)
+			if (i == 2) // Last element, simply replace
 			{
 				high_score[i] = score;
 			}
-			else{
+			else // Move lower values down the list, insert in correct position
+			{
 				int k = 2;
 				while(k > i)
 				{
@@ -323,6 +328,7 @@ void set_high_score_list(int score)
 	// Sort list just in case
 	sort_list(high_score,3);
 
+	// Convert integers to strings
 	itoa(high_score[0], first_place,10);
 	itoa(high_score[1], second_place,10);
 	itoa(high_score[2], third_place,10);
@@ -347,6 +353,7 @@ void sort_list(int * list[], int size)
 	}
 }
 
+// Print game playing menu
 void menu_playing(uint8_t lives)
 {
 	oled_reset();
@@ -359,6 +366,7 @@ void menu_playing(uint8_t lives)
 	oled_print_string(itoa(lives,lives_int,10));
 }
 
+// Print the elapsed time
 void menu_print_played_time(int time)
 {
 	oled_pos(6,2);
@@ -367,6 +375,7 @@ void menu_print_played_time(int time)
 	oled_print_string(itoa(time,time_played,10));
 }
 
+// Clear the elapsed time on OLED
 void menu_reset_played_time()
 {
 	oled_pos(6,8);

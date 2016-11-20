@@ -12,7 +12,7 @@
 
 void setup_ADC();
 uint8_t read_ADC(uint8_t channel);
-void ADC_initiate_conversion(uint8_t channel);
+uint8_t ADC_initiate_conversion(uint8_t channel);
 
 
 #endif /* ADC_H_ */

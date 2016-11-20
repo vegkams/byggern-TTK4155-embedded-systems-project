@@ -3,6 +3,8 @@
  *
  * Created: 05.10.2016 12:07:27
  *  Author: vegarkam
+ *  
+ *  Driver for the MCP2515 CAN controller
  */ 
 
 #include "MCP2515.h"
@@ -49,7 +51,6 @@ uint8_t mcp_2515_enable_normal_operation()
 	// Enable normal operation in the CANCTRL-register
 	mcp_2515_bit_modify(MCP_CANCTRL,MODE_MASK,MODE_NORMAL);
 	// Check if normal mode is enabled
-	_delay_ms(10);
 	volatile uint8_t value = mcp_2515_read(MCP_CANSTAT);
 	if ((value & MODE_MASK) != MODE_NORMAL)
 	{
@@ -91,15 +92,6 @@ void mcp_2515_write(uint8_t address, uint8_t data){
 void mcp_2515_request_to_send(uint8_t buffer){
 	// Enable slave
 	spi_enable();
-	
-	//// Check three last bits of buffer-byte
-	//if(buffer <= 7) {
-		//// Set the RTS-command with the register we want to send from
-		//buffer = MCP_RTS | buffer;
-	//}
-	//// Invalid buffer, command will be ignored in MCP2515
-	//else buffer = MCP_RTS;
-	
 	spi_send(buffer);
 	
 	// Disable slave

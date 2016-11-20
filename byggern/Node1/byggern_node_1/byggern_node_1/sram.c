@@ -11,11 +11,6 @@
  #include "sram.h"
 
 int sram_setup(void) {
-	// Enable external memory
-	//set_bit(MCUCR,SRE);
-	// Mask PC7-PC4
-	//set_bit(SFIOR,XMM2);
-	//SFIOR |= (1 << XMM2);
 	return 0;
 }
 
