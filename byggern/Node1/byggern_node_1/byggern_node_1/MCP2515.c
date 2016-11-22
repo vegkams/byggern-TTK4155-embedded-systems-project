@@ -16,7 +16,6 @@
 
 uint8_t mcp_2515_init(){
 	volatile uint8_t value;
-	
 	spi_init();
 	mcp_2515_reset();
 	_delay_ms(10);
@@ -119,10 +118,8 @@ void mcp_2515_bit_modify(uint8_t address, uint8_t mask, uint8_t data){
 void mcp_2515_reset(){
 	// Enable slave
 	spi_enable();
-	
 	// Send reset-command
 	spi_send(MCP_RESET);
-	
 	// Disable slave
 	spi_disable();
 }

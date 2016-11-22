@@ -26,7 +26,6 @@ void enable_motor(uint8_t enable);
 void enable_encoder(uint8_t enable);
 void encoder_reset();
 void motor_control_set_velocity(int velocity);
-uint8_t reverse_bits(char x);
 int saturate(int vel);
 unsigned int find_encoder_max();
 void motor_control_reset_timer();
@@ -36,5 +35,6 @@ void motor_control_set_timer_flag(uint8_t flag);
 void motor_control_set_reference_pos(int pos);
 void motor_control_set_pid_gains(float p, float i, float d);
 void motor_control_reset_integrator();
+void calculate_pid();
 
 #endif /* MOTOR_CONTROL_H_ */

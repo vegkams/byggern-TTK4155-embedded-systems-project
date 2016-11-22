@@ -41,4 +41,5 @@ void set_high_score_list(int score);
 void menu_playing(uint8_t lives);
 void menu_print_played_time(int time);
 void menu_reset_played_time();
+void reset_highscore();
 #endif /* MENU_H_ */

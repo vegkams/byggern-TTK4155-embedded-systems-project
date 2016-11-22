@@ -70,9 +70,11 @@ int main(void)
 				
 				averaged_value = accumulated_value/5;
 				accumulated_value = 0;
-				if (averaged_value < 20) {
+				//printf("Averaged value: %d\n",averaged_value);
+				if (averaged_value < 15) {
 					averaged_value=0;
 					goal_scored();
+					motor_control_set_velocity(0);
 				}
 			}
 		}		
@@ -109,11 +111,12 @@ int main(void)
 					previous_joystick_button = values.joystick_button;
 					solenoid_shoot();
 				}
+				calculate_pid();
 				break;
 			}			
 			
 			case 2: //Playing data
-			{				
+			{			
 				if(received->data[0] == 1)
 				{
 					paused = FALSE;
@@ -122,7 +125,7 @@ int main(void)
 					motor_control_set_timer_flag(TRUE);
 					
 				}
-				else if (received->data[0]==0)
+				else if (received->data[0] == 0)
 				{
 					paused = TRUE;
 					motor_control_set_playing_flag(FALSE);
@@ -159,6 +162,7 @@ int main(void)
 					}
 					
 					motor_control_set_reference_pos(pos_ref);
+					calculate_pid();
 					pwm_set_angle(-angle,1);
 				}
 				break;
@@ -167,6 +171,7 @@ int main(void)
 			case MFB:
 			{
 				if (closed_loop) {
+					//printf("Slider: %d\n",slider);
 					motor_control_set_reference_pos(slider);
 					if(abs(x_axis.int_value - prev_x_axis)>3) pwm_set_angle(-x_axis.int_value,1);
 					prev_x_axis = x_axis.int_value;

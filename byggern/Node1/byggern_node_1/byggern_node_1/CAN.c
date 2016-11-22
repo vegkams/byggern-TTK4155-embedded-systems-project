@@ -27,7 +27,6 @@ uint8_t allowed_tries = 5;
 uint8_t can_init(){
 	// Init can-controller
 	mcp_2515_init();
-	
 
 	// Mask/filter off, no rollover in receive buffer
 	mcp_2515_bit_modify(MCP_RXB0CTRL, 0x64, 0x60);

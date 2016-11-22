@@ -11,6 +11,9 @@
 #include "OLED.h"
 #include "menu.h"
 #include <string.h>
+#include "eeprom.h"
+#include <avr/eeprom.h>
+#include <util/delay.h>
 #include "joystick.h"
 #define OLED_OFFSET 0
 
@@ -34,6 +37,27 @@ menu_t * menu_init (){
 		high_score[i] = 0;
 	}
 	sort_list(high_score,3);
+
+	int first = eeprom_read_word((uint16_t*)0);
+	int second = eeprom_read_word((uint16_t*)2);
+	int third = eeprom_read_word((uint16_t*)4);
+	
+	if (first > 0)
+	{
+		high_score[0] = first;
+	}
+	
+	if (second > 0)
+	{
+		high_score[1] = second;
+	}
+	
+	if (third > 0)
+	{
+		high_score[2] = third;
+	}
+	
+	
 	//Main menu
 	Mainmenu.name = "MAIN MENU";
 	Mainmenu.child1 = &Newgame;
@@ -51,7 +75,7 @@ menu_t * menu_init (){
 	Highscore.child4 = &Return;
 	Settings.name = "SETTINGS";
 	Settings.parent = &Mainmenu;
-	Settings.number_of_children = 3;
+	Settings.number_of_children = 4;
 	Settings.child3 = &Return;
 	Return.name = "RETURN";
 	Return.parent = &Mainmenu;
@@ -116,7 +140,7 @@ uint8_t move_arrow(direction dir ,uint8_t current_row){
 
 // Print the current menu on the OLED
 void print_menu (menu_t *menu){
-	menu_t * current = menu;
+	current_menu = menu;
 	oled_reset();
 	oled_home();
 	oled_pos(0,2);
@@ -205,8 +229,13 @@ uint8_t button_action (uint8_t current_line) {
 			current_menu = current_menu->parent;
 			
 		}
-		// Return on line 4
-		else if (current_line == 4) {
+		
+		else if (current_line == 4)
+		{
+			reset_highscore();
+		}
+		// Return on line 5
+		else if (current_line == 5) {
 			current_menu = current_menu -> parent;
 			oled_pos(current_line, 0);
 			oled_print_string("  ");
@@ -290,6 +319,8 @@ void print_settings()
 	oled_pos(3,2);
 	oled_print_string("CAL. JOYSTCK.");
 	oled_pos(4,2);
+	oled_print_string("RST HGHSCR");
+	oled_pos(5,2);
 	oled_print_string("RETURN");
 }
 
@@ -327,6 +358,16 @@ void set_high_score_list(int score)
 	}
 	// Sort list just in case
 	sort_list(high_score,3);
+	int_union_bytes first;
+	int_union_bytes second;
+	int_union_bytes third;
+	first.int_value = high_score[0];
+	second.int_value = high_score[1];
+	third.int_value = high_score[2];
+	// Store highscore in eeprom
+	eeprom_write_word((uint16_t*)0,high_score[0]);
+	eeprom_write_word((uint16_t*)2,high_score[1]);
+	eeprom_write_word((uint16_t*)4,high_score[2]);
 
 	// Convert integers to strings
 	itoa(high_score[0], first_place,10);
@@ -371,6 +412,7 @@ void menu_print_played_time(int time)
 {
 	oled_pos(6,2);
 	oled_print_string("TIME:");
+	menu_reset_played_time();
 	oled_pos(6,8);
 	oled_print_string(itoa(time,time_played,10));
 }
@@ -379,5 +421,29 @@ void menu_print_played_time(int time)
 void menu_reset_played_time()
 {
 	oled_pos(6,8);
-	oled_print_string("     ");
+	oled_print_string("        ");
+}
+
+void reset_highscore()
+{
+	// Set high score to 0
+	for (int i = 0; i < 3; i++)
+	{
+		high_score[i] = 0;
+	}
+	// Reset high score in eeprom
+	eeprom_write_word((uint16_t*)0,high_score[0]);
+	eeprom_write_word((uint16_t*)2,high_score[1]);
+	eeprom_write_word((uint16_t*)4,high_score[2]);
+	
+	// Convert integers to strings
+	itoa(high_score[0], first_place,10);
+	itoa(high_score[1], second_place,10);
+	itoa(high_score[2], third_place,10);
+	
+	oled_reset();
+	oled_pos(3,2);
+	oled_print_string("HGHSCR RST!");
+	_delay_ms(500);
+	print_menu(current_menu);
 }

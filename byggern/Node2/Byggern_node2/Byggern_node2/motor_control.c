@@ -28,6 +28,7 @@ static int playing_flag;
 unsigned int encoder_max;
 int clock_seconds;
 uint8_t counter;
+uint8_t pid_flag;
 int16_t reference_value;
 float error_sum;
 float kp;
@@ -155,14 +156,6 @@ void encoder_reset()
 }
 
 
-uint8_t reverse_bits(char x)
-{
-	x = ((x & 0x55) << 1) | ((x & 0xaa) >> 1);
-	x = ((x & 0x33) << 2) | ((x & 0xcc) >> 2);
-	x = ((x & 0x0f) << 4) | ((x & 0xf0) >> 4);
-	return x;
-}
-
 // Set motor velocity, check for acceptable values and limit the output
 void motor_control_set_velocity(int velocity)
 {
@@ -177,7 +170,7 @@ void motor_control_set_velocity(int velocity)
 	else
 	{
 		set_motor_direction(1);
-	}	
+	}
 }
 
 // Toggles the timer flag
@@ -223,6 +216,43 @@ void motor_control_set_pid_gains(float p, float i, float d)
 	kd = d;
 }
 
+void calculate_pid()
+{
+	// Use PID when playing
+	if(!playing_flag)
+	{
+		return;
+	}
+	if(pid_flag)
+	{
+		long encoder_value = read_encoder();
+		
+		if((int)encoder_value < 0){
+			encoder_value = 0L;
+		}
+		
+		float error;
+		int16_t output;
+		error = reference_value - ((encoder_value*255)/encoder_max);
+		if (abs(error) < 3)
+		{
+			motor_control_set_speed(0);
+			return;
+		}
+		if ((int) error_sum < integrator_max)
+		{
+			error_sum += dt*error;
+		}
+		int prop = -kp*error;
+		int integral = - ki*error_sum;
+		
+		output = prop + integral;
+		
+		motor_control_set_velocity(output);
+		pid_flag = FALSE;
+	}
+}
+
 // ISR for the PID controller
 ISR(TIMER1_COMPA_vect)
 {
@@ -237,37 +267,7 @@ ISR(TIMER1_COMPA_vect)
 			clock_seconds ++;
 		}
 	}
-	
-	// Use PID when playing
-	if(!playing_flag)
-	{
-		return;
-	}
-	
-	long encoder_value = read_encoder();
-	
-	if((int)encoder_value < 0){
-		encoder_value = 0L;
-	}
-	
-	float error;
-	int16_t output;
-	error = reference_value - ((encoder_value*255)/encoder_max);
-	if (abs(error) < 3)
-	{
-		motor_control_set_speed(0);
-		return;
-	}
-	if ((int) error_sum < integrator_max)
-	{
-		error_sum += dt*error;
-	}
-	int prop = -kp*error;
-	int integral = - ki*error_sum;
-	
-	output = prop + integral;
-	
-	motor_control_set_velocity(output);	
+	pid_flag = TRUE;
 }
 
 // Function for finding the encoder range
@@ -276,20 +276,20 @@ unsigned int find_encoder_max()
 	printf("In find encoder max");
 	
 	motor_control_set_velocity(80);
-	_delay_ms(1900);	
+	_delay_ms(1000);
 	motor_control_set_velocity(0);
-	_delay_ms(200);	
+	_delay_ms(200);
 	printf("Encoder value: %d\n",read_encoder());
 	encoder_reset();
 	
 	motor_control_set_velocity(-80);
-	_delay_ms(1200);
+	_delay_ms(1000);
 	motor_control_set_velocity(0);
 	_delay_ms(100);
 	printf("\tEncoder value2: %d\n",read_encoder());
 	
 	uint16_t encoder = read_encoder();
-	motor_control_set_velocity(20);
+	motor_control_set_velocity(80);
 	_delay_ms(200);
 	motor_control_set_velocity(0);
 	

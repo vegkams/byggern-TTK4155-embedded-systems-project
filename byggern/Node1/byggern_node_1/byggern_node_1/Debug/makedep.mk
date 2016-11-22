@@ -6,6 +6,8 @@ ADC.c
 
 CAN.c
 
+eeprom.c
+
 joystick.c
 
 main.c

@@ -24,8 +24,8 @@ void setup_solenoid()
 void solenoid_shoot()
 {
 	clear_bit(PORTA,SOLENOID);
-	uint8_t counter= 0;
-	while(counter<30)
+	uint8_t counter = 0;
+	while(counter < 30)
 	{
 		if (TCNT0 >= 100)
 		{

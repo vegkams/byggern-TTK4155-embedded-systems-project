@@ -48,11 +48,13 @@ int main(void)
 			mode_t = PLAYING;
 			if (!game_initialized)
 			{
+				menu_print_played_time(time_seconds);
 				enable_can_timer();
 				// Send game start message to node 2
 				sendmessage->ID = 2;
 				sendmessage->length = 1;
 				sendmessage->data[0] = 1;
+				can_send_message(sendmessage);
 				game_initialized = TRUE;
 				pause = FALSE;
 			}
@@ -100,7 +102,7 @@ void in_menus(){
 
 void playing_the_game(){
 	send_joystick_data();
-	menu_print_played_time(time_seconds);
+	
 	if(can_data_received() > 0) {
 		// Receive the message
 		can_message* receivemessage = malloc(sizeof(can_message));
@@ -109,6 +111,7 @@ void playing_the_game(){
 			// Message ID = 3 -> Loss of point in game
 			lives--;
 			menu_playing(lives);
+			menu_print_played_time(time_seconds);
 			// Receive played time
 			score.byte_value[0] = receivemessage -> data[0];
 			score.byte_value[1] = receivemessage -> data[1];
@@ -132,6 +135,7 @@ void playing_the_game(){
 	if(j.right_button == 1){
 		disable_can_timer();
 		menu_reset_played_time();
+		time_seconds = 0;
 		// Tell node 2 to stop the game
 		sendmessage->ID = 2;
 		sendmessage->length = 1;
@@ -220,7 +224,10 @@ void initializations(){
 	joystick_init();
 	oled_init();
 	main_menu = menu_init();
+	printf("Etter menu init");
 	can_init();
+	printf("Can init");
+	calibrate_joystick();
 	printf("Enable CAN normal mode: %d\n",CAN_enable_normal_mode());
 	// Run CAN timer on 50Hz
 	//Trigger interrupt with interval of 50hz
@@ -262,8 +269,6 @@ ISR(TIMER1_COMPA_vect )
 		// 1 second passed
 		counter = 0;
 		time_seconds ++;
-		menu_reset_played_time();
 		menu_print_played_time(time_seconds);
-	}
-	
+	}	
 }
